@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Holy Family International School - Student Outpass Portal</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="icon" type="image/png" href="assets/hofis.png" />
+</head>
+<body>
+
+  <!-- Official School Navbar Section -->
+  <header class="school-navbar">
+    <div class="navbar-container">
+      
+      <!-- Brand & School Logo -->
+      <a href="index.html" class="navbar-brand-wrap">
+        <img src="assets/hofis.png" alt="Holy Family International School Logo" class="navbar-logo-img" />
+        <span class="brand-divider"></span>
+        <span class="portal-tagline">Outpass Portal</span>
+      </a>
+
+      <!-- Navigation Links -->
+      <nav class="navbar-menu">
+        <a href="index.html" class="nav-link-item active">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+          </svg>
+          Parent Portal
+        </a>
+        <a href="login.html" class="nav-link-item">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+          Staff & Security
+        </a>
+        <button type="button" class="nav-link-item" onclick="openNavModal('guidelinesModal')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+          </svg>
+          Guidelines
+        </button>
+        <button type="button" class="nav-link-item" onclick="openNavModal('helpdeskModal')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+          </svg>
+          Helpdesk
+        </button>
+      </nav>
+
+      <!-- Right Actions: AWS Status -->
+      <div class="navbar-actions">
+        <div class="aws-cloud-pill">
+          <span class="dot"></span>
+          <span>AWS Serverless</span>
+        </div>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Centered Viewport Wrapper -->
+  <main class="center-viewport">
+    <div class="card-container">
+
+      <!-- School Crest & Header -->
+      <div class="card-school-brand">
+        <img src="assets/hofis.png" alt="Holy Family International School" class="school-logo-banner" />
+      </div>
+
+      <!-- Step Progress Indicators -->
+      <div class="step-progress-bar">
+        <div class="progress-dot active" id="dot1"></div>
+        <div class="progress-dot" id="dot2"></div>
+        <div class="progress-dot" id="dot3"></div>
+        <div class="progress-dot" id="dot4"></div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- STEP 1: Search Admission Number Only       -->
+      <!-- ========================================== -->
+      <section class="step-view active-view" id="stepView1">
+        <div class="step-header">
+          <h2 class="step-title">Student Outpass Request</h2>
+          <p class="step-subtitle">Enter student admission number to begin</p>
+        </div>
+
+        <form id="formStep1" onsubmit="return false;">
+          <div class="form-group">
+            <label class="form-label" for="admissionInput">
+              Admission Number <span class="required">*</span>
+            </label>
+            <input
+              type="text"
+              id="admissionInput"
+              class="form-control"
+              placeholder="e.g. 12345"
+              autocomplete="off"
+              autofocus
+              required
+            />
+          </div>
+
+          <button type="submit" id="btnSearch" class="btn btn-primary">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            Search Student
+          </button>
+        </form>
+
+        <!-- Quick Test Chips -->
+        <div class="quick-tests">
+          <span class="quick-tests-label">Sample Admission Numbers (Book1.xlsx):</span>
+          <div class="chips-row">
+            <button type="button" class="chip-btn" data-adm="12345">12345 (ALBIN)</button>
+            <button type="button" class="chip-btn" data-adm="10021">10021 (Sarah)</button>
+            <button type="button" class="chip-btn" data-adm="10022">10022 (Aarav)</button>
+            <button type="button" class="chip-btn" data-adm="10023">10023 (Hannah)</button>
+          </div>
+        </div>
+
+        <!-- Alert -->
+        <div id="step1Alert" class="alert alert-danger" style="display: none;"></div>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- STEP 2: Read-Only Student Details & Confirm-->
+      <!-- ========================================== -->
+      <section class="step-view" id="stepView2">
+        <div class="step-header">
+          <h2 class="step-title">Student Details</h2>
+          <p class="step-subtitle">Please verify your child's information below</p>
+        </div>
+
+        <div class="readonly-student-box">
+          <div class="readonly-header">
+            <span class="readonly-badge">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+              School Record (Read-Only)
+            </span>
+            <span class="verified-pill">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              Verified
+            </span>
+          </div>
+
+          <div class="readonly-content">
+            <div class="readonly-row">
+              <span class="readonly-lbl">Student Name</span>
+              <span class="readonly-val" id="viewStudentName">-</span>
+            </div>
+            <div class="readonly-row">
+              <span class="readonly-lbl">Admission Number</span>
+              <span class="readonly-val" id="viewAdmissionNo">-</span>
+            </div>
+            <div class="readonly-row">
+              <span class="readonly-lbl">Father's Name</span>
+              <span class="readonly-val" id="viewFatherName">-</span>
+            </div>
+            <div class="readonly-row">
+              <span class="readonly-lbl">Class & Division</span>
+              <span class="readonly-val" id="viewClassDiv">-</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Last Submitted Outpass Status Banner -->
+        <div id="step2ExistingAlert" class="student-history-banner" style="display: none;">
+          <div class="history-banner-header">
+            <span>📋</span>
+            <span id="step2HistorySummary">Last Submitted Outpass</span>
+          </div>
+          <div id="step2HistoryList" class="history-chip-list"></div>
+        </div>
+
+        <button type="button" id="btnConfirmStudent" class="btn btn-primary">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          Confirm Details & Proceed
+        </button>
+
+        <button type="button" id="btnBackToStep1" class="btn-text">
+          ← Search a different admission number
+        </button>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- STEP 3: Outpass Form (Reason, Time, Email) -->
+      <!-- ========================================== -->
+      <section class="step-view" id="stepView3">
+        <div class="step-header">
+          <h2 class="step-title">Outpass Details</h2>
+          <p class="step-subtitle">
+            For: <strong id="outpassStudentBadge" style="color: var(--primary);">-</strong>
+          </p>
+        </div>
+
+        <form id="formOutpass">
+          <!-- Reason Field -->
+          <div class="form-group">
+            <label class="form-label" for="reasonInput">
+              Reason for Leaving School <span class="required">*</span>
+            </label>
+
+            <!-- Quick Chips -->
+            <div class="reason-chips">
+              <button type="button" class="reason-chip" data-reason="Medical appointment / Doctor visit">🩺 Medical / Doctor</button>
+              <button type="button" class="reason-chip" data-reason="Feeling unwell, visited sick bay">🤒 Feeling Unwell</button>
+              <button type="button" class="reason-chip" data-reason="Urgent family emergency">🏠 Family Emergency</button>
+              <button type="button" class="reason-chip" data-reason="Attending family function">🎉 Family Function</button>
+              <button type="button" class="reason-chip" data-reason="Other">✏️ Other</button>
+            </div>
+
+            <textarea
+              id="reasonInput"
+              class="form-control"
+              rows="3"
+              placeholder="Explain the reason for leaving school..."
+              required
+            ></textarea>
+          </div>
+
+          <!-- Date & Time Picker -->
+          <div class="form-group">
+            <label class="form-label" for="leaveTimeInput">
+              Date & Time to Leave <span class="required">*</span>
+            </label>
+            <input
+              type="datetime-local"
+              id="leaveTimeInput"
+              class="form-control"
+              required
+            />
+            <span class="field-hint" id="leaveTimeHint">
+              Departure time must be in the future (today or within the next 7 days).
+            </span>
+            <div id="leaveTimeError" class="alert alert-danger" style="display: none; margin-top: 8px;"></div>
+
+            <!-- Existing Outpass on Selected Date Alert Card -->
+            <div id="existingPassCard" class="existing-pass-card" style="display: none;">
+              <div class="existing-pass-header">
+                <div class="existing-pass-title">
+                  <span id="existingPassIcon">⚠️</span>
+                  <span id="existingPassHeading">Outpass Already Submitted for this Date</span>
+                </div>
+                <span id="existingPassStatusPill" class="status-pill status-pending">PENDING</span>
+              </div>
+              
+              <p id="existingPassMsg" class="existing-pass-msg">
+                An outpass has already been submitted for this date with status: <strong id="existingPassStatusName">PENDING</strong>.
+              </p>
+
+              <div class="existing-pass-details">
+                <div class="detail-row">
+                  <span class="lbl">Outpass Ref ID:</span>
+                  <span class="val mono" id="existingPassId">-</span>
+                </div>
+                <div class="detail-row">
+                  <span class="lbl">Departure Time:</span>
+                  <span class="val" id="existingPassTime">-</span>
+                </div>
+                <div class="detail-row">
+                  <span class="lbl">Reason Recorded:</span>
+                  <span class="val" id="existingPassReason">-</span>
+                </div>
+                <div class="detail-row">
+                  <span class="lbl">Current Status:</span>
+                  <span class="val" id="existingPassStatusText" style="font-weight: 800;">PENDING</span>
+                </div>
+              </div>
+
+              <div id="existingPassNotice" class="existing-pass-notice"></div>
+            </div>
+          </div>
+
+          <!-- Parent Email Address -->
+          <div class="form-group">
+            <label class="form-label" for="parentEmailInput">
+              Parent Email Address <span class="required">*</span>
+            </label>
+            <input
+              type="email"
+              id="parentEmailInput"
+              class="form-control"
+              placeholder="parent@example.com"
+              required
+            />
+            <span class="field-hint">
+              Approval notification and official digital outpass will be sent to this email address.
+            </span>
+          </div>
+
+          <!-- Submit Button -->
+          <button type="submit" id="btnSubmitOutpass" class="btn btn-primary">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="22" y1="2" x2="11" y2="13"></line>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+            </svg>
+            Submit Outpass Request
+          </button>
+
+          <button type="button" id="btnBackToStep2" class="btn-text">
+            ← Back to Student Details
+          </button>
+        </form>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- STEP 4: Submission Confirmation Message    -->
+      <!-- ========================================== -->
+      <section class="step-view" id="stepView4">
+        <div class="success-box">
+          <div class="success-icon-wrap">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </div>
+
+          <h2 class="success-headline">Outpass Request Submitted!</h2>
+
+          <!-- The exact requested notification message -->
+          <div class="success-msg-box">
+            <p class="success-msg-text">
+              <strong>Your outpass request has been submitted successfully!</strong>
+              <br /><br />
+              You will be notified with the outpass after school administration approves it.
+              Please check your email: <br />
+              <span class="success-email-highlight" id="confirmEmailDisplay">parent@example.com</span>
+            </p>
+          </div>
+
+          <!-- Summary breakdown -->
+          <div class="submission-summary">
+            <div class="summary-item">
+              <span class="k">Outpass Ref ID:</span>
+              <span class="v" id="confirmOutpassId" style="font-family: monospace;">-</span>
+            </div>
+            <div class="summary-item">
+              <span class="k">Student:</span>
+              <span class="v" id="confirmStudentName">-</span>
+            </div>
+            <div class="summary-item">
+              <span class="k">Departure Time:</span>
+              <span class="v" id="confirmLeaveTime">-</span>
+            </div>
+            <div class="summary-item">
+              <span class="k">Current Status:</span>
+              <span class="v" style="color: #b45309;">PENDING ADMIN APPROVAL</span>
+            </div>
+          </div>
+
+          <button type="button" id="btnResetAll" class="btn btn-primary">
+            Submit Another Outpass Request
+          </button>
+
+          <a href="login.html" class="btn btn-secondary">
+            View in Staff / Security Portal
+          </a>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Portal Footer -->
+  <footer class="portal-footer">
+    © Holy Family International School (HOFIS). Moulding winners of life. Powered by AWS Cognito, Lambda & DynamoDB.
+  </footer>
+
+  <!-- Guidelines Modal -->
+  <div id="guidelinesModal" class="navbar-modal-backdrop">
+    <div class="navbar-modal-box">
+      <div class="modal-header-row">
+        <h3>📋 School Outpass Guidelines</h3>
+        <button type="button" class="modal-close-btn" onclick="closeNavModal('guidelinesModal')">✕</button>
+      </div>
+      <div class="modal-list-item">
+        <span>1.</span>
+        <span><strong>Advance Application:</strong> Outpasses can be requested for today or up to 7 calendar days in advance.</span>
+      </div>
+      <div class="modal-list-item">
+        <span>2.</span>
+        <span><strong>Timing Rule:</strong> If applying for today, the departure time must be strictly in the future (past dates and past times are blocked).</span>
+      </div>
+      <div class="modal-list-item">
+        <span>3.</span>
+        <span><strong>Email Notification:</strong> Parents receive an automated digital outpass via email once approved by school administration.</span>
+      </div>
+      <div class="modal-list-item">
+        <span>4.</span>
+        <span><strong>School Exit Verification:</strong> Before leaving school, tell the student's admission number to the class teacher. They will verify the approved outpass, after which you may leave.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Helpdesk Modal -->
+  <div id="helpdeskModal" class="navbar-modal-backdrop">
+    <div class="navbar-modal-box">
+      <div class="modal-header-row">
+        <h3>📞 School Contact & Helpdesk</h3>
+        <button type="button" class="modal-close-btn" onclick="closeNavModal('helpdeskModal')">✕</button>
+      </div>
+      <div class="modal-list-item">
+        <span>🏫</span>
+        <span><strong>Holy Family International School</strong><br>Main Administrative Office</span>
+      </div>
+      <div class="modal-list-item">
+        <span>📞</span>
+        <span><strong>Phone:</strong> +91 98765 43210 / +91 484 2345678</span>
+      </div>
+      <div class="modal-list-item">
+        <span>✉️</span>
+        <span><strong>Email:</strong> office@hofis.edu / outpass@hofis.edu</span>
+      </div>
+      <div class="modal-list-item">
+        <span>🛡️</span>
+        <span><strong>Main Gate Security Office:</strong> Intercom Ext 104</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/aws-config.js"></script>
+  <script src="js/navbar.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

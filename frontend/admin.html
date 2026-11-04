@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Staff & Gate Security Portal - Holy Family International School</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="icon" type="image/png" href="assets/hofis.png" />
+  <style>
+    /* Full Viewport Non-Scrolling Table Architecture */
+    body {
+      background-color: #f1f5f9;
+      overflow-x: hidden;
+    }
+
+    .admin-container {
+      width: 98%;
+      max-width: 1440px;
+      margin: 16px auto 32px auto;
+      padding: 0 10px;
+    }
+
+    /* Gatekeeper Scanner Card */
+    .gate-lookup-card {
+      background: #ffffff;
+      border: 1.5px solid #bfdbfe;
+      border-radius: 14px;
+      padding: 16px 20px;
+      margin-bottom: 18px;
+      box-shadow: 0 4px 15px -3px rgba(2, 132, 199, 0.08);
+    }
+
+    .gate-card-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 1rem;
+      font-weight: 800;
+      color: #0369a1;
+      margin-bottom: 2px;
+    }
+
+    .gate-card-subtitle {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+
+    .gate-search-form {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .gate-search-form .form-control {
+      flex: 1;
+      padding: 10px 14px;
+      font-size: 0.9rem;
+    }
+
+    .gate-search-btn {
+      width: auto !important;
+      padding: 10px 20px !important;
+      font-size: 0.9rem !important;
+      font-weight: 700;
+      white-space: nowrap;
+      border-radius: 10px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Stats Grid */
+    .admin-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .stat-card {
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 14px 16px;
+      box-shadow: var(--shadow-sm);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .stat-card.active-stat {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px var(--primary-glow);
+    }
+
+    .stat-card .num {
+      font-size: 1.8rem;
+      font-weight: 800;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .stat-card .lbl {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    /* Table Control Card */
+    .table-control-card {
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+      width: 100%;
+    }
+
+    .filter-sort-toolbar {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      background: #ffffff;
+    }
+
+    .filter-pills-wrap {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .filter-pill-btn {
+      padding: 5px 12px;
+      border-radius: 9999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      border: 1px solid var(--border-color);
+      background: #f8fafc;
+      color: var(--text-dark);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.15s ease;
+    }
+
+    .filter-pill-btn:hover {
+      background: #e2e8f0;
+    }
+
+    .filter-pill-btn.active {
+      background: var(--primary);
+      color: #ffffff;
+      border-color: var(--primary);
+    }
+
+    .filter-pill-btn .badge-count {
+      padding: 1px 5px;
+      border-radius: 9999px;
+      font-size: 0.7rem;
+      background: rgba(0, 0, 0, 0.08);
+    }
+
+    .filter-pill-btn.active .badge-count {
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    .sort-control-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .sort-label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    .sort-select {
+      padding: 6px 10px;
+      border-radius: 8px;
+      border: 1.5px solid var(--border-color);
+      font-size: 0.8rem;
+      font-weight: 600;
+      background: #ffffff;
+      color: var(--text-dark);
+      outline: none;
+      cursor: pointer;
+    }
+
+    .btn-refresh-sm {
+      width: auto !important;
+      padding: 6px 12px !important;
+      font-size: 0.8rem !important;
+      border-radius: 8px !important;
+    }
+
+    /* Fixed Layout Table Without Any Horizontal Scrollbar */
+    .table-wrap {
+      width: 100%;
+      overflow-x: hidden !important; /* Strict: NO horizontal scrollbar */
+    }
+
+    .outpass-table {
+      width: 100% !important;
+      table-layout: fixed !important; /* Fixed percentage columns */
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    .outpass-table th {
+      background: #f8fafc;
+      padding: 10px 12px;
+      font-weight: 700;
+      color: #475569;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1.5px solid #e2e8f0;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+
+    .outpass-table td {
+      padding: 12px 10px;
+      border-bottom: 1px solid #f1f5f9;
+      vertical-align: middle;
+      font-size: 0.84rem;
+    }
+
+    .outpass-table tr:hover {
+      background-color: #f8fafc;
+    }
+
+    /* Status Badges */
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      padding: 4px 8px;
+      border-radius: 9999px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      white-space: nowrap;
+    }
+
+    .status-pill.status-pending {
+      background: #fef3c7;
+      color: #92400e;
+      border: 1px solid #fde68a;
+    }
+
+    .status-pill.status-approved {
+      background: #d1fae5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+    }
+
+    .status-pill.status-cancelled,
+    .status-pill.status-rejected {
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+
+    .status-pill.status-exited {
+      background: #e0f2fe;
+      color: #0369a1;
+      border: 1px solid #bae6fd;
+    }
+
+    /* Action buttons in Table */
+    .table-actions {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    .btn-action {
+      padding: 5px 10px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .btn-action-approve {
+      background: #10b981;
+      color: #ffffff;
+    }
+    .btn-action-approve:hover {
+      background: #059669;
+    }
+
+    .btn-action-cancel {
+      background: #ef4444;
+      color: #ffffff;
+    }
+    .btn-action-cancel:hover {
+      background: #dc2626;
+    }
+
+    .btn-action-exit {
+      background: #0284c7;
+      color: #ffffff;
+    }
+    .btn-action-exit:hover {
+      background: #0369a1;
+    }
+
+    /* Gate Fast Verification Result Banner */
+    .gate-result-banner {
+      display: none;
+      margin-top: 10px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .gate-result-valid {
+      background: #ecfdf5;
+      color: #065f46;
+      border: 1.5px solid #a7f3d0;
+    }
+
+    .gate-result-invalid {
+      background: #fef2f2;
+      color: #991b1b;
+      border: 1.5px solid #fecaca;
+    }
+
+    @media (max-width: 1024px) {
+      .admin-stats-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+    @media (max-width: 640px) {
+      .admin-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .filter-sort-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Official School Navbar Section -->
+  <header class="school-navbar">
+    <div class="navbar-container">
+      
+      <!-- Brand & School Logo -->
+      <a href="index.html" class="navbar-brand-wrap">
+        <img src="assets/hofis.png" alt="Holy Family International School Logo" class="navbar-logo-img" />
+        <span class="brand-divider"></span>
+        <span class="portal-tagline">Staff Console</span>
+      </a>
+
+      <!-- Navigation Links -->
+      <nav class="navbar-menu">
+        <a href="index.html" class="nav-link-item">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+          </svg>
+          Parent Portal
+        </a>
+        <a href="admin.html" class="nav-link-item active">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+          Console
+        </a>
+        <button type="button" class="nav-link-item" onclick="openNavModal('guidelinesModal')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+          </svg>
+          Guidelines
+        </button>
+        <button type="button" class="nav-link-item" onclick="openNavModal('helpdeskModal')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+          </svg>
+          Helpdesk
+        </button>
+      </nav>
+
+      <!-- Right Actions: User info + Sign out -->
+      <div class="navbar-actions">
+        <div class="aws-cloud-pill">
+          <span class="dot"></span>
+          <span id="userDisplayBadge">Signed In</span>
+        </div>
+        <button type="button" id="btnSignOut" class="btn-text" style="color: #ef4444; font-size: 0.8rem; font-weight: 700; width: auto; margin: 0; padding: 5px 12px; border: 1px solid #fecaca; background: #fef2f2; border-radius: 8px; cursor: pointer;">
+          Sign Out
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <main class="admin-container">
+
+    <!-- Page Title -->
+    <div style="margin-bottom: 18px; display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 8px;">
+      <div>
+        <span style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; color: var(--primary); letter-spacing: 0.8px;">
+          Staff & Gatekeeper Administration
+        </span>
+        <h1 style="font-size: 1.6rem; font-weight: 800; color: var(--secondary); margin-top: 1px;">
+          Outpass Verification & Approval
+        </h1>
+      </div>
+      <div style="font-size: 0.8rem; color: var(--text-muted);">
+        Default View: <strong style="color: #b45309;">Pending Requests</strong>
+      </div>
+    </div>
+
+    <!-- 1. Quick Gate Scanner & Pass Lookup -->
+    <div class="gate-lookup-card">
+      <div class="gate-card-title">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+        </svg>
+        <span>Gate Security Fast Pass Verification</span>
+      </div>
+      <p class="gate-card-subtitle">
+        Scan student QR code or type Outpass Reference ID / Student Admission Number
+      </p>
+
+      <div class="gate-search-form">
+        <input
+          type="text"
+          id="gateSearchInput"
+          class="form-control"
+          placeholder="Scan QR or enter Outpass ID / Admission No (e.g. 12345 or HOFIS-26...)"
+          autocomplete="off"
+        />
+        <button type="button" id="btnGateSearch" class="btn btn-primary gate-search-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          Verify Pass
+        </button>
+      </div>
+
+      <!-- Quick Scan Feedback Banner -->
+      <div id="gateResultBanner" class="gate-result-banner"></div>
+    </div>
+
+    <!-- 2. Interactive Stat Metric Cards (5 Columns) -->
+    <div class="admin-stats-grid">
+      <div class="stat-card active-stat" id="statCardPending" style="border-left: 4px solid #f59e0b;" data-filter="PENDING">
+        <div class="num" id="statPending" style="color: #b45309;">0</div>
+        <div class="lbl">Pending Approval (Default)</div>
+      </div>
+      <div class="stat-card" id="statCardApproved" style="border-left: 4px solid #10b981;" data-filter="APPROVED">
+        <div class="num" id="statApproved" style="color: #047857;">0</div>
+        <div class="lbl">Approved & Waiting</div>
+      </div>
+      <div class="stat-card" id="statCardCancelled" style="border-left: 4px solid #ef4444;" data-filter="CANCELLED">
+        <div class="num" id="statCancelled" style="color: #b91c1c;">0</div>
+        <div class="lbl">Cancelled / Rejected</div>
+      </div>
+      <div class="stat-card" id="statCardExited" style="border-left: 4px solid #0284c7;" data-filter="EXITED">
+        <div class="num" id="statExited" style="color: #0284c7;">0</div>
+        <div class="lbl">Departed School</div>
+      </div>
+      <div class="stat-card" id="statCardTotal" style="border-left: 4px solid #64748b;" data-filter="ALL">
+        <div class="num" id="statTotal" style="color: #334155;">0</div>
+        <div class="lbl">Total Requests</div>
+      </div>
+    </div>
+
+    <!-- 3. Table Control & Data Grid Card -->
+    <div class="table-control-card">
+      
+      <!-- Toolbar: Filters + Sort Dropdown -->
+      <div class="filter-sort-toolbar">
+        
+        <!-- Filter Tabs: PENDING is DEFAULT ACTIVE -->
+        <div class="filter-pills-wrap">
+          <button type="button" class="filter-pill-btn active" data-status="PENDING">
+            <span>Pending</span>
+            <span class="badge-count" id="badgeCountPending">0</span>
+          </button>
+          <button type="button" class="filter-pill-btn" data-status="APPROVED">
+            <span>Approved</span>
+            <span class="badge-count" id="badgeCountApproved">0</span>
+          </button>
+          <button type="button" class="filter-pill-btn" data-status="CANCELLED">
+            <span>Cancelled</span>
+            <span class="badge-count" id="badgeCountCancelled">0</span>
+          </button>
+          <button type="button" class="filter-pill-btn" data-status="EXITED">
+            <span>Exited Gate</span>
+            <span class="badge-count" id="badgeCountExited">0</span>
+          </button>
+          <button type="button" class="filter-pill-btn" data-status="ALL">
+            <span>All</span>
+            <span class="badge-count" id="badgeCountAll">0</span>
+          </button>
+        </div>
+
+        <!-- Sort Control -->
+        <div class="sort-control-wrap">
+          <span class="sort-label">Sort:</span>
+          <select id="sortSelect" class="sort-select">
+            <option value="created_desc" selected>Request Date (Newest First)</option>
+            <option value="created_asc">Request Date (Oldest First)</option>
+            <option value="leave_asc">Leave Schedule (Soonest First)</option>
+            <option value="name_asc">Student Name (A to Z)</option>
+          </select>
+
+          <button type="button" id="btnRefresh" class="btn btn-secondary btn-refresh-sm">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="23 4 23 10 17 10"></polyline>
+              <polyline points="1 20 1 14 7 14"></polyline>
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+            </svg>
+            Refresh
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Outpass Data Table with Fixed Column Proportions (NO HORIZONTAL SCROLL) -->
+      <div class="table-wrap">
+        <table class="outpass-table">
+          <colgroup>
+            <col style="width: 11%;" />  <!-- Pass ID -->
+            <col style="width: 14%;" />  <!-- Student & Class -->
+            <col style="width: 16%;" />  <!-- Schedule (Request & Leave) -->
+            <col style="width: 16%;" />  <!-- Reason -->
+            <col style="width: 14%;" />  <!-- Pickup Contact -->
+            <col style="width: 13%;" />  <!-- Status -->
+            <col style="width: 16%;" />  <!-- Actions -->
+          </colgroup>
+          <thead>
+            <tr>
+              <th>Pass ID</th>
+              <th>Student Details</th>
+              <th>Schedule (Req & Leave)</th>
+              <th>Reason for Leave</th>
+              <th>Pickup Guardian</th>
+              <th style="text-align: center;">Status</th>
+              <th style="text-align: center;">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="outpassTableBody">
+            <tr>
+              <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 28px;">
+                <span class="spinner" style="border-top-color: #0284c7; border-color: #e2e8f0;"></span>
+                <span style="margin-left: 8px;">Loading outpass requests from database...</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+
+  </main>
+
+  <footer style="text-align: center; padding: 20px; font-size: 0.78rem; color: var(--text-muted); border-top: 1px solid var(--border-color); background: #fff; margin-top: 30px;">
+    © Holy Family International School (HOFIS) Admin & Security Portal. Integrated with AWS Cognito.
+  </footer>
+
+  <!-- Guidelines Modal -->
+  <div id="guidelinesModal" class="navbar-modal-backdrop">
+    <div class="navbar-modal-box">
+      <div class="modal-header-row">
+        <h3>📋 School Outpass Guidelines</h3>
+        <button type="button" class="modal-close-btn" onclick="closeNavModal('guidelinesModal')">✕</button>
+      </div>
+      <div class="modal-list-item">
+        <span>1.</span>
+        <span><strong>Advance Application:</strong> Outpasses can be requested for today or up to 7 calendar days in advance.</span>
+      </div>
+      <div class="modal-list-item">
+        <span>2.</span>
+        <span><strong>Timing Rule:</strong> If applying for today, the departure time must be strictly in the future (past dates and past times are blocked).</span>
+      </div>
+      <div class="modal-list-item">
+        <span>3.</span>
+        <span><strong>Email Notification:</strong> Parents receive an automated digital outpass via email once approved by school administration.</span>
+      </div>
+      <div class="modal-list-item">
+        <span>4.</span>
+        <span><strong>School Exit Verification:</strong> Before leaving school, tell the student's admission number to the class teacher. They will verify the approved outpass, after which you may leave.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Helpdesk Modal -->
+  <div id="helpdeskModal" class="navbar-modal-backdrop">
+    <div class="navbar-modal-box">
+      <div class="modal-header-row">
+        <h3>📞 School Contact & Helpdesk</h3>
+        <button type="button" class="modal-close-btn" onclick="closeNavModal('helpdeskModal')">✕</button>
+      </div>
+      <div class="modal-list-item">
+        <span>🏫</span>
+        <span><strong>Holy Family International School</strong><br>Main Administrative Office</span>
+      </div>
+      <div class="modal-list-item">
+        <span>📞</span>
+        <span><strong>Phone:</strong> +91 98765 43210 / +91 484 2345678</span>
+      </div>
+      <div class="modal-list-item">
+        <span>✉️</span>
+        <span><strong>Email:</strong> office@hofis.edu / outpass@hofis.edu</span>
+      </div>
+      <div class="modal-list-item">
+        <span>🛡️</span>
+        <span><strong>Main Gate Security Office:</strong> Intercom Ext 104</span>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/aws-config.js"></script>
+  <script src="js/navbar.js"></script>
+  <script src="js/api.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      // 1. Auth Guard: Require login
+      if (!window.apiService.isAuthenticated()) {
+        window.location.href = "login.html";
+        return;
+      }
+
+      const currentUser = window.apiService.getCurrentUser();
+      const userDisplayBadge = document.getElementById("userDisplayBadge");
+      if (currentUser && userDisplayBadge) {
+        userDisplayBadge.textContent = `${currentUser.displayName || currentUser.username}`;
+      }
+
+      // Sign Out Handler
+      const btnSignOut = document.getElementById("btnSignOut");
+      if (btnSignOut) {
+        btnSignOut.addEventListener("click", () => {
+          if (confirm("Are you sure you want to sign out?")) {
+            window.apiService.logout();
+            window.location.href = "login.html";
+          }
+        });
+      }
+
+      // State Management: Default filter is strictly PENDING as requested
+      let currentFilter = "PENDING";
+      let currentSort = "created_desc";
+      let allOutpasses = [];
+
+      // DOM Elements
+      const tableBody = document.getElementById("outpassTableBody");
+      const statTotal = document.getElementById("statTotal");
+      const statPending = document.getElementById("statPending");
+      const statApproved = document.getElementById("statApproved");
+      const statCancelled = document.getElementById("statCancelled");
+      const statExited = document.getElementById("statExited");
+
+      const badgeCountPending = document.getElementById("badgeCountPending");
+      const badgeCountApproved = document.getElementById("badgeCountApproved");
+      const badgeCountCancelled = document.getElementById("badgeCountCancelled");
+      const badgeCountExited = document.getElementById("badgeCountExited");
+      const badgeCountAll = document.getElementById("badgeCountAll");
+
+      const sortSelect = document.getElementById("sortSelect");
+      const gateSearchInput = document.getElementById("gateSearchInput");
+      const btnGateSearch = document.getElementById("btnGateSearch");
+      const gateResultBanner = document.getElementById("gateResultBanner");
+      const btnRefresh = document.getElementById("btnRefresh");
+
+      // Format ISO dates into concise date + time
+      function formatShortDateTime(isoString) {
+        if (!isoString) return `<span style="color:#94a3b8;">N/A</span>`;
+        const dt = new Date(isoString);
+        if (isNaN(dt.getTime())) return `<span style="color:#94a3b8;">N/A</span>`;
+
+        const monthDay = dt.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+        const timeStr = dt.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true });
+
+        return `<strong>${monthDay}</strong>, ${timeStr}`;
+      }
+
+      // Fetch & Render Outpasses
+      async function loadOutpasses() {
+        tableBody.innerHTML = `
+          <tr>
+            <td colspan="7" style="text-align: center; padding: 28px; color: var(--text-muted);">
+              <span class="spinner" style="border-top-color: #0284c7; border-color: #e2e8f0;"></span>
+              <span style="margin-left: 8px;">Loading outpass requests...</span>
+            </td>
+          </tr>
+        `;
+
+        try {
+          const list = await window.apiService.listOutpasses();
+          allOutpasses = list;
+
+          // Compute Counts
+          const pendingCount = list.filter(o => o.status === "PENDING").length;
+          const approvedCount = list.filter(o => o.status === "APPROVED").length;
+          const cancelledCount = list.filter(o => o.status === "CANCELLED" || o.status === "REJECTED").length;
+          const exitedCount = list.filter(o => o.status === "EXITED").length;
+          const totalCount = list.length;
+
+          // Update Stats Cards
+          statPending.textContent = pendingCount;
+          statApproved.textContent = approvedCount;
+          statCancelled.textContent = cancelledCount;
+          statExited.textContent = exitedCount;
+          statTotal.textContent = totalCount;
+
+          // Update Badge Pill Counts
+          badgeCountPending.textContent = pendingCount;
+          badgeCountApproved.textContent = approvedCount;
+          badgeCountCancelled.textContent = cancelledCount;
+          badgeCountExited.textContent = exitedCount;
+          badgeCountAll.textContent = totalCount;
+
+          renderTable();
+        } catch (err) {
+          tableBody.innerHTML = `
+            <tr>
+              <td colspan="7" style="text-align: center; padding: 24px; color: var(--danger);">
+                Failed to load outpasses: ${err.message}
+              </td>
+            </tr>
+          `;
+        }
+      }
+
+      // Filter, Sort and Render Table Rows
+      function renderTable() {
+        let items = [...allOutpasses];
+
+        // 1. Filter by Status
+        if (currentFilter !== "ALL") {
+          if (currentFilter === "CANCELLED") {
+            items = items.filter(o => o.status === "CANCELLED" || o.status === "REJECTED");
+          } else {
+            items = items.filter(o => o.status === currentFilter);
+          }
+        }
+
+        // 2. Sort Logic
+        items.sort((a, b) => {
+          if (currentSort === "created_desc") {
+            return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+          } else if (currentSort === "created_asc") {
+            return new Date(a.createdAt || 0) - new Date(b.createdAt || 0);
+          } else if (currentSort === "leave_asc") {
+            return new Date(a.leaveDateTime || 0) - new Date(b.leaveDateTime || 0);
+          } else if (currentSort === "name_asc") {
+            return (a.studentName || "").localeCompare(b.studentName || "");
+          }
+          return 0;
+        });
+
+        // 3. Render Empty state
+        if (items.length === 0) {
+          tableBody.innerHTML = `
+            <tr>
+              <td colspan="7" style="text-align: center; padding: 32px 16px; color: var(--text-muted);">
+                <div style="font-size: 1.4rem; margin-bottom: 4px;">📂</div>
+                <div style="font-weight: 700; color: #475569;">No ${currentFilter === "ALL" ? "" : currentFilter.toLowerCase()} outpass records found.</div>
+                <div style="font-size: 0.78rem; margin-top: 2px;">Requests will automatically appear here once submitted.</div>
+              </td>
+            </tr>
+          `;
+          return;
+        }
+
+        // 4. Render Table Rows
+        tableBody.innerHTML = items.map(item => {
+          // Status Pill
+          const statusKey = item.status.toLowerCase();
+          let statusLabel = item.status;
+          if (item.status === "REJECTED" || item.status === "CANCELLED") statusLabel = "CANCELLED";
+
+          let statusIcon = "⏳";
+          if (statusLabel === "APPROVED") statusIcon = "✅";
+          if (statusLabel === "CANCELLED") statusIcon = "❌";
+          if (statusLabel === "EXITED") statusIcon = "🚪";
+
+          const statusBadge = `
+            <span class="status-pill status-${statusKey}">
+              <span>${statusIcon}</span>
+              <span>${statusLabel}</span>
+            </span>
+          `;
+
+          // Action Buttons depending on status
+          let actionBtns = ``;
+          if (item.status === "PENDING") {
+            actionBtns = `
+              <div class="table-actions">
+                <button class="btn-action btn-action-approve" onclick="handleUpdate('${item.outpassId}', 'APPROVED')">
+                  Approve
+                </button>
+                <button class="btn-action btn-action-cancel" onclick="handleUpdate('${item.outpassId}', 'CANCELLED')">
+                  Cancel
+                </button>
+              </div>
+            `;
+          } else if (item.status === "APPROVED") {
+            actionBtns = `
+              <div class="table-actions">
+                <button class="btn-action btn-action-exit" onclick="handleUpdate('${item.outpassId}', 'EXITED')">
+                  Mark Exit
+                </button>
+                <button class="btn-action btn-action-cancel" style="background:#fee2e2; color:#991b1b; border:1px solid #fecaca;" onclick="handleUpdate('${item.outpassId}', 'CANCELLED')">
+                  Revoke
+                </button>
+              </div>
+            `;
+          } else {
+            actionBtns = `
+              <div style="text-align: center; font-size: 0.75rem; color: #94a3b8; font-weight: 600;">
+                Closed
+              </div>
+            `;
+          }
+
+          return `
+            <tr>
+              <td>
+                <span style="font-family: monospace; font-size: 0.78rem; font-weight: 800; color: #0284c7; background: #e0f2fe; padding: 4px 7px; border-radius: 6px; white-space: nowrap; display: inline-block;">
+                  ${item.outpassId}
+                </span>
+              </td>
+              <td>
+                <div style="font-weight: 800; color: #0f172a; font-size: 0.88rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${item.studentName}">${item.studentName}</div>
+                <div style="font-size: 0.74rem; color: #64748b; white-space: nowrap;">
+                  Adm: <strong>${item.admissionNumber}</strong> • Class ${item.class}-${item.division}
+                </div>
+              </td>
+              <td>
+                <div style="font-size: 0.76rem; line-height: 1.45;">
+                  <div style="color: #475569; white-space: nowrap;">
+                    <span style="font-weight: 700; color: #64748b;">Req:</span> ${formatShortDateTime(item.createdAt)}
+                  </div>
+                  <div style="color: #0369a1; font-weight: 700; white-space: nowrap;">
+                    <span>Leave:</span> ${formatShortDateTime(item.leaveDateTime)}
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div style="font-weight: 500; color: #334155; font-size: 0.82rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${item.reason}">
+                  ${item.reason}
+                </div>
+              </td>
+              <td>
+                <div style="font-weight: 700; color: #1e293b; font-size: 0.82rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                  ${item.pickupPerson || item.fatherName}
+                </div>
+                ${item.parentEmail ? `<div style="font-size: 0.72rem; color: #0284c7; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${item.parentEmail}">✉️ ${item.parentEmail}</div>` : ""}
+                ${item.parentPhone ? `<div style="font-size: 0.72rem; color: #64748b; white-space: nowrap;">📞 ${item.parentPhone}</div>` : ""}
+              </td>
+              <td style="text-align: center;">
+                ${statusBadge}
+              </td>
+              <td style="text-align: center;">
+                ${actionBtns}
+              </td>
+            </tr>
+          `;
+        }).join("");
+      }
+
+      // Update Handler for Actions
+      window.handleUpdate = async function(outpassId, newStatus) {
+        const actionWord = newStatus === "APPROVED" ? "Approve" : newStatus === "CANCELLED" ? "Cancel/Reject" : "mark Exited";
+        if (!confirm(`Are you sure you want to ${actionWord} Outpass ${outpassId}?`)) return;
+
+        try {
+          const res = await window.apiService.updateOutpassStatus(outpassId, newStatus, `Updated via Security Console`, currentUser.displayName || "Staff");
+          if (newStatus === "APPROVED" && res && res.parentEmail) {
+            alert(`✅ Outpass ${outpassId} APPROVED!\nOfficial digital outpass notification sent to: ${res.parentEmail}`);
+          }
+          await loadOutpasses();
+        } catch (err) {
+          alert("Action failed: " + err.message);
+        }
+      };
+
+      // Filter Tabs Event Listeners
+      document.querySelectorAll(".filter-pill-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          document.querySelectorAll(".filter-pill-btn").forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          currentFilter = btn.getAttribute("data-status");
+
+          // Sync active state on top stats cards
+          document.querySelectorAll(".stat-card").forEach(c => {
+            if (c.getAttribute("data-filter") === currentFilter) {
+              c.classList.add("active-stat");
+            } else {
+              c.classList.remove("active-stat");
+            }
+          });
+
+          renderTable();
+        });
+      });
+
+      // Stat Cards Click to Filter
+      document.querySelectorAll(".stat-card").forEach(card => {
+        card.addEventListener("click", () => {
+          const filter = card.getAttribute("data-filter");
+          if (!filter) return;
+          const matchingTab = document.querySelector(`.filter-pill-btn[data-status="${filter}"]`);
+          if (matchingTab) {
+            matchingTab.click();
+          }
+        });
+      });
+
+      // Sort Dropdown Change
+      sortSelect.addEventListener("change", (e) => {
+        currentSort = e.target.value;
+        renderTable();
+      });
+
+      // Refresh Button
+      btnRefresh.addEventListener("click", loadOutpasses);
+
+      // Fast Gate Verification Search
+      function performGateVerification() {
+        const query = gateSearchInput.value.trim().toLowerCase();
+        if (!query) {
+          gateResultBanner.style.display = "none";
+          renderTable();
+          return;
+        }
+
+        // Clean query if scanned QR prefix exists
+        const cleanQuery = query.replace("hofis-pass:", "").split(":")[0].trim();
+
+        const match = allOutpasses.find(o => 
+          o.outpassId.toLowerCase() === cleanQuery ||
+          o.outpassId.toLowerCase().includes(cleanQuery) ||
+          o.admissionNumber.toLowerCase() === cleanQuery
+        );
+
+        if (!match) {
+          gateResultBanner.className = "gate-result-banner gate-result-invalid";
+          gateResultBanner.innerHTML = `⚠️ No outpass found matching "<strong>${query}</strong>". Please verify the Admission No or QR Code.`;
+          gateResultBanner.style.display = "block";
+        } else {
+          const isApproved = match.status === "APPROVED";
+          gateResultBanner.className = `gate-result-banner ${isApproved ? 'gate-result-valid' : 'gate-result-invalid'}`;
+          gateResultBanner.innerHTML = `
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap;">
+              <div>
+                <strong>${match.outpassId}</strong>: ${match.studentName} (Class ${match.class}-${match.division})
+                — Status: <strong>${match.status}</strong>
+              </div>
+              <div>
+                ${match.status === "APPROVED" ? 
+                  `<button class="btn-action btn-action-exit" onclick="handleUpdate('${match.outpassId}', 'EXITED')">Mark Exited at Gate</button>` : 
+                  `<span style="font-size:0.78rem;">Status: ${match.status}</span>`}
+              </div>
+            </div>
+          `;
+          gateResultBanner.style.display = "block";
+        }
+
+        // Filter table to show matched records
+        const rows = tableBody.querySelectorAll("tr");
+        rows.forEach(r => {
+          const text = r.textContent.toLowerCase();
+          r.style.display = text.includes(cleanQuery) ? "" : "none";
+        });
+      }
+
+      btnGateSearch.addEventListener("click", performGateVerification);
+      gateSearchInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") performGateVerification();
+      });
+      gateSearchInput.addEventListener("input", () => {
+        if (!gateSearchInput.value.trim()) {
+          gateResultBanner.style.display = "none";
+          renderTable();
+        }
+      });
+
+      // Initial Load
+      loadOutpasses();
+    });
+  </script>
+</body>
+</html>
