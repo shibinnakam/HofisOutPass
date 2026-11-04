@@ -56,6 +56,15 @@ class HofisApiService {
     if (!localStorage.getItem("hofis_students")) {
       localStorage.setItem("hofis_students", JSON.stringify(INITIAL_STUDENTS));
     }
+    if (!localStorage.getItem("hofis_admin_cred")) {
+      const defaultAdmin = {
+        username: "admin",
+        password: "Admin@123",
+        displayName: "Administrator / Principal",
+        isDefault: true
+      };
+      localStorage.setItem("hofis_admin_cred", JSON.stringify(defaultAdmin));
+    }
     if (!localStorage.getItem("hofis_outpasses")) {
       // Seed with 1 sample historical outpass
       const sampleOutpasses = [
@@ -319,7 +328,11 @@ class HofisApiService {
     }
 
     // Live AWS Cognito Authentication
-    if (!this.config.USE_MOCK_AWS && this.config.cognito?.userPoolClientId) {
+    if (
+      !this.config.USE_MOCK_AWS &&
+      this.config.cognito?.userPoolClientId &&
+      !this.config.cognito.userPoolClientId.includes("xxx")
+    ) {
       const region = this.config.region || "ap-south-1";
       const cognitoEndpoint = `https://cognito-idp.${region}.amazonaws.com/`;
 
@@ -358,12 +371,14 @@ class HofisApiService {
     // Local Mock / Demo Authentication
     await new Promise((r) => setTimeout(r, 450));
 
+    const adminCred = this.getAdminCredentials();
+
     const mockStaff = [
       {
-        usernames: ["admin", "admin@hofis.edu"],
-        password: "Admin@123",
+        usernames: [adminCred.username, `${adminCred.username}@hofis.edu`],
+        password: adminCred.password,
         role: "ADMIN",
-        displayName: "Dr. Joseph (Principal / Admin)"
+        displayName: adminCred.displayName
       },
       {
         usernames: ["security", "gate@hofis.edu", "security@hofis.edu"],
@@ -398,6 +413,62 @@ class HofisApiService {
 
     sessionStorage.setItem("hofis_auth_user", JSON.stringify(authUser));
     return authUser;
+  }
+
+  /**
+   * Get current stored admin credentials
+   */
+  getAdminCredentials() {
+    const raw = localStorage.getItem("hofis_admin_cred");
+    if (raw) {
+      try {
+        return JSON.parse(raw);
+      } catch (e) {}
+    }
+    return {
+      username: "admin",
+      password: "Admin@123",
+      displayName: "Administrator / Principal",
+      isDefault: true
+    };
+  }
+
+  /**
+   * Change Administrator Username & Password
+   */
+  updateAdminCredentials(currentPassword, newUsername, newPassword) {
+    const current = this.getAdminCredentials();
+    if (current.password !== currentPassword) {
+      throw new Error("Current password is incorrect. Please re-enter.");
+    }
+    const cleanUser = String(newUsername || "").trim();
+    const cleanPass = String(newPassword || "").trim();
+
+    if (!cleanUser) {
+      throw new Error("New username cannot be empty.");
+    }
+    if (cleanPass.length < 6) {
+      throw new Error("New password must be at least 6 characters long.");
+    }
+
+    const updated = {
+      username: cleanUser,
+      password: cleanPass,
+      displayName: `Administrator (${cleanUser})`,
+      isDefault: false,
+      updatedAt: new Date().toISOString()
+    };
+    localStorage.setItem("hofis_admin_cred", JSON.stringify(updated));
+
+    // Update active session user if currently logged in as admin
+    const active = this.getCurrentUser();
+    if (active && active.role === "ADMIN") {
+      active.username = cleanUser;
+      active.displayName = updated.displayName;
+      sessionStorage.setItem("hofis_auth_user", JSON.stringify(active));
+    }
+
+    return updated;
   }
 
   logout() {

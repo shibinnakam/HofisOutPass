@@ -1,0 +1,14 @@
+# Netlify Configuration for HOFIS Outpass System
+
+[build]
+  # Directory containing the static site files
+  publish = "frontend"
+
+# Optional security and caching headers
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "SAMEORIGIN"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+

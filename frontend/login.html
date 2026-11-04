@@ -213,7 +213,7 @@
           </button>
         </div>
 
-        <div class="cred-item">
+        <div class="cred-item" id="adminCredItem">
           <div>
             <strong>👤 Admin / Principal</strong>: <code>admin</code> / <code>Admin@123</code>
           </div>
@@ -329,15 +329,43 @@
         loginAlert.style.display = "none";
       }
 
+      // Sync Admin Credentials Display
+      const adminCred = window.apiService.getAdminCredentials();
+      const adminCredItem = document.getElementById("adminCredItem");
+      if (adminCredItem && adminCred) {
+        if (adminCred.isDefault) {
+          adminCredItem.innerHTML = `
+            <div>
+              <strong>👤 Admin / Principal</strong>: <code>${adminCred.username}</code> / <code>${adminCred.password}</code>
+            </div>
+            <button type="button" class="cred-fill-btn" data-u="${adminCred.username}" data-p="${adminCred.password}">
+              Fill
+            </button>
+          `;
+        } else {
+          adminCredItem.innerHTML = `
+            <div>
+              <strong>👤 Admin (Updated)</strong>: <code>${adminCred.username}</code> / <code>••••••••</code>
+            </div>
+            <button type="button" class="cred-fill-btn" data-u="${adminCred.username}" data-p="${adminCred.password}">
+              Fill
+            </button>
+          `;
+        }
+      }
+
       // Quick auto-fill buttons
-      document.querySelectorAll(".cred-fill-btn").forEach(btn => {
-        btn.addEventListener("click", () => {
-          usernameInput.value = btn.getAttribute("data-u");
-          passwordInput.value = btn.getAttribute("data-p");
-          hideError();
-          usernameInput.focus();
+      function bindAutoFillButtons() {
+        document.querySelectorAll(".cred-fill-btn").forEach(btn => {
+          btn.addEventListener("click", () => {
+            usernameInput.value = btn.getAttribute("data-u");
+            passwordInput.value = btn.getAttribute("data-p");
+            hideError();
+            usernameInput.focus();
+          });
         });
-      });
+      }
+      bindAutoFillButtons();
 
       // Handle form submit
       loginForm.addEventListener("submit", async (e) => {

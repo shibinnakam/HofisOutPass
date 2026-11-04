@@ -41,10 +41,14 @@ A modern, cloud-native Student Early Departure & Gate Outpass Management System 
    - Dedicated login page requiring **Username and Password**.
    - Backed by **AWS Cognito User Pool** (with built-in test accounts in local mode).
    - Authentication guard on `admin.html`: redirects unauthorized visitors to `login.html`.
-   - Pre-configured demo credentials:
+   - Default credentials:
      - **Gate Security**: `security` / `Gate@123`
-     - **Administrator / Principal**: `admin` / `Admin@123`
+     - **Administrator / Principal**: `admin` / `Admin@123` *(Customizable from Admin Console)*
      - **Class Staff**: `staff` / `Staff@123`
+   - **First-Time Admin Setup & Change Password**:
+     - When logging in with default `admin` / `Admin@123`, a setup banner prompts the administrator to change username and password.
+     - "Account Settings" modal in the top navigation allows changing the admin username and password at any time.
+     - Once updated, only the new username and password will be accepted for future logins.
 
 4. **Staff & Gate Security Console (`frontend/admin.html`)**:
    - **Default View: Pending Requests**: Automatically filters and displays pending approvals on load.

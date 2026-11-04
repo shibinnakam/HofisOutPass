@@ -420,12 +420,19 @@
         </button>
       </nav>
 
-      <!-- Right Actions: User info + Sign out -->
+      <!-- Right Actions: User info + Account Settings + Sign out -->
       <div class="navbar-actions">
         <div class="aws-cloud-pill">
           <span class="dot"></span>
           <span id="userDisplayBadge">Signed In</span>
         </div>
+        <button type="button" id="btnOpenChangeCreds" class="btn-text" style="color: #0369a1; font-size: 0.8rem; font-weight: 700; width: auto; margin: 0; padding: 5px 12px; border: 1px solid #bae6fd; background: #f0f9ff; border-radius: 8px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+          Account Settings
+        </button>
         <button type="button" id="btnSignOut" class="btn-text" style="color: #ef4444; font-size: 0.8rem; font-weight: 700; width: auto; margin: 0; padding: 5px 12px; border: 1px solid #fecaca; background: #fef2f2; border-radius: 8px; cursor: pointer;">
           Sign Out
         </button>
@@ -435,6 +442,24 @@
   </header>
 
   <main class="admin-container">
+
+    <!-- First Time Setup Security Notice Banner (Shown when admin is using default credentials) -->
+    <div id="firstTimeSetupBanner" style="display: none; background: #fffbeb; border: 1.5px solid #fde68a; border-radius: 12px; padding: 12px 18px; margin-bottom: 18px; box-shadow: 0 2px 6px rgba(245, 158, 11, 0.08);">
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 1.3rem;">🔐</span>
+          <div>
+            <strong style="color: #92400e; font-size: 0.9rem;">First-Time Admin Setup Recommended</strong>
+            <p style="color: #b45309; font-size: 0.8rem; margin: 2px 0 0 0;">
+              You are currently logged in with default administrator credentials (<code>admin</code> / <code>Admin@123</code>). Please update your username and password for security.
+            </p>
+          </div>
+        </div>
+        <button type="button" id="btnBannerChangeCreds" style="background: #f59e0b; color: #fff; border: none; padding: 7px 16px; border-radius: 8px; font-weight: 700; font-size: 0.82rem; cursor: pointer; transition: background 0.15s ease;">
+          Change Username & Password
+        </button>
+      </div>
+    </div>
 
     <!-- Page Title -->
     <div style="margin-bottom: 18px; display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 8px;">
@@ -654,6 +679,107 @@
     </div>
   </div>
 
+  <!-- Change Admin Credentials Modal -->
+  <div id="changeCredsModal" class="navbar-modal-backdrop">
+    <div class="navbar-modal-box" style="max-width: 440px;">
+      <div class="modal-header-row">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 1.2rem;">🔐</span>
+          <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--secondary); margin: 0;">Change Admin Credentials</h3>
+        </div>
+        <button type="button" class="modal-close-btn" onclick="closeNavModal('changeCredsModal')">✕</button>
+      </div>
+
+      <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 16px; line-height: 1.45;">
+        Update your login username and password. After saving, you will use these new credentials on all future logins.
+      </p>
+
+      <form id="formChangeCreds" onsubmit="return false;">
+        <!-- Current Password -->
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label class="form-label" for="currentAdminPassword" style="font-size: 0.82rem; font-weight: 700; color: #334155; margin-bottom: 4px; display: block;">
+            Current Password <span style="color: #ef4444;">*</span>
+          </label>
+          <input
+            type="password"
+            id="currentAdminPassword"
+            class="form-control"
+            placeholder="Enter current password (e.g. Admin@123)"
+            required
+            autocomplete="current-password"
+            style="width: 100%; padding: 9px 12px; font-size: 0.88rem; border-radius: 8px; border: 1.5px solid var(--border-color);"
+          />
+        </div>
+
+        <!-- New Username -->
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label class="form-label" for="newAdminUsername" style="font-size: 0.82rem; font-weight: 700; color: #334155; margin-bottom: 4px; display: block;">
+            New Admin Username <span style="color: #ef4444;">*</span>
+          </label>
+          <input
+            type="text"
+            id="newAdminUsername"
+            class="form-control"
+            placeholder="e.g. principal or admin_hofis"
+            required
+            autocomplete="username"
+            style="width: 100%; padding: 9px 12px; font-size: 0.88rem; border-radius: 8px; border: 1.5px solid var(--border-color);"
+          />
+          <span style="font-size: 0.74rem; color: #64748b; margin-top: 3px; display: block;">
+            Choose a unique username you will use to log in.
+          </span>
+        </div>
+
+        <!-- New Password -->
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label class="form-label" for="newAdminPassword" style="font-size: 0.82rem; font-weight: 700; color: #334155; margin-bottom: 4px; display: block;">
+            New Password <span style="color: #ef4444;">*</span>
+          </label>
+          <div style="position: relative;">
+            <input
+              type="password"
+              id="newAdminPassword"
+              class="form-control"
+              placeholder="Minimum 6 characters"
+              required
+              autocomplete="new-password"
+              style="width: 100%; padding: 9px 12px; font-size: 0.88rem; border-radius: 8px; border: 1.5px solid var(--border-color);"
+            />
+            <button type="button" id="btnToggleNewPass" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; font-size: 0.78rem; font-weight: 700; color: var(--primary); cursor: pointer;">Show</button>
+          </div>
+        </div>
+
+        <!-- Confirm New Password -->
+        <div class="form-group" style="margin-bottom: 16px;">
+          <label class="form-label" for="confirmAdminPassword" style="font-size: 0.82rem; font-weight: 700; color: #334155; margin-bottom: 4px; display: block;">
+            Confirm New Password <span style="color: #ef4444;">*</span>
+          </label>
+          <input
+            type="password"
+            id="confirmAdminPassword"
+            class="form-control"
+            placeholder="Re-enter new password"
+            required
+            autocomplete="new-password"
+            style="width: 100%; padding: 9px 12px; font-size: 0.88rem; border-radius: 8px; border: 1.5px solid var(--border-color);"
+          />
+        </div>
+
+        <!-- Alert inside modal -->
+        <div id="changeCredsAlert" class="alert alert-danger" style="display: none; margin-bottom: 14px; font-size: 0.8rem; padding: 8px 12px;"></div>
+
+        <div style="display: flex; gap: 10px; justify-content: flex-end;">
+          <button type="button" class="btn btn-secondary" onclick="closeNavModal('changeCredsModal')" style="width: auto; padding: 8px 16px; font-size: 0.85rem;">
+            Cancel
+          </button>
+          <button type="submit" id="btnSubmitChangeCreds" class="btn btn-primary" style="width: auto; padding: 8px 20px; font-size: 0.85rem; font-weight: 700;">
+            Save & Update
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <script src="js/aws-config.js"></script>
   <script src="js/navbar.js"></script>
   <script src="js/api.js"></script>
@@ -678,6 +804,93 @@
           if (confirm("Are you sure you want to sign out?")) {
             window.apiService.logout();
             window.location.href = "login.html";
+          }
+        });
+      }
+
+      // Admin First-Time Setup & Credential Management
+      const adminCred = window.apiService.getAdminCredentials();
+      const firstTimeSetupBanner = document.getElementById("firstTimeSetupBanner");
+      const btnOpenChangeCreds = document.getElementById("btnOpenChangeCreds");
+      const btnBannerChangeCreds = document.getElementById("btnBannerChangeCreds");
+      const formChangeCreds = document.getElementById("formChangeCreds");
+      const currentAdminPassword = document.getElementById("currentAdminPassword");
+      const newAdminUsername = document.getElementById("newAdminUsername");
+      const newAdminPassword = document.getElementById("newAdminPassword");
+      const confirmAdminPassword = document.getElementById("confirmAdminPassword");
+      const changeCredsAlert = document.getElementById("changeCredsAlert");
+      const btnToggleNewPass = document.getElementById("btnToggleNewPass");
+
+      // Only show banner if admin user and still using default credentials
+      if (currentUser && currentUser.role === "ADMIN" && adminCred && adminCred.isDefault) {
+        if (firstTimeSetupBanner) firstTimeSetupBanner.style.display = "block";
+      }
+
+      function openCredsModal() {
+        const latestCred = window.apiService.getAdminCredentials();
+        if (newAdminUsername) newAdminUsername.value = latestCred.username || "admin";
+        if (currentAdminPassword) currentAdminPassword.value = "";
+        if (newAdminPassword) newAdminPassword.value = "";
+        if (confirmAdminPassword) confirmAdminPassword.value = "";
+        if (changeCredsAlert) changeCredsAlert.style.display = "none";
+        openNavModal("changeCredsModal");
+      }
+
+      if (btnOpenChangeCreds) btnOpenChangeCreds.addEventListener("click", openCredsModal);
+      if (btnBannerChangeCreds) btnBannerChangeCreds.addEventListener("click", openCredsModal);
+
+      if (btnToggleNewPass && newAdminPassword) {
+        btnToggleNewPass.addEventListener("click", () => {
+          if (newAdminPassword.type === "password") {
+            newAdminPassword.type = "text";
+            btnToggleNewPass.textContent = "Hide";
+          } else {
+            newAdminPassword.type = "password";
+            btnToggleNewPass.textContent = "Show";
+          }
+        });
+      }
+
+      if (formChangeCreds) {
+        formChangeCreds.addEventListener("submit", (e) => {
+          e.preventDefault();
+          if (changeCredsAlert) changeCredsAlert.style.display = "none";
+
+          const curPass = currentAdminPassword.value.trim();
+          const newU = newAdminUsername.value.trim();
+          const newP = newAdminPassword.value.trim();
+          const confirmP = confirmAdminPassword.value.trim();
+
+          if (!curPass) {
+            changeCredsAlert.textContent = "Please enter your current password.";
+            changeCredsAlert.style.display = "flex";
+            return;
+          }
+          if (!newU) {
+            changeCredsAlert.textContent = "Please enter a new username.";
+            changeCredsAlert.style.display = "flex";
+            return;
+          }
+          if (newP.length < 6) {
+            changeCredsAlert.textContent = "New password must be at least 6 characters.";
+            changeCredsAlert.style.display = "flex";
+            return;
+          }
+          if (newP !== confirmP) {
+            changeCredsAlert.textContent = "New password and Confirm password do not match.";
+            changeCredsAlert.style.display = "flex";
+            return;
+          }
+
+          try {
+            const updated = window.apiService.updateAdminCredentials(curPass, newU, newP);
+            closeNavModal("changeCredsModal");
+            if (firstTimeSetupBanner) firstTimeSetupBanner.style.display = "none";
+            if (userDisplayBadge) userDisplayBadge.textContent = updated.displayName;
+            alert(`✅ Admin Credentials Updated Successfully!\n\nYour new username: ${updated.username}\n\nPlease remember your new credentials to sign in next time.`);
+          } catch (err) {
+            changeCredsAlert.textContent = err.message || "Failed to update credentials.";
+            changeCredsAlert.style.display = "flex";
           }
         });
       }
