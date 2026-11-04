@@ -1,0 +1,14 @@
+{
+  "name": "hofis-outpass-backend",
+  "version": "1.0.0",
+  "description": "Holy Family International School - Outpass AWS Serverless Backend",
+  "main": "index.js",
+  "scripts": {
+    "seed": "node scripts/seedDynamoDB.js"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.600.0",
+    "@aws-sdk/lib-dynamodb": "^3.600.0"
+  }
+}
+
