@@ -187,6 +187,9 @@ body {
   border-radius: 16px;
   max-width: 480px;
   width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   padding: 24px;
   box-shadow: 0 20px 30px rgba(0, 0, 0, 0.15);
   position: relative;
@@ -235,16 +238,50 @@ body {
   line-height: 1.45;
 }
 
-@media (max-width: 768px) {
+/* Responsive Navbar */
+@media (max-width: 900px) {
   .portal-tagline, .brand-divider {
     display: none;
   }
+}
+
+@media (max-width: 640px) {
   .navbar-container {
-    padding: 8px 14px;
+    padding: 8px 12px;
+    gap: 8px;
+  }
+  .navbar-logo-img {
+    height: 34px;
+  }
+  .navbar-menu {
+    gap: 4px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
   }
   .nav-link-item {
     padding: 5px 9px;
-    font-size: 0.78rem;
+    font-size: 0.76rem;
+    gap: 4px;
+  }
+  .nav-link-item svg {
+    width: 13px;
+    height: 13px;
+  }
+  .aws-cloud-pill {
+    display: none;
+  }
+}
+
+@media (max-width: 420px) {
+  .navbar-container {
+    padding: 6px 10px;
+  }
+  .navbar-logo-img {
+    height: 30px;
+  }
+  .nav-link-item {
+    padding: 4px 7px;
+    font-size: 0.72rem;
   }
 }
 
@@ -885,9 +922,136 @@ body {
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.75);
 }
 
-/* Mobile responsive */
-@media (max-width: 480px) {
+/* =========================================================
+   Mobile & Tablet Responsive System (Cards, Inputs, Layouts)
+   ========================================================= */
+@media (max-width: 600px) {
+  .center-viewport {
+    padding: 16px 12px;
+  }
+
   .card-container {
-    padding: 26px 20px;
+    padding: 24px 18px;
+    border-radius: 16px;
+    box-shadow: 0 15px 35px rgba(15, 23, 42, 0.35);
+  }
+
+  .school-logo-banner {
+    max-width: 230px;
+    width: 85%;
+  }
+
+  .step-header {
+    margin-bottom: 18px;
+  }
+
+  .step-title {
+    font-size: 1.25rem;
+  }
+
+  .step-subtitle {
+    font-size: 0.82rem;
+  }
+
+  /* 16px font-size prevents iOS Safari unwanted auto-zoom */
+  .form-control {
+    font-size: 16px;
+    padding: 12px 14px;
+    border-radius: 10px;
+  }
+
+  .btn {
+    padding: 13px 18px;
+    font-size: 0.92rem;
+    min-height: 48px;
+    border-radius: 10px;
+  }
+
+  .readonly-student-box {
+    margin-bottom: 18px;
+    border-radius: 12px;
+  }
+
+  .readonly-header {
+    padding: 9px 14px;
+  }
+
+  .readonly-content {
+    padding: 14px 14px;
+  }
+
+  .readonly-row {
+    padding: 8px 0;
+    gap: 8px;
+  }
+
+  .readonly-lbl {
+    font-size: 0.8rem;
+  }
+
+  .readonly-val {
+    font-size: 0.88rem;
+  }
+
+  .student-history-banner {
+    padding: 10px 12px;
+    margin-top: 12px;
+    margin-bottom: 14px;
+  }
+
+  .history-item-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .reason-chips {
+    gap: 6px;
+  }
+
+  .reason-chip {
+    padding: 6px 12px;
+    font-size: 0.76rem;
+  }
+
+  .success-headline {
+    font-size: 1.25rem;
+  }
+
+  .submission-summary {
+    padding: 12px 14px;
+  }
+
+  .portal-footer {
+    font-size: 0.74rem;
+    padding: 14px 10px;
+  }
+}
+
+@media (max-width: 380px) {
+  .card-container {
+    padding: 20px 14px;
+  }
+
+  .school-logo-banner {
+    max-width: 200px;
+  }
+
+  .step-title {
+    font-size: 1.15rem;
+  }
+
+  .step-progress-bar {
+    gap: 5px;
+    margin-bottom: 18px;
+  }
+
+  .progress-dot {
+    width: 18px;
+    height: 5px;
+  }
+
+  .progress-dot.active {
+    width: 28px;
   }
 }

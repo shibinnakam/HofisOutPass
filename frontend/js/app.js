@@ -253,7 +253,29 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       if (existingPassStatusText) existingPassStatusText.style.color = "#b45309";
       if (existingPassNotice) {
-        existingPassNotice.innerHTML = `⚠️ <em>This request is currently awaiting school administration approval. A duplicate outpass cannot be submitted for the same day while a request is pending.</em>`;
+        existingPassNotice.innerHTML = `
+          ⚠️ <em>This request is currently awaiting school administration approval. A duplicate outpass cannot be submitted for the same day while a request is pending.</em>
+          <div style="margin-top: 10px;">
+            <button type="button" id="btnCancelPendingPass" class="btn btn-secondary" style="font-size: 0.8rem; padding: 7px 14px; width: auto; border: 1.5px solid #f59e0b; color: #b45309; background: #fffbeb;">
+              ✕ Cancel this Request & Apply Again
+            </button>
+          </div>
+        `;
+        const btnCancel = document.getElementById("btnCancelPendingPass");
+        if (btnCancel) {
+          btnCancel.onclick = async () => {
+            if (confirm(`Do you want to cancel the pending outpass (${pass.outpassId}) and submit a new request?`)) {
+              try {
+                await window.apiService.updateOutpassStatus(pass.outpassId, "CANCELLED", "Cancelled by parent to apply again");
+                pass.status = "CANCELLED";
+                showExistingPassCard(pass, selectedVal);
+                alert("The previous request was cancelled. You can now submit your new outpass request.");
+              } catch (e) {
+                alert("Failed to cancel: " + e.message);
+              }
+            }
+          };
+        }
       }
 
       // Block duplicate submission
