@@ -96,9 +96,9 @@ class HofisApiService {
    */
   async getStudentByAdmissionNumber(admissionNumber) {
     const cleanId = String(admissionNumber || "").trim();
-    if (!cleanId) {
-      throw new Error("Please enter an admission number.");
-    }
+    // if (!cleanId) {
+    //   throw new Error("Please enter an admission number.");
+    // }
 
     // 1. If connected to live AWS API Gateway
     // if (
