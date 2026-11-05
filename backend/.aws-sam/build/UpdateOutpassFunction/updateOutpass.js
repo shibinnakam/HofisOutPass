@@ -148,6 +148,7 @@ async function sendSesEmail(outpass) {
     }
   };
 
+  // Removed admin secret check – any authorized user can update status (admin UI only)
   try {
     const res = await sesClient.send(new SendEmailCommand(params));
     console.log(`[SES] Email delivered successfully to ${recipient}. MessageId: ${res.MessageId}`);
@@ -163,6 +164,7 @@ exports.handler = async (event) => {
     return { statusCode: 200, headers: corsHeaders, body: "" };
   }
 
+  // Removed admin secret check – any authorized user can update status (admin UI only)
   try {
     const outpassId = event.pathParameters?.outpassId;
     if (!outpassId) {
