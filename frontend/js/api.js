@@ -264,6 +264,7 @@ class HofisApiService {
    * Matches AWS Lambda: GET /outpass
    */
   async listOutpasses(filter = {}) {
+    let awsList = [];
     if (!this.config.USE_MOCK_AWS && this.config.apiEndpoint) {
       try {
         let url = `${this.config.apiEndpoint.replace(/\/$/, "")}/outpass`;
@@ -278,15 +279,30 @@ class HofisApiService {
         });
         const data = await res.json();
         if (res.ok && Array.isArray(data.data)) {
-          return data.data;
+          awsList = data.data;
         }
       } catch (err) {
-        console.warn("Could not fetch outpasses from AWS, falling back to local cache:", err.message);
+        console.warn("Could not fetch outpasses from AWS, reading local cache:", err.message);
       }
     }
 
-    await new Promise((r) => setTimeout(r, 200));
-    let list = JSON.parse(localStorage.getItem("hofis_outpasses") || "[]");
+    // Retrieve local store items
+    const localList = JSON.parse(localStorage.getItem("hofis_outpasses") || "[]");
+
+    // Merge AWS and local: deduplicate by outpassId
+    const map = new Map();
+    // Put local items first
+    localList.forEach((item) => {
+      if (item && item.outpassId) map.set(item.outpassId, item);
+    });
+    // Overlay AWS items (authoritative)
+    awsList.forEach((item) => {
+      if (item && item.outpassId) map.set(item.outpassId, item);
+    });
+
+    let list = Array.from(map.values());
+
+    // Apply filtering
     if (filter.status && filter.status !== "ALL") {
       const target = filter.status.toUpperCase();
       if (target === "CANCELLED" || target === "REJECTED") {
@@ -298,6 +314,10 @@ class HofisApiService {
     if (filter.admissionNumber) {
       list = list.filter((item) => item.admissionNumber.toLowerCase() === filter.admissionNumber.toLowerCase());
     }
+
+    // Always sort newest first
+    list.sort((a, b) => new Date(b.createdAt || b.leaveDateTime || 0) - new Date(a.createdAt || a.leaveDateTime || 0));
+
     return list;
   }
 
@@ -326,30 +346,40 @@ class HofisApiService {
    * Matches AWS Lambda: PUT /outpass/{outpassId}
    */
   async updateOutpassStatus(outpassId, status, remarks = "", updatedBy = "Staff") {
+    let updatedItem = null;
     if (!this.config.USE_MOCK_AWS && this.config.apiEndpoint) {
-      const url = `${this.config.apiEndpoint.replace(/\/$/, "")}/outpass/${encodeURIComponent(outpassId)}`;
-      const res = await fetch(url, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status, remarks, updatedBy })
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Failed to update outpass");
-      return data.data;
+      try {
+        const url = `${this.config.apiEndpoint.replace(/\/$/, "")}/outpass/${encodeURIComponent(outpassId)}`;
+        const res = await fetch(url, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status, remarks, updatedBy })
+        });
+        const data = await res.json();
+        if (res.ok && data.data) {
+          updatedItem = data.data;
+        }
+      } catch (err) {
+        console.warn("Could not update AWS outpass status, updating local store:", err.message);
+      }
     }
 
-    await new Promise((r) => setTimeout(r, 300));
+    // Always synchronize local storage as well
     const outpasses = JSON.parse(localStorage.getItem("hofis_outpasses") || "[]");
     const idx = outpasses.findIndex((o) => o.outpassId === outpassId);
-    if (idx === -1) throw new Error("Outpass not found.");
+    if (idx !== -1) {
+      outpasses[idx].status = status.toUpperCase();
+      outpasses[idx].remarks = remarks;
+      outpasses[idx].updatedBy = updatedBy;
+      outpasses[idx].updatedAt = new Date().toISOString();
+      localStorage.setItem("hofis_outpasses", JSON.stringify(outpasses));
+      return updatedItem || outpasses[idx];
+    } else if (updatedItem) {
+      this.syncLocalOutpass(updatedItem);
+      return updatedItem;
+    }
 
-    outpasses[idx].status = status.toUpperCase();
-    outpasses[idx].remarks = remarks;
-    outpasses[idx].updatedBy = updatedBy;
-    outpasses[idx].updatedAt = new Date().toISOString();
-
-    localStorage.setItem("hofis_outpasses", JSON.stringify(outpasses));
-    return outpasses[idx];
+    throw new Error("Outpass not found.");
   }
 
   /**
