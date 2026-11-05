@@ -1,43 +1,10 @@
-[
-  {
-    "admissionNumber": "12345",
-    "studentName": "ALBIN",
-    "fatherName": "JOSEPH",
-    "class": "5",
-    "division": "A",
-    "contactNumber": "+91 98765 43210"
-  },
-  {
-    "admissionNumber": "10021",
-    "studentName": "Sarah Elizabeth Mathews",
-    "fatherName": "Mathews George",
-    "class": "7",
-    "division": "B",
-    "contactNumber": "+91 98450 11223"
-  },
-  {
-    "admissionNumber": "10022",
-    "studentName": "Aarav Sharma",
-    "fatherName": "Vikram Sharma",
-    "class": "9",
-    "division": "A",
-    "contactNumber": "+91 98111 22334"
-  },
-  {
-    "admissionNumber": "10023",
-    "studentName": "Hannah Mary Kurian",
-    "fatherName": "Kurian Varghese",
-    "class": "11",
-    "division": "Science",
-    "contactNumber": "+91 94470 55667"
-  },
-  {
-    "admissionNumber": "10024",
-    "studentName": "Rohan Jacob",
-    "fatherName": "Jacob Philip",
-    "class": "4",
-    "division": "C",
-    "contactNumber": "+91 98950 99887"
-  }
+﻿[
+{
+    "admissionNumber":  "12345",
+    "studentName":  "ALBIN",
+    "fatherName":  "JOSEPH",
+    "class":  "5",
+    "division":  "A",
+    "contactNumber":  "+91 98765 43210"
+}
 ]
-

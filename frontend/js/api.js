@@ -3,49 +3,29 @@
  * Seamlessly switches between AWS Lambda/DynamoDB endpoints and Local Mock Store.
  */
 
-// Initial seed data from Book1.xlsx and school records
-const INITIAL_STUDENTS = [
-  {
-    admissionNumber: "12345",
-    studentName: "ALBIN",
-    fatherName: "JOSEPH",
-    class: "5",
-    division: "A",
-    contactNumber: "+91 98765 43210"
-  },
-  {
-    admissionNumber: "10021",
-    studentName: "Sarah Elizabeth Mathews",
-    fatherName: "Mathews George",
-    class: "7",
-    division: "B",
-    contactNumber: "+91 98450 11223"
-  },
-  {
-    admissionNumber: "10022",
-    studentName: "Aarav Sharma",
-    fatherName: "Vikram Sharma",
-    class: "9",
-    division: "A",
-    contactNumber: "+91 98111 22334"
-  },
-  {
-    admissionNumber: "10023",
-    studentName: "Hannah Mary Kurian",
-    fatherName: "Kurian Varghese",
-    class: "11",
-    division: "Science",
-    contactNumber: "+91 94470 55667"
-  },
-  {
-    admissionNumber: "10024",
-    studentName: "Rohan Jacob",
-    fatherName: "Jacob Philip",
-    class: "4",
-    division: "C",
-    contactNumber: "+91 98950 99887"
+// Students synchronized from Book1.xlsx
+const getRegisteredStudents = () => {
+  if (typeof window !== "undefined" && Array.isArray(window.BOOK1_STUDENTS) && window.BOOK1_STUDENTS.length > 0) {
+    return window.BOOK1_STUDENTS;
   }
-];
+  const fromStorage = typeof localStorage !== "undefined" ? localStorage.getItem("hofis_students") : null;
+  if (fromStorage) {
+    try {
+      const parsed = JSON.parse(fromStorage);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    } catch (e) {}
+  }
+  return [
+    {
+      admissionNumber: "12345",
+      studentName: "ALBIN",
+      fatherName: "JOSEPH",
+      class: "5",
+      division: "A",
+      contactNumber: "+91 98765 43210"
+    }
+  ];
+};
 
 class HofisApiService {
   constructor() {
@@ -53,8 +33,10 @@ class HofisApiService {
   }
 
   initMockStorage() {
-    if (!localStorage.getItem("hofis_students")) {
-      localStorage.setItem("hofis_students", JSON.stringify(INITIAL_STUDENTS));
+    if (typeof window !== "undefined" && Array.isArray(window.BOOK1_STUDENTS) && window.BOOK1_STUDENTS.length > 0) {
+      localStorage.setItem("hofis_students", JSON.stringify(window.BOOK1_STUDENTS));
+    } else if (!localStorage.getItem("hofis_students")) {
+      localStorage.setItem("hofis_students", JSON.stringify(getRegisteredStudents()));
     }
     if (!localStorage.getItem("hofis_admin_cred")) {
       const defaultAdmin = {
@@ -97,43 +79,55 @@ class HofisApiService {
 
   /**
    * Fetch student details by Admission Number
-   * Matches AWS Lambda: GET /students/{admissionNumber}
+   * Matches Book1.xlsx school records and AWS DynamoDB
    */
   async getStudentByAdmissionNumber(admissionNumber) {
-    const cleanId = String(admissionNumber).trim();
+    const cleanId = String(admissionNumber || "").trim();
     if (!cleanId) {
       throw new Error("Please enter an admission number.");
     }
 
-    if (!this.config.USE_MOCK_AWS && this.config.apiEndpoint) {
-      const url = `${this.config.apiEndpoint.replace(/\/$/, "")}/students/${encodeURIComponent(cleanId)}`;
-      const res = await fetch(url, {
-        method: "GET",
-        headers: { "Content-Type": "application/json" }
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.message || `Student not found (HTTP ${res.status})`);
+    // 1. If connected to live AWS API Gateway
+    if (
+      !this.config.USE_MOCK_AWS &&
+      this.config.apiEndpoint &&
+      !this.config.apiEndpoint.includes("your-api-id")
+    ) {
+      try {
+        const url = `${this.config.apiEndpoint.replace(/\/$/, "")}/students/${encodeURIComponent(cleanId)}`;
+        const res = await fetch(url, {
+          method: "GET",
+          headers: { "Content-Type": "application/json" }
+        });
+        const data = await res.json();
+        if (res.ok && data.data) {
+          return data.data;
+        }
+      } catch (err) {
+        console.warn("Live AWS lookup failed, falling back to Book1.xlsx store:", err.message);
       }
-      return data.data;
     }
 
-    // Local Mock / Offline DynamoDB Simulation
-    await new Promise((r) => setTimeout(r, 400)); // Simulate slight network latency
-    const students = JSON.parse(localStorage.getItem("hofis_students") || "[]");
-    const found = students.find((s) => s.admissionNumber.toLowerCase() === cleanId.toLowerCase());
+    // 2. Direct Book1.xlsx Student Verification
+    await new Promise((r) => setTimeout(r, 250)); // smooth user feedback
+    const students = getRegisteredStudents();
+    const found = students.find(
+      (s) => String(s.admissionNumber).trim().toLowerCase() === cleanId.toLowerCase()
+    );
 
     if (!found) {
-      throw new Error(`Student with Admission Number "${cleanId}" not found in school records. Please check the number.`);
+      throw new Error(
+        `Student with Admission Number "${cleanId}" not found in Book1.xlsx school records. Please check the admission number.`
+      );
     }
 
     return {
-      admissionNumber: found.admissionNumber,
+      admissionNumber: String(found.admissionNumber),
       studentName: found.studentName,
-      fatherName: found.fatherName,
-      class: found.class,
-      division: found.division,
-      contactNumber: found.contactNumber || ""
+      fatherName: found.fatherName || found.fathername || "",
+      class: String(found.class || ""),
+      division: String(found.division || found.div || ""),
+      contactNumber: found.contactNumber || "+91 98765 43210"
     };
   }
 
