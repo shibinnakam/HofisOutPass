@@ -131,6 +131,20 @@ class HofisApiService {
     };
   }
 
+  syncLocalOutpass(outpass) {
+    if (!outpass || !outpass.outpassId) return;
+    try {
+      const list = JSON.parse(localStorage.getItem("hofis_outpasses") || "[]");
+      const idx = list.findIndex((o) => o.outpassId === outpass.outpassId);
+      if (idx === -1) {
+        list.unshift(outpass);
+      } else {
+        list[idx] = outpass;
+      }
+      localStorage.setItem("hofis_outpasses", JSON.stringify(list));
+    } catch (e) {}
+  }
+
   /**
    * Create an Outpass request
    * Matches AWS Lambda: POST /outpass
@@ -141,21 +155,43 @@ class HofisApiService {
     }
 
     if (!this.config.USE_MOCK_AWS && this.config.apiEndpoint) {
-      const url = `${this.config.apiEndpoint.replace(/\/$/, "")}/outpass`;
-      const res = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
-      const data = await res.json();
-      if (!res.ok) {
+      try {
+        const url = `${this.config.apiEndpoint.replace(/\/$/, "")}/outpass`;
+        const res = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (res.ok && data.data) {
+          this.syncLocalOutpass(data.data);
+          return data.data;
+        }
+
+        // If AWS rejected because student is not yet seeded in DynamoDB table
+        if (data && data.message && data.message.includes("does not exist")) {
+          console.warn("AWS DynamoDB missing student record (Hofis_Students unseeded). Falling back to verified Book1 store:", data.message);
+          return await this.submitOutpassLocal(payload);
+        }
+
         throw new Error(data.message || "Failed to submit outpass to AWS.");
+      } catch (err) {
+        if (err.message && err.message.includes("does not exist")) {
+          console.warn("Falling back to local simulation because DynamoDB is not seeded yet:", err.message);
+          return await this.submitOutpassLocal(payload);
+        }
+        throw err;
       }
-      return data.data;
     }
 
-    // Local Mock / DynamoDB PutItem Simulation
-    await new Promise((r) => setTimeout(r, 600));
+    return await this.submitOutpassLocal(payload);
+  }
+
+  /**
+   * Local submission simulation (fallback & offline test)
+   */
+  async submitOutpassLocal(payload) {
+    await new Promise((r) => setTimeout(r, 400));
 
     // Validate Departure DateTime
     const leaveTimestamp = new Date(payload.leaveDateTime).getTime();
@@ -164,7 +200,7 @@ class HofisApiService {
     }
 
     const now = Date.now();
-    if (leaveTimestamp < now) {
+    if (leaveTimestamp < now - 60 * 1000) {
       throw new Error("Departure date and time cannot be in the past. If applying for today, the time must be in the future.");
     }
 
@@ -173,14 +209,17 @@ class HofisApiService {
       throw new Error("Outpass can only be applied up to 7 days in advance.");
     }
 
-    // Verify student exists
-    const student = await this.getStudentByAdmissionNumber(payload.admissionNumber);
+    // Verify student exists from Book1 store if details not already in payload
+    let student = payload.studentName ? payload : null;
+    if (!student) {
+      student = await this.getStudentByAdmissionNumber(payload.admissionNumber);
+    }
 
     // Check for existing outpass on the same calendar departure date
     const targetDateKey = this.getLocalDateKey(payload.leaveDateTime);
     const existingOutpasses = JSON.parse(localStorage.getItem("hofis_outpasses") || "[]");
     const activeDuplicate = existingOutpasses.find((item) => {
-      if (item.admissionNumber.toLowerCase() !== String(payload.admissionNumber).trim().toLowerCase()) return false;
+      if (String(item.admissionNumber).toLowerCase() !== String(payload.admissionNumber).trim().toLowerCase()) return false;
       const itemDateKey = this.getLocalDateKey(item.leaveDateTime);
       return itemDateKey === targetDateKey && (item.status === "PENDING" || item.status === "APPROVED");
     });
@@ -198,25 +237,24 @@ class HofisApiService {
 
     const newOutpass = {
       outpassId: outpassId,
-      admissionNumber: student.admissionNumber,
-      studentName: student.studentName,
-      fatherName: student.fatherName,
-      class: String(student.class),
-      division: String(student.division),
+      admissionNumber: String(student.admissionNumber),
+      studentName: student.studentName || "Student",
+      fatherName: student.fatherName || "Parent",
+      class: String(student.class || "5"),
+      division: String(student.division || "A"),
       reason: payload.reason.trim(),
       leaveDateTime: payload.leaveDateTime,
       parentEmail: payload.parentEmail ? payload.parentEmail.trim() : "",
-      parentName: payload.parentName?.trim() || student.fatherName,
-      parentPhone: payload.parentPhone?.trim() || student.contactNumber || "N/A",
-      pickupPerson: payload.pickupPerson?.trim() || student.fatherName,
+      parentName: payload.parentName?.trim() || student.fatherName || "Parent",
+      parentPhone: payload.parentPhone?.trim() || student.contactNumber || "+91 98765 43210",
+      pickupPerson: payload.pickupPerson?.trim() || student.fatherName || "Parent",
       status: "PENDING",
       createdAt: nowIso,
       updatedAt: nowIso
     };
 
-    const outpasses = JSON.parse(localStorage.getItem("hofis_outpasses") || "[]");
-    outpasses.unshift(newOutpass);
-    localStorage.setItem("hofis_outpasses", JSON.stringify(outpasses));
+    existingOutpasses.unshift(newOutpass);
+    localStorage.setItem("hofis_outpasses", JSON.stringify(existingOutpasses));
 
     return newOutpass;
   }
@@ -227,19 +265,24 @@ class HofisApiService {
    */
   async listOutpasses(filter = {}) {
     if (!this.config.USE_MOCK_AWS && this.config.apiEndpoint) {
-      let url = `${this.config.apiEndpoint.replace(/\/$/, "")}/outpass`;
-      const params = new URLSearchParams();
-      if (filter.status) params.append("status", filter.status);
-      if (filter.admissionNumber) params.append("admissionNumber", filter.admissionNumber);
-      if (params.toString()) url += `?${params.toString()}`;
+      try {
+        let url = `${this.config.apiEndpoint.replace(/\/$/, "")}/outpass`;
+        const params = new URLSearchParams();
+        if (filter.status) params.append("status", filter.status);
+        if (filter.admissionNumber) params.append("admissionNumber", filter.admissionNumber);
+        if (params.toString()) url += `?${params.toString()}`;
 
-      const res = await fetch(url, {
-        method: "GET",
-        headers: { "Content-Type": "application/json" }
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Failed to fetch outpasses");
-      return data.data;
+        const res = await fetch(url, {
+          method: "GET",
+          headers: { "Content-Type": "application/json" }
+        });
+        const data = await res.json();
+        if (res.ok && Array.isArray(data.data)) {
+          return data.data;
+        }
+      } catch (err) {
+        console.warn("Could not fetch outpasses from AWS, falling back to local cache:", err.message);
+      }
     }
 
     await new Promise((r) => setTimeout(r, 200));

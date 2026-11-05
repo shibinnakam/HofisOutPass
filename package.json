@@ -5,7 +5,8 @@
   "scripts": {
     "start": "node server.js",
     "sync-excel": "powershell -ExecutionPolicy Bypass -File backend/scripts/syncExcel.ps1",
-    "seed": "node backend/scripts/seedDynamoDB.js"
+    "seed-aws": "powershell -ExecutionPolicy Bypass -File backend/scripts/seedDynamoDB.ps1",
+    "seed": "powershell -ExecutionPolicy Bypass -File backend/scripts/seedDynamoDB.ps1"
   },
   "keywords": [
     "school-outpass",

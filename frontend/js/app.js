@@ -636,6 +636,10 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       const payload = {
         admissionNumber: activeStudent.admissionNumber,
+        studentName: activeStudent.studentName,
+        fatherName: activeStudent.fatherName || "Parent",
+        class: String(activeStudent.class || ""),
+        division: String(activeStudent.division || ""),
         reason: reason,
         leaveDateTime: leaveDateTime,
         parentEmail: parentEmail,
