@@ -82,7 +82,12 @@ class HofisApiService {
   }
 
   get config() {
-    return window.AWS_CONFIG || { USE_MOCK_AWS: true };
+    // Default configuration when no external AWS_CONFIG is provided.
+    // Use the correct API Gateway endpoint (ap‑south‑1) and enable live AWS calls.
+    return window.AWS_CONFIG || {
+      apiEndpoint: "https://jrq7fg37tb.execute-api.ap-south-1.amazonaws.com/Prod",
+      USE_MOCK_AWS: false
+    };
   }
 
   /**
