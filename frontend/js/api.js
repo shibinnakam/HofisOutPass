@@ -29,11 +29,28 @@ class HofisApiService {
     if (list && list.length > 0) {
       localStorage.setItem("hofis_students", JSON.stringify(list));
     }
-    if (!localStorage.getItem("hofis_admin_cred")) {
+
+    // Default Administrator Credentials: hofis / hofis@2026
+    const curCredRaw = localStorage.getItem("hofis_admin_cred");
+    let needsDefaultCred = false;
+    if (!curCredRaw) {
+      needsDefaultCred = true;
+    } else {
+      try {
+        const parsed = JSON.parse(curCredRaw);
+        if (parsed.isDefault || parsed.username === "admin" || parsed.password === "Admin@123") {
+          needsDefaultCred = true;
+        }
+      } catch (e) {
+        needsDefaultCred = true;
+      }
+    }
+
+    if (needsDefaultCred) {
       const defaultAdmin = {
-        username: "admin",
-        password: "Admin@123",
-        displayName: "Administrator / Principal",
+        username: "hofis",
+        password: "hofis@2026",
+        displayName: "Administrator (HOFIS)",
         isDefault: true
       };
       localStorage.setItem("hofis_admin_cred", JSON.stringify(defaultAdmin));
@@ -300,7 +317,29 @@ class HofisApiService {
       }
     });
 
-    let list = Array.from(map.values());
+    // Extract & sync admin configuration from AWS database if present
+    const configRecord = awsList.find(o => o && (o.outpassId === "HOFIS-SYSTEM-ADMIN-CONFIG" || o.status === "CONFIG"));
+    if (configRecord && configRecord.remarks) {
+      try {
+        const creds = JSON.parse(configRecord.remarks);
+        if (creds.username && creds.password) {
+          localStorage.setItem("hofis_admin_cred", JSON.stringify({
+            username: creds.username.trim(),
+            password: creds.password.trim(),
+            displayName: `Administrator (${creds.username.trim()})`,
+            isDefault: creds.username.trim() === "hofis" && creds.password.trim() === "hofis@2026",
+            updatedAt: configRecord.updatedAt || new Date().toISOString()
+          }));
+        }
+      } catch (e) {}
+    }
+
+    // Delete system configuration record from outpass map
+    map.delete("HOFIS-SYSTEM-ADMIN-CONFIG");
+
+    let list = Array.from(map.values()).filter(
+      item => item.outpassId !== "HOFIS-SYSTEM-ADMIN-CONFIG" && item.status !== "CONFIG"
+    );
 
     // Enrich any item that lacks full details from official student database
     const registry = getRegisteredStudents();
@@ -425,8 +464,48 @@ class HofisApiService {
   }
 
   /**
+   * Sync admin credentials from AWS DynamoDB in the cloud
+   */
+  async syncCloudAdminCredentials() {
+    if (!this.config.USE_MOCK_AWS && this.config.apiEndpoint) {
+      try {
+        const url = `${this.config.apiEndpoint.replace(/\/$/, "")}/outpass`;
+        const res = await fetch(url, {
+          method: "GET",
+          headers: { "Content-Type": "application/json" }
+        });
+        const data = await res.json();
+        if (res.ok && Array.isArray(data.data)) {
+          const configItem = data.data.find(
+            (o) => o && (o.outpassId === "HOFIS-SYSTEM-ADMIN-CONFIG" || o.status === "CONFIG")
+          );
+          if (configItem && configItem.remarks) {
+            try {
+              const creds = JSON.parse(configItem.remarks);
+              if (creds.username && creds.password) {
+                const updated = {
+                  username: creds.username.trim(),
+                  password: creds.password.trim(),
+                  displayName: `Administrator (${creds.username.trim()})`,
+                  isDefault: creds.username.trim() === "hofis" && creds.password.trim() === "hofis@2026",
+                  updatedAt: configItem.updatedAt || new Date().toISOString()
+                };
+                localStorage.setItem("hofis_admin_cred", JSON.stringify(updated));
+                return updated;
+              }
+            } catch (e) {}
+          }
+        }
+      } catch (e) {
+        console.warn("Could not sync admin credentials from AWS:", e.message);
+      }
+    }
+    return this.getAdminCredentials();
+  }
+
+  /**
    * Authenticate Staff & Gate Security User
-   * Supports both AWS Cognito User Pool and Local Mock Accounts
+   * Supports both AWS database credentials and Local Accounts
    */
   async login(username, password) {
     const cleanUser = String(username || "").trim();
@@ -436,7 +515,7 @@ class HofisApiService {
       throw new Error("Please enter both username and password.");
     }
 
-    // Live AWS Cognito Authentication
+    // Live AWS Cognito Authentication if configured
     if (
       !this.config.USE_MOCK_AWS &&
       this.config.cognito?.userPoolClientId &&
@@ -445,40 +524,44 @@ class HofisApiService {
       const region = this.config.region || "ap-south-1";
       const cognitoEndpoint = `https://cognito-idp.${region}.amazonaws.com/`;
 
-      const response = await fetch(cognitoEndpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-amz-json-1.1",
-          "X-Amz-Target": "AWSCognitoIdentityProviderService.InitiateAuth"
-        },
-        body: JSON.stringify({
-          AuthFlow: "USER_PASSWORD_AUTH",
-          ClientId: this.config.cognito.userPoolClientId,
-          AuthParameters: {
-            USERNAME: cleanUser,
-            PASSWORD: cleanPass
-          }
-        })
-      });
+      try {
+        const response = await fetch(cognitoEndpoint, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-amz-json-1.1",
+            "X-Amz-Target": "AWSCognitoIdentityProviderService.InitiateAuth"
+          },
+          body: JSON.stringify({
+            AuthFlow: "USER_PASSWORD_AUTH",
+            ClientId: this.config.cognito.userPoolClientId,
+            AuthParameters: {
+              USERNAME: cleanUser,
+              PASSWORD: cleanPass
+            }
+          })
+        });
 
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.message || data.__type || "Cognito authentication failed.");
+        const data = await response.json();
+        if (response.ok && data.AuthenticationResult) {
+          const authUser = {
+            username: cleanUser,
+            role: "STAFF",
+            displayName: cleanUser.split("@")[0].toUpperCase(),
+            token: data.AuthenticationResult.IdToken,
+            accessToken: data.AuthenticationResult.AccessToken
+          };
+          sessionStorage.setItem("hofis_auth_user", JSON.stringify(authUser));
+          return authUser;
+        }
+      } catch (cognitoErr) {
+        console.warn("Cognito authentication failed, checking admin database:", cognitoErr.message);
       }
-
-      const authUser = {
-        username: cleanUser,
-        role: "STAFF",
-        displayName: cleanUser.split("@")[0].toUpperCase(),
-        token: data.AuthenticationResult?.IdToken,
-        accessToken: data.AuthenticationResult?.AccessToken
-      };
-      sessionStorage.setItem("hofis_auth_user", JSON.stringify(authUser));
-      return authUser;
     }
 
-    // Local Mock / Demo Authentication
-    await new Promise((r) => setTimeout(r, 450));
+    // Synchronize latest cloud credentials from AWS DynamoDB
+    try {
+      await this.syncCloudAdminCredentials();
+    } catch (e) {}
 
     const adminCred = this.getAdminCredentials();
 
@@ -487,7 +570,7 @@ class HofisApiService {
         usernames: [adminCred.username, `${adminCred.username}@hofis.edu`],
         password: adminCred.password,
         role: "ADMIN",
-        displayName: adminCred.displayName
+        displayName: adminCred.displayName || `Administrator (${adminCred.username})`
       },
       {
         usernames: ["security", "gate@hofis.edu", "security@hofis.edu"],
@@ -525,27 +608,36 @@ class HofisApiService {
   }
 
   /**
-   * Get current stored admin credentials
+   * Get current stored admin credentials (defaults to hofis / hofis@2026)
    */
   getAdminCredentials() {
     const raw = localStorage.getItem("hofis_admin_cred");
     if (raw) {
       try {
-        return JSON.parse(raw);
+        const parsed = JSON.parse(raw);
+        // Auto-migrate old "admin" credentials
+        if (parsed.username === "admin" && parsed.password === "Admin@123") {
+          parsed.username = "hofis";
+          parsed.password = "hofis@2026";
+          parsed.displayName = "Administrator (HOFIS)";
+          parsed.isDefault = true;
+          localStorage.setItem("hofis_admin_cred", JSON.stringify(parsed));
+        }
+        return parsed;
       } catch (e) {}
     }
     return {
-      username: "admin",
-      password: "Admin@123",
-      displayName: "Administrator / Principal",
+      username: "hofis",
+      password: "hofis@2026",
+      displayName: "Administrator (HOFIS)",
       isDefault: true
     };
   }
 
   /**
-   * Change Administrator Username & Password
+   * Change Administrator Username & Password and sync to AWS Database
    */
-  updateAdminCredentials(currentPassword, newUsername, newPassword) {
+  async updateAdminCredentials(currentPassword, newUsername, newPassword) {
     const current = this.getAdminCredentials();
     if (current.password !== currentPassword) {
       throw new Error("Current password is incorrect. Please re-enter.");
@@ -564,7 +656,7 @@ class HofisApiService {
       username: cleanUser,
       password: cleanPass,
       displayName: `Administrator (${cleanUser})`,
-      isDefault: false,
+      isDefault: cleanUser === "hofis" && cleanPass === "hofis@2026",
       updatedAt: new Date().toISOString()
     };
     localStorage.setItem("hofis_admin_cred", JSON.stringify(updated));
@@ -575,6 +667,25 @@ class HofisApiService {
       active.username = cleanUser;
       active.displayName = updated.displayName;
       sessionStorage.setItem("hofis_auth_user", JSON.stringify(active));
+    }
+
+    // Persist to AWS DynamoDB database in cloud
+    if (!this.config.USE_MOCK_AWS && this.config.apiEndpoint) {
+      try {
+        const url = `${this.config.apiEndpoint.replace(/\/$/, "")}/outpass/HOFIS-SYSTEM-ADMIN-CONFIG`;
+        await fetch(url, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            status: "CONFIG",
+            remarks: JSON.stringify({ username: cleanUser, password: cleanPass }),
+            updatedBy: `Admin (${cleanUser})`
+          })
+        });
+        console.log("Admin credentials successfully synced to AWS database.");
+      } catch (err) {
+        console.warn("Could not sync updated credentials to AWS:", err.message);
+      }
     }
 
     return updated;
