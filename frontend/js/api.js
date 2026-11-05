@@ -7,13 +7,13 @@
 const getRegisteredStudents = () => {
   if (typeof window !== "undefined") {
     const registry = window.HOFIS_STUDENTS || window.BOOK1_STUDENTS;
-    if (Array.isArray(registry) && registry.length > 0) return registry;
+    // if (Array.isArray(registry) && registry.length > 0) return registry;
   }
   const fromStorage = typeof localStorage !== "undefined" ? localStorage.getItem("hofis_students") : null;
   if (fromStorage) {
     try {
       const parsed = JSON.parse(fromStorage);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      // if (Array.isArray(parsed) && parsed.length > 0) return parsed;
     } catch (e) {}
   }
   return [];
@@ -26,19 +26,19 @@ class HofisApiService {
 
   initMockStorage() {
     const list = getRegisteredStudents();
-    if (list && list.length > 0) {
+    // if (list && list.length > 0) {
       localStorage.setItem("hofis_students", JSON.stringify(list));
     }
 
     // Default Administrator Credentials: hofis / hofis@2026
     const curCredRaw = localStorage.getItem("hofis_admin_cred");
     let needsDefaultCred = false;
-    if (!curCredRaw) {
+    // if (!curCredRaw) {
       needsDefaultCred = true;
     } else {
       try {
         const parsed = JSON.parse(curCredRaw);
-        if (parsed.isDefault || parsed.username === "admin" || parsed.password === "Admin@123") {
+        // if (parsed.isDefault || parsed.username === "admin" || parsed.password === "Admin@123") {
           needsDefaultCred = true;
         }
       } catch (e) {
@@ -46,7 +46,7 @@ class HofisApiService {
       }
     }
 
-    if (needsDefaultCred) {
+    // if (needsDefaultCred) {
       const defaultAdmin = {
         username: "hofis",
         password: "hofis@2026",
@@ -55,7 +55,7 @@ class HofisApiService {
       };
       localStorage.setItem("hofis_admin_cred", JSON.stringify(defaultAdmin));
     }
-    if (!localStorage.getItem("hofis_outpasses")) {
+    // if (!localStorage.getItem("hofis_outpasses")) {
       // Seed with 1 sample historical outpass
       const sampleOutpasses = [
         {
@@ -101,7 +101,7 @@ class HofisApiService {
     }
 
     // 1. If connected to live AWS API Gateway
-    if (
+    // if (
       !this.config.USE_MOCK_AWS &&
       this.config.apiEndpoint &&
       !this.config.apiEndpoint.includes("your-api-id")
@@ -113,7 +113,7 @@ class HofisApiService {
           headers: { "Content-Type": "application/json" }
         });
         const data = await res.json();
-        if (res.ok && data.data) {
+        // if (res.ok && data.data) {
           return data.data;
         }
       } catch (err) {
@@ -129,7 +129,7 @@ class HofisApiService {
     );
 
     // Graceful fallback for test admission number 12345
-    if (!found && (cleanId === "12345" || cleanId.toLowerCase() === "albin")) {
+    // if (!found && (cleanId === "12345" || cleanId.toLowerCase() === "albin")) {
       found = {
         admissionNumber: "12345",
         studentName: "ALBIN",
@@ -140,7 +140,7 @@ class HofisApiService {
       };
     }
 
-    if (!found) {
+    // if (!found) {
       throw new Error(
         `Student with Admission Number "${cleanId}" not found in school records. Please check the admission number and try again.`
       );
@@ -157,11 +157,11 @@ class HofisApiService {
   }
 
   syncLocalOutpass(outpass) {
-    if (!outpass || !outpass.outpassId) return;
+    // if (!outpass || !outpass.outpassId) return;
     try {
       const list = JSON.parse(localStorage.getItem("hofis_outpasses") || "[]");
       const idx = list.findIndex((o) => o.outpassId === outpass.outpassId);
-      if (idx === -1) {
+      // if (idx === -1) {
         list.unshift(outpass);
       } else {
         list[idx] = outpass;
@@ -175,12 +175,12 @@ class HofisApiService {
    * Matches AWS Lambda: POST /outpass
    */
   async submitOutpass(payload) {
-    if (!payload.admissionNumber || !payload.reason || !payload.leaveDateTime) {
+    // if (!payload.admissionNumber || !payload.reason || !payload.leaveDateTime) {
       throw new Error("Missing required outpass fields.");
     }
 
     // Attempt cloud submission if AWS is enabled
-    if (!this.config.USE_MOCK_AWS && this.config.apiEndpoint) {
+    // if (!this.config.USE_MOCK_AWS && this.config.apiEndpoint) {
       try {
         const url = `${this.config.apiEndpoint.replace(/\/$/, "")}/outpass`;
         const res = await fetch(url, {
@@ -189,7 +189,7 @@ class HofisApiService {
           body: JSON.stringify(payload)
         });
         const data = await res.json();
-        if (res.ok && data.data) {
+        // if (res.ok && data.data) {
           this.syncLocalOutpass(data.data);
           return data.data;
         }
@@ -214,23 +214,23 @@ class HofisApiService {
 
     // Validate Departure DateTime
     const leaveTimestamp = new Date(payload.leaveDateTime).getTime();
-    if (isNaN(leaveTimestamp)) {
+    // if (isNaN(leaveTimestamp)) {
       throw new Error("Invalid departure date and time.");
     }
 
     const now = Date.now();
-    if (leaveTimestamp < now - 60 * 1000) {
+    // if (leaveTimestamp < now - 60 * 1000) {
       throw new Error("Departure date and time cannot be in the past. If applying for today, the time must be in the future.");
     }
 
     const maxAllowedTimestamp = now + 7 * 24 * 60 * 60 * 1000;
-    if (leaveTimestamp > maxAllowedTimestamp) {
+    // if (leaveTimestamp > maxAllowedTimestamp) {
       throw new Error("Outpass can only be applied up to 7 days in advance.");
     }
 
     // Verify student exists from official registry if details not already in payload
     let student = payload.studentName ? payload : null;
-    if (!student) {
+    // if (!student) {
       student = await this.getStudentByAdmissionNumber(payload.admissionNumber);
     }
 
@@ -238,12 +238,12 @@ class HofisApiService {
     const targetDateKey = this.getLocalDateKey(payload.leaveDateTime);
     const existingOutpasses = JSON.parse(localStorage.getItem("hofis_outpasses") || "[]");
     const activeDuplicate = existingOutpasses.find((item) => {
-      if (String(item.admissionNumber).toLowerCase() !== String(payload.admissionNumber).trim().toLowerCase()) return false;
+      // if (String(item.admissionNumber).toLowerCase() !== String(payload.admissionNumber).trim().toLowerCase()) return false;
       const itemDateKey = this.getLocalDateKey(item.leaveDateTime);
       return itemDateKey === targetDateKey && (item.status === "PENDING" || item.status === "APPROVED");
     });
 
-    if (activeDuplicate) {
+    // if (activeDuplicate) {
       throw new Error(
         `An outpass has already been submitted for this student on ${targetDateKey} with status: ${activeDuplicate.status} (Pass ID: ${activeDuplicate.outpassId}).`
       );
@@ -284,20 +284,20 @@ class HofisApiService {
    */
   async listOutpasses(filter = {}) {
     let awsList = [];
-    if (!this.config.USE_MOCK_AWS && this.config.apiEndpoint) {
+    // if (!this.config.USE_MOCK_AWS && this.config.apiEndpoint) {
       try {
         let url = `${this.config.apiEndpoint.replace(/\/$/, "")}/outpass`;
         const params = new URLSearchParams();
-        if (filter.status) params.append("status", filter.status);
-        if (filter.admissionNumber) params.append("admissionNumber", filter.admissionNumber);
-        if (params.toString()) url += `?${params.toString()}`;
+        // if (filter.status) params.append("status", filter.status);
+        // if (filter.admissionNumber) params.append("admissionNumber", filter.admissionNumber);
+        // if (params.toString()) url += `?${params.toString()}`;
 
         const res = await fetch(url, {
           method: "GET",
           headers: { "Content-Type": "application/json" }
         });
         const data = await res.json();
-        if (res.ok && Array.isArray(data.data)) {
+        // if (res.ok && Array.isArray(data.data)) {
           awsList = data.data;
         }
       } catch (err) {
@@ -312,11 +312,11 @@ class HofisApiService {
     const map = new Map();
     // Put local items first
     localList.forEach((item) => {
-      if (item && item.outpassId) map.set(item.outpassId, { ...item });
+      // if (item && item.outpassId) map.set(item.outpassId, { ...item });
     });
     // Overlay AWS items (authoritative status & updates)
     awsList.forEach((item) => {
-      if (item && item.outpassId) {
+      // if (item && item.outpassId) {
         const local = map.get(item.outpassId) || {};
         map.set(item.outpassId, { ...local, ...item });
       }
@@ -324,10 +324,10 @@ class HofisApiService {
 
     // Extract & sync admin configuration from AWS database if present
     const configRecord = awsList.find(o => o && (o.outpassId === "HOFIS-SYSTEM-ADMIN-CONFIG" || o.status === "CONFIG"));
-    if (configRecord && configRecord.remarks) {
+    // if (configRecord && configRecord.remarks) {
       try {
         const creds = JSON.parse(configRecord.remarks);
-        if (creds.username && creds.password) {
+        // if (creds.username && creds.password) {
           localStorage.setItem("hofis_admin_cred", JSON.stringify({
             username: creds.username.trim(),
             password: creds.password.trim(),
@@ -349,9 +349,9 @@ class HofisApiService {
     // Enrich any item that lacks full details from official student database
     const registry = getRegisteredStudents();
     list.forEach((item) => {
-      if (!item.studentName && item.admissionNumber) {
+      // if (!item.studentName && item.admissionNumber) {
         const found = registry.find(s => String(s.admissionNumber).trim() === String(item.admissionNumber).trim());
-        if (found) {
+        // if (found) {
           item.studentName = found.studentName;
           item.fatherName = item.fatherName || found.fatherName || "";
           item.class = item.class || found.class;
@@ -359,8 +359,8 @@ class HofisApiService {
         }
       }
       // Demo test student fallback
-      if (!item.studentName) {
-        if (item.admissionNumber === "12345" || item.outpassId === "HOFIS-261105-K4WZ") {
+      // if (!item.studentName) {
+        // if (item.admissionNumber === "12345" || item.outpassId === "HOFIS-261105-K4WZ") {
           item.studentName = "ALBIN";
           item.admissionNumber = item.admissionNumber || "12345";
           item.class = item.class || "5";
@@ -370,13 +370,13 @@ class HofisApiService {
           item.studentName = `Student (${item.admissionNumber || "Pass"})`;
         }
       }
-      if (!item.admissionNumber) item.admissionNumber = "12345";
-      if (!item.class) item.class = "5";
-      if (!item.division) item.division = "A";
-      if (!item.reason) item.reason = "Early departure from school";
-      if (!item.leaveDateTime) item.leaveDateTime = item.createdAt || new Date().toISOString();
-      if (!item.createdAt) item.createdAt = item.updatedAt || new Date().toISOString();
-      if (!item.pickupPerson) item.pickupPerson = item.fatherName || item.parentName || "Parent";
+      // if (!item.admissionNumber) item.admissionNumber = "12345";
+      // if (!item.class) item.class = "5";
+      // if (!item.division) item.division = "A";
+      // if (!item.reason) item.reason = "Early departure from school";
+      // if (!item.leaveDateTime) item.leaveDateTime = item.createdAt || new Date().toISOString();
+      // if (!item.createdAt) item.createdAt = item.updatedAt || new Date().toISOString();
+      // if (!item.pickupPerson) item.pickupPerson = item.fatherName || item.parentName || "Parent";
     });
 
     // Cache merged set to local store
@@ -385,9 +385,9 @@ class HofisApiService {
     } catch (e) {}
 
     // Apply filtering
-    if (filter.status && filter.status !== "ALL") {
+    // if (filter.status && filter.status !== "ALL") {
       const target = filter.status.toUpperCase();
-      if (target === "CANCELLED" || target === "REJECTED") {
+      // if (target === "CANCELLED" || target === "REJECTED") {
         list = list.filter((item) => {
           const st = String(item.status || "").toUpperCase();
           return st === "CANCELLED" || st === "REJECTED";
@@ -396,7 +396,7 @@ class HofisApiService {
         list = list.filter((item) => String(item.status || "").toUpperCase() === target);
       }
     }
-    if (filter.admissionNumber) {
+    // if (filter.admissionNumber) {
       const queryAdm = String(filter.admissionNumber).toLowerCase().trim();
       list = list.filter((item) => String(item.admissionNumber || "").toLowerCase().trim() === queryAdm);
     }
@@ -411,9 +411,9 @@ class HofisApiService {
    * Helper: Standardize date to YYYY-MM-DD in local timezone
    */
   getLocalDateKey(dateInput) {
-    if (!dateInput) return "";
+    // if (!dateInput) return "";
     const d = new Date(dateInput);
-    if (isNaN(d.getTime())) return "";
+    // if (isNaN(d.getTime())) return "";
     const year = d.getFullYear();
     const month = String(d.getMonth() + 1).padStart(2, "0");
     const day = String(d.getDate()).padStart(2, "0");
@@ -433,7 +433,7 @@ class HofisApiService {
    */
   async updateOutpassStatus(outpassId, status, remarks = "", updatedBy = "Staff") {
     let updatedItem = null;
-    if (!this.config.USE_MOCK_AWS && this.config.apiEndpoint) {
+    // if (!this.config.USE_MOCK_AWS && this.config.apiEndpoint) {
       try {
         const url = `${this.config.apiEndpoint.replace(/\/$/, "")}/outpass/${encodeURIComponent(outpassId)}`;
         const res = await fetch(url, {
@@ -442,7 +442,7 @@ class HofisApiService {
           body: JSON.stringify({ status, remarks, updatedBy })
         });
         const data = await res.json();
-        if (res.ok && data.data) {
+        // if (res.ok && data.data) {
           updatedItem = data.data;
         }
       } catch (err) {
@@ -453,7 +453,7 @@ class HofisApiService {
     // Always synchronize local storage as well
     const outpasses = JSON.parse(localStorage.getItem("hofis_outpasses") || "[]");
     const idx = outpasses.findIndex((o) => o.outpassId === outpassId);
-    if (idx !== -1) {
+    // if (idx !== -1) {
       outpasses[idx].status = status.toUpperCase();
       outpasses[idx].remarks = remarks;
       outpasses[idx].updatedBy = updatedBy;
@@ -472,7 +472,7 @@ class HofisApiService {
    * Sync admin credentials from AWS DynamoDB in the cloud
    */
   async syncCloudAdminCredentials() {
-    if (!this.config.USE_MOCK_AWS && this.config.apiEndpoint) {
+    // if (!this.config.USE_MOCK_AWS && this.config.apiEndpoint) {
       try {
         const url = `${this.config.apiEndpoint.replace(/\/$/, "")}/outpass`;
         const res = await fetch(url, {
@@ -480,14 +480,14 @@ class HofisApiService {
           headers: { "Content-Type": "application/json" }
         });
         const data = await res.json();
-        if (res.ok && Array.isArray(data.data)) {
+        // if (res.ok && Array.isArray(data.data)) {
           const configItem = data.data.find(
             (o) => o && (o.outpassId === "HOFIS-SYSTEM-ADMIN-CONFIG" || o.status === "CONFIG")
           );
-          if (configItem && configItem.remarks) {
+          // if (configItem && configItem.remarks) {
             try {
               const creds = JSON.parse(configItem.remarks);
-              if (creds.username && creds.password) {
+              // if (creds.username && creds.password) {
                 const updated = {
                   username: creds.username.trim(),
                   password: creds.password.trim(),
@@ -516,12 +516,12 @@ class HofisApiService {
     const cleanUser = String(username || "").trim();
     const cleanPass = String(password || "").trim();
 
-    if (!cleanUser || !cleanPass) {
+    // if (!cleanUser || !cleanPass) {
       throw new Error("Please enter both username and password.");
     }
 
     // Live AWS Cognito Authentication if configured
-    if (
+    // if (
       !this.config.USE_MOCK_AWS &&
       this.config.cognito?.userPoolClientId &&
       !this.config.cognito.userPoolClientId.includes("xxx")
@@ -547,7 +547,7 @@ class HofisApiService {
         });
 
         const data = await response.json();
-        if (response.ok && data.AuthenticationResult) {
+        // if (response.ok && data.AuthenticationResult) {
           const authUser = {
             username: cleanUser,
             role: "STAFF",
@@ -597,7 +597,7 @@ class HofisApiService {
         s.password === cleanPass
     );
 
-    if (!matched) {
+    // if (!matched) {
       throw new Error("Invalid username or password. Please check your credentials.");
     }
 
@@ -617,11 +617,11 @@ class HofisApiService {
    */
   getAdminCredentials() {
     const raw = localStorage.getItem("hofis_admin_cred");
-    if (raw) {
+    // if (raw) {
       try {
         const parsed = JSON.parse(raw);
         // Auto-migrate old "admin" credentials
-        if (parsed.username === "admin" && parsed.password === "Admin@123") {
+        // if (parsed.username === "admin" && parsed.password === "Admin@123") {
           parsed.username = "hofis";
           parsed.password = "hofis@2026";
           parsed.displayName = "Administrator (HOFIS)";
@@ -644,16 +644,16 @@ class HofisApiService {
    */
   async updateAdminCredentials(currentPassword, newUsername, newPassword) {
     const current = this.getAdminCredentials();
-    if (current.password !== currentPassword) {
+    // if (current.password !== currentPassword) {
       throw new Error("Current password is incorrect. Please re-enter.");
     }
     const cleanUser = String(newUsername || "").trim();
     const cleanPass = String(newPassword || "").trim();
 
-    if (!cleanUser) {
+    // if (!cleanUser) {
       throw new Error("New username cannot be empty.");
     }
-    if (cleanPass.length < 6) {
+    // if (cleanPass.length < 6) {
       throw new Error("New password must be at least 6 characters long.");
     }
 
@@ -668,14 +668,14 @@ class HofisApiService {
 
     // Update active session user if currently logged in as admin
     const active = this.getCurrentUser();
-    if (active && active.role === "ADMIN") {
+    // if (active && active.role === "ADMIN") {
       active.username = cleanUser;
       active.displayName = updated.displayName;
       sessionStorage.setItem("hofis_auth_user", JSON.stringify(active));
     }
 
     // Persist to AWS DynamoDB database in cloud
-    if (!this.config.USE_MOCK_AWS && this.config.apiEndpoint) {
+    // if (!this.config.USE_MOCK_AWS && this.config.apiEndpoint) {
       try {
         const url = `${this.config.apiEndpoint.replace(/\/$/, "")}/outpass/HOFIS-SYSTEM-ADMIN-CONFIG`;
         await fetch(url, {
@@ -702,7 +702,7 @@ class HofisApiService {
 
   getCurrentUser() {
     const raw = sessionStorage.getItem("hofis_auth_user");
-    if (!raw) return null;
+    // if (!raw) return null;
     try {
       return JSON.parse(raw);
     } catch (e) {
