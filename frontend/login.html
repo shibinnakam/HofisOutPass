@@ -25,52 +25,6 @@
     .toggle-pass-btn:hover {
       color: var(--primary);
     }
-    .credential-cards {
-      margin-top: 20px;
-      padding: 14px;
-      background: #f8fafc;
-      border: 1px dashed #cbd5e1;
-      border-radius: 12px;
-      text-align: left;
-    }
-    .cred-title {
-      font-size: 0.75rem;
-      font-weight: 700;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 8px;
-      display: block;
-    }
-    .cred-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 6px 8px;
-      background: #ffffff;
-      border: 1px solid #e2e8f0;
-      border-radius: 6px;
-      margin-bottom: 6px;
-      font-size: 0.78rem;
-    }
-    .cred-item:last-child {
-      margin-bottom: 0;
-    }
-    .cred-fill-btn {
-      background: var(--primary-light);
-      color: var(--primary);
-      border: none;
-      padding: 3px 8px;
-      border-radius: 4px;
-      font-size: 0.72rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.15s ease;
-    }
-    .cred-fill-btn:hover {
-      background: var(--primary);
-      color: #ffffff;
-    }
   </style>
 </head>
 <body>
@@ -200,38 +154,6 @@
       <!-- Alert for error messages -->
       <div id="loginAlert" class="alert alert-danger" style="display: none; margin-top: 16px;"></div>
 
-      <!-- Demo Credentials for Instant Testing -->
-      <div class="credential-cards">
-        <span class="cred-title">Demo Staff Credentials (Click to Auto-fill)</span>
-
-        <div class="cred-item">
-          <div>
-            <strong>🛡️ Gate Security</strong>: <code>security</code> / <code>Gate@123</code>
-          </div>
-          <button type="button" class="cred-fill-btn" data-u="security" data-p="Gate@123">
-            Fill
-          </button>
-        </div>
-
-        <div class="cred-item" id="adminCredItem">
-          <div>
-            <strong>👤 Admin / Principal</strong>: <code>admin</code> / <code>Admin@123</code>
-          </div>
-          <button type="button" class="cred-fill-btn" data-u="admin" data-p="Admin@123">
-            Fill
-          </button>
-        </div>
-
-        <div class="cred-item">
-          <div>
-            <strong>📋 Class Staff</strong>: <code>staff</code> / <code>Staff@123</code>
-          </div>
-          <button type="button" class="cred-fill-btn" data-u="staff" data-p="Staff@123">
-            Fill
-          </button>
-        </div>
-      </div>
-
     </div>
   </main>
 
@@ -328,44 +250,6 @@
       function hideError() {
         loginAlert.style.display = "none";
       }
-
-      // Sync Admin Credentials Display
-      const adminCred = window.apiService.getAdminCredentials();
-      const adminCredItem = document.getElementById("adminCredItem");
-      if (adminCredItem && adminCred) {
-        if (adminCred.isDefault) {
-          adminCredItem.innerHTML = `
-            <div>
-              <strong>👤 Admin / Principal</strong>: <code>${adminCred.username}</code> / <code>${adminCred.password}</code>
-            </div>
-            <button type="button" class="cred-fill-btn" data-u="${adminCred.username}" data-p="${adminCred.password}">
-              Fill
-            </button>
-          `;
-        } else {
-          adminCredItem.innerHTML = `
-            <div>
-              <strong>👤 Admin (Updated)</strong>: <code>${adminCred.username}</code> / <code>••••••••</code>
-            </div>
-            <button type="button" class="cred-fill-btn" data-u="${adminCred.username}" data-p="${adminCred.password}">
-              Fill
-            </button>
-          `;
-        }
-      }
-
-      // Quick auto-fill buttons
-      function bindAutoFillButtons() {
-        document.querySelectorAll(".cred-fill-btn").forEach(btn => {
-          btn.addEventListener("click", () => {
-            usernameInput.value = btn.getAttribute("data-u");
-            passwordInput.value = btn.getAttribute("data-p");
-            hideError();
-            usernameInput.focus();
-          });
-        });
-      }
-      bindAutoFillButtons();
 
       // Handle form submit
       loginForm.addEventListener("submit", async (e) => {

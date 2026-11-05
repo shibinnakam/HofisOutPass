@@ -526,15 +526,6 @@ document.addEventListener("DOMContentLoaded", () => {
     hideStep1Error();
   });
 
-  // Quick test chip clicks (e.g. 12345 from Book1.xlsx)
-  document.querySelectorAll(".chip-btn").forEach((chip) => {
-    chip.addEventListener("click", () => {
-      const adm = chip.getAttribute("data-adm");
-      admissionInput.value = adm;
-      handleSearch();
-    });
-  });
-
   // Step 2: Confirm Student & proceed to Step 3
   btnConfirmStudent.addEventListener("click", () => {
     if (!activeStudent) {
