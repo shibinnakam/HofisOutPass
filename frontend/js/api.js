@@ -3,10 +3,11 @@
  * Seamlessly switches between AWS Lambda/DynamoDB endpoints and Local Mock Store.
  */
 
-// Students synchronized from Book1.xlsx
+// Official Students Registry (Database: Class playschool to X)
 const getRegisteredStudents = () => {
-  if (typeof window !== "undefined" && Array.isArray(window.BOOK1_STUDENTS) && window.BOOK1_STUDENTS.length > 0) {
-    return window.BOOK1_STUDENTS;
+  if (typeof window !== "undefined") {
+    const registry = window.HOFIS_STUDENTS || window.BOOK1_STUDENTS;
+    if (Array.isArray(registry) && registry.length > 0) return registry;
   }
   const fromStorage = typeof localStorage !== "undefined" ? localStorage.getItem("hofis_students") : null;
   if (fromStorage) {
@@ -15,16 +16,7 @@ const getRegisteredStudents = () => {
       if (Array.isArray(parsed) && parsed.length > 0) return parsed;
     } catch (e) {}
   }
-  return [
-    {
-      admissionNumber: "12345",
-      studentName: "ALBIN",
-      fatherName: "JOSEPH",
-      class: "5",
-      division: "A",
-      contactNumber: "+91 98765 43210"
-    }
-  ];
+  return [];
 };
 
 class HofisApiService {
@@ -33,10 +25,9 @@ class HofisApiService {
   }
 
   initMockStorage() {
-    if (typeof window !== "undefined" && Array.isArray(window.BOOK1_STUDENTS) && window.BOOK1_STUDENTS.length > 0) {
-      localStorage.setItem("hofis_students", JSON.stringify(window.BOOK1_STUDENTS));
-    } else if (!localStorage.getItem("hofis_students")) {
-      localStorage.setItem("hofis_students", JSON.stringify(getRegisteredStudents()));
+    const list = getRegisteredStudents();
+    if (list && list.length > 0) {
+      localStorage.setItem("hofis_students", JSON.stringify(list));
     }
     if (!localStorage.getItem("hofis_admin_cred")) {
       const defaultAdmin = {
@@ -79,7 +70,7 @@ class HofisApiService {
 
   /**
    * Fetch student details by Admission Number
-   * Matches Book1.xlsx school records and AWS DynamoDB
+   * Matches school database records (Class playschool to X) and AWS DynamoDB
    */
   async getStudentByAdmissionNumber(admissionNumber) {
     const cleanId = String(admissionNumber || "").trim();
@@ -104,12 +95,12 @@ class HofisApiService {
           return data.data;
         }
       } catch (err) {
-        console.warn("Live AWS lookup failed, falling back to Book1.xlsx store:", err.message);
+        console.warn("Live AWS lookup failed, falling back to official student registry:", err.message);
       }
     }
 
-    // 2. Direct Book1.xlsx Student Verification
-    await new Promise((r) => setTimeout(r, 250)); // smooth user feedback
+    // 2. Direct Official Registry Student Verification
+    await new Promise((r) => setTimeout(r, 200)); // smooth user feedback
     const students = getRegisteredStudents();
     const found = students.find(
       (s) => String(s.admissionNumber).trim().toLowerCase() === cleanId.toLowerCase()
@@ -117,7 +108,7 @@ class HofisApiService {
 
     if (!found) {
       throw new Error(
-        `Student with Admission Number "${cleanId}" not found in Book1.xlsx school records. Please check the admission number.`
+        `Student with Admission Number "${cleanId}" not found in school records. Please check the admission number and try again.`
       );
     }
 
@@ -170,7 +161,7 @@ class HofisApiService {
 
         // If AWS rejected because student is not yet seeded in DynamoDB table
         if (data && data.message && data.message.includes("does not exist")) {
-          console.warn("AWS DynamoDB missing student record (Hofis_Students unseeded). Falling back to verified Book1 store:", data.message);
+          console.warn("AWS DynamoDB missing student record (Hofis_Students unseeded). Falling back to verified student registry:", data.message);
           return await this.submitOutpassLocal(payload);
         }
 
@@ -209,7 +200,7 @@ class HofisApiService {
       throw new Error("Outpass can only be applied up to 7 days in advance.");
     }
 
-    // Verify student exists from Book1 store if details not already in payload
+    // Verify student exists from official registry if details not already in payload
     let student = payload.studentName ? payload : null;
     if (!student) {
       student = await this.getStudentByAdmissionNumber(payload.admissionNumber);

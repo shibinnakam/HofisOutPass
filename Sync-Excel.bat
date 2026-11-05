@@ -1,12 +1,12 @@
 @echo off
-title HOFIS - Synchronize Students from Book1.xlsx
+title HOFIS - Synchronize Student Database
 echo ==========================================================
 echo  Holy Family International School (HOFIS)
-echo  Synchronizing Student Registry from Book1.xlsx...
+echo  Synchronizing Student Database (Class playschool to X)
 echo ==========================================================
 echo.
 
-powershell -ExecutionPolicy Bypass -File "backend\scripts\syncExcel.ps1"
+node "backend\scripts\importStudents.js"
 
 echo.
 echo ==========================================================

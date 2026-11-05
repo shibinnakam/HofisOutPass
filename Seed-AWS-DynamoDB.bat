@@ -2,7 +2,8 @@
 title HOFIS - Upload Students to AWS DynamoDB
 echo ==========================================================
 echo  Holy Family International School (HOFIS)
-echo  Uploading Book1.xlsx Students to AWS DynamoDB
+echo  Uploading Student Database (Class playschool to X)
+echo  Total: 575 Students to AWS DynamoDB
 echo ==========================================================
 echo.
 echo Note: Ensure you have run "aws configure" with your AWS

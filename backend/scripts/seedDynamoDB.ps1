@@ -1,5 +1,5 @@
 # =====================================================================
-# HOFIS - Seed Students from Book1.xlsx into AWS DynamoDB
+# HOFIS - Seed Students from Database (Class playschool to X) into AWS DynamoDB
 # =====================================================================
 
 $Region = "ap-south-1"

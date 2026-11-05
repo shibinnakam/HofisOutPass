@@ -4,7 +4,8 @@
   "description": "Holy Family International School (HOFIS) - Student Outpass Management System with AWS Cognito, Lambda, and DynamoDB",
   "scripts": {
     "start": "node server.js",
-    "sync-excel": "powershell -ExecutionPolicy Bypass -File backend/scripts/syncExcel.ps1",
+    "sync-students": "node backend/scripts/importStudents.js",
+    "sync-excel": "node backend/scripts/importStudents.js",
     "seed-aws": "powershell -ExecutionPolicy Bypass -File backend/scripts/seedDynamoDB.ps1",
     "seed": "powershell -ExecutionPolicy Bypass -File backend/scripts/seedDynamoDB.ps1"
   },

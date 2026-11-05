@@ -1068,6 +1068,9 @@
                 <button class="btn-action btn-action-exit" onclick="handleUpdate('${item.outpassId}', 'EXITED')">
                   Mark Exit
                 </button>
+                <button class="btn-action" style="background: #0284c7; color: #ffffff;" onclick="sendParentEmailNotification('${item.outpassId}')" title="Send official outpass approval email to parent">
+                  ✉ Email
+                </button>
                 <button class="btn-action btn-action-cancel" style="background:#fee2e2; color:#991b1b; border:1px solid #fecaca;" onclick="handleUpdate('${item.outpassId}', 'CANCELLED')">
                   Revoke
                 </button>
@@ -1127,6 +1130,47 @@
         }).join("");
       }
 
+      // One-click Parent Email Notification
+      window.sendParentEmailNotification = function(outpassId) {
+        const item = allOutpasses.find(o => o.outpassId === outpassId);
+        if (!item) {
+          alert("Outpass record not found.");
+          return;
+        }
+
+        const email = (item.parentEmail || "").trim();
+        if (!email) {
+          alert(`No parent email on file for Outpass ${outpassId}.`);
+          return;
+        }
+
+        const dtStr = item.leaveDateTime ? new Date(item.leaveDateTime).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" }) : "Scheduled Hours";
+        const subject = `[APPROVED] Holy Family International School Outpass (${item.outpassId}) - ${item.studentName}`;
+        const body = 
+`HOLY FAMILY INTERNATIONAL SCHOOL
+Official Early Departure & Gate Outpass
+
+Status: APPROVED
+Outpass Reference ID: ${item.outpassId}
+Student Name: ${item.studentName}
+Admission Number: ${item.admissionNumber}
+Class & Division: Class ${item.class}-${item.division}
+Departure Schedule: ${dtStr}
+Reason: ${item.reason}
+Approved By: ${item.updatedBy || currentUser.displayName || "School Administration"}
+
+---------------------------------------------------------
+SCHOOL EXIT VERIFICATION GUIDELINE:
+Before leaving school, please tell the student's admission number (${item.admissionNumber}) to the class teacher. They will verify this approved outpass, after which you may leave safely.
+---------------------------------------------------------
+
+Holy Family International School
+Gatekeeper & Student Safety System`;
+
+        const mailtoUrl = `mailto:${encodeURIComponent(email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        window.open(mailtoUrl, "_blank");
+      };
+
       // Update Handler for Actions
       window.handleUpdate = async function(outpassId, newStatus) {
         const actionWord = newStatus === "APPROVED" ? "Approve" : newStatus === "CANCELLED" ? "Cancel/Reject" : "mark Exited";
@@ -1134,8 +1178,22 @@
 
         try {
           const res = await window.apiService.updateOutpassStatus(outpassId, newStatus, `Updated via Security Console`, currentUser.displayName || "Staff");
-          if (newStatus === "APPROVED" && res && res.parentEmail) {
-            alert(`✅ Outpass ${outpassId} APPROVED!\nOfficial digital outpass notification sent to: ${res.parentEmail}`);
+          if (newStatus === "APPROVED") {
+            const email = (res && res.parentEmail) || (allOutpasses.find(o => o.outpassId === outpassId)?.parentEmail) || "";
+            if (res && res.emailSent) {
+              alert(`✅ Outpass ${outpassId} APPROVED!\nAutomated AWS SES confirmation email sent to: ${email}`);
+            } else if (email) {
+              const sendNow = confirm(
+                `✅ Outpass ${outpassId} has been APPROVED!\n\n` +
+                `Recipient Email: ${email}\n\n` +
+                `Would you like to open your email client to send the official approval email to the parent now?`
+              );
+              if (sendNow) {
+                window.sendParentEmailNotification(outpassId);
+              }
+            } else {
+              alert(`✅ Outpass ${outpassId} APPROVED!`);
+            }
           }
           await loadOutpasses();
         } catch (err) {
