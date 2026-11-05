@@ -117,7 +117,7 @@ class HofisApiService {
           return data.data;
         }
       } catch (err) {
-        console.warn("Live AWS lookup failed, falling back to official student registry:", err.message);
+
       }
     }
 
