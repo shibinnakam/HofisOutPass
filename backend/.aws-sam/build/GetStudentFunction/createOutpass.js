@@ -88,6 +88,7 @@ exports.handler = async (event) => {
     }
 
     // Verify student exists in DynamoDB
+    let student = null;
     const studentCheck = await docClient.send(
       new GetCommand({
         TableName: STUDENTS_TABLE,
@@ -95,7 +96,30 @@ exports.handler = async (event) => {
       })
     );
 
-    if (!studentCheck.Item) {
+    if (studentCheck.Item) {
+      student = studentCheck.Item;
+    } else if (payload.studentName) {
+      // Auto-cache student into DynamoDB
+      student = {
+        admissionNumber: String(admissionNumber).trim(),
+        studentName: payload.studentName,
+        fatherName: payload.fatherName || payload.parentName || "Parent",
+        class: String(payload.class || "5"),
+        division: String(payload.division || "A"),
+        contactEmail: payload.parentEmail || "",
+        contactNumber: payload.parentPhone || "+91 98765 43210"
+      };
+      try {
+        await docClient.send(
+          new PutCommand({
+            TableName: STUDENTS_TABLE,
+            Item: student
+          })
+        );
+      } catch (cacheErr) {
+        console.warn("Could not auto-insert student into DynamoDB:", cacheErr.message);
+      }
+    } else {
       return {
         statusCode: 404,
         headers: corsHeaders,
@@ -105,8 +129,6 @@ exports.handler = async (event) => {
         })
       };
     }
-
-    const student = studentCheck.Item;
 
     // Check if an outpass already exists for this student on this departure date
     const targetDateStr = new Date(leaveDateTime).toISOString().slice(0, 10); // YYYY-MM-DD

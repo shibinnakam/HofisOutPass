@@ -9,7 +9,7 @@ const REGION = process.env.AWS_REGION || "ap-south-1";
 const sesClient = new SESClient({ region: REGION });
 
 const OUTPASS_TABLE = process.env.OUTPASS_TABLE || "Hofis_Outpasses";
-const SENDER_EMAIL = process.env.SENDER_EMAIL || "shibinsajinakathunkal@gmail.com";
+const SENDER_EMAIL = process.env.SENDER_EMAIL || "hofispr@gmail.com";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
