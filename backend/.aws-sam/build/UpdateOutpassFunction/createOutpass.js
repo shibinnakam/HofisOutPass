@@ -2,8 +2,7 @@ const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
 const { DynamoDBDocumentClient, GetCommand, PutCommand, QueryCommand } = require("@aws-sdk/lib-dynamodb");
 const crypto = require("crypto");
 
-const client = new DynamoDBClient({});
-const docClient = DynamoDBDocumentClient.from(client);
+const { docClient, REGION } = require("../core/dynamoClient");
 
 const STUDENTS_TABLE = process.env.STUDENTS_TABLE || "Hofis_Students";
 const OUTPASS_TABLE = process.env.OUTPASS_TABLE || "Hofis_Outpasses";
