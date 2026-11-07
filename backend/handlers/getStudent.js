@@ -1,7 +1,6 @@
 // getStudent handler – uses shared DynamoDB client
 const { GetCommand } = require("@aws-sdk/lib-dynamodb");
 const { docClient } = require("../core/dynamoClient");
-
 const STUDENTS_TABLE = process.env.STUDENTS_TABLE || "Hofis_Students";
 
 const corsHeaders = {
