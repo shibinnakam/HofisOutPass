@@ -5,6 +5,18 @@
  */
 
 class HofisApiService {
+  // Simple toast helper – replace with your UI library if you have one
+  _showErrorToast(msg) {
+    // If a toast element exists (e.g., Bootstrap toast), use it; otherwise fall back to alert.
+    const toastEl = document.getElementById('errorToast');
+    if (toastEl && typeof bootstrap !== 'undefined') {
+      toastEl.querySelector('.toast-body').textContent = msg;
+      const toast = new bootstrap.Toast(toastEl);
+      toast.show();
+    } else {
+      alert(msg);
+    }
+  }
   constructor() {
     this._initAdminCred();
   }
@@ -73,6 +85,40 @@ class HofisApiService {
    * Payload MUST include: admissionNumber, reason, leaveDateTime, parentEmail.
    */
   async submitOutpass(payload) {
+    if (!payload.admissionNumber || !payload.reason || !payload.leaveDateTime) {
+      const msg = "Missing required outpass fields.";
+      this._showErrorToast(msg);
+      throw new Error(msg);
+    }
+    if (!payload.parentEmail || !payload.parentEmail.includes("@")) {
+      const msg = "A valid parent email address is required to receive the outpass approval.";
+      this._showErrorToast(msg);
+      throw new Error(msg);
+    }
+
+    const url = `${this.apiBase}/outpass`;
+    let res, data;
+    try {
+      res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      data = await res.json();
+    } catch (err) {
+      const msg = "Cannot connect to the school server. Please check your internet and try again.";
+      this._showErrorToast(msg);
+      throw new Error(msg);
+    }
+
+    if (res.ok && data.success && data.data) {
+      return data.data;
+    }
+
+    const backendMsg = data.message || `HTTP ${res.status} ${res.statusText}`;
+    this._showErrorToast(backendMsg);
+    throw new Error(backendMsg);
+  }
     if (!payload.admissionNumber || !payload.reason || !payload.leaveDateTime) {
       throw new Error("Missing required outpass fields.");
     }
