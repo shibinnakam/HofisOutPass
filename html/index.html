@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Holy Family International School - Student Outpass Request</title>
+  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="icon" type="image/png" href="../img/hofis.png" />
+</head>
+<body>
+  <!-- Header / Navigation Bar -->
+  <header class="site-header">
+    <div class="header-left">
+      <a href="index.html" class="nav-brand" title="Holy Family International School">
+        <img src="../img/hofis.png" alt="Holy Family International School" class="brand-logo" />
+      </a>
+      <nav class="nav-menu">
+        <a href="#outpass" id="navOutpassBadge" class="nav-item badge-outpass" onclick="switchView('outpass'); return false;">OUTPASS PORTAL</a>
+        
+        <a href="#parent" id="navParent" class="nav-item badge-parent" onclick="switchView('outpass'); return false;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+          Parent Portal
+        </a>
+
+        <a href="#login" id="navLogin" class="nav-item" onclick="switchView('login'); return false;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+          Login
+        </a>
+
+        <a href="#guidelines" class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+          </svg>
+          Guidelines
+        </a>
+
+        <a href="#helpdesk" class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path d="M3 18v-6a9 9 0 0 1 18 0v6"></path>
+            <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path>
+          </svg>
+          Helpdesk
+        </a>
+      </nav>
+    </div>
+
+    <div class="header-right">
+      <div class="aws-status-pill">
+        <span class="status-dot"></span>
+        AWS Serverless
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Viewport Container with Campus Background -->
+  <main class="main-wrapper">
+    <!-- STUDENT OUTPASS REQUEST CARD -->
+    <div id="outpassView" class="auth-card">
+      
+      <!-- School Logo in Card -->
+      <div class="card-logo-container">
+        <img src="../img/hofis.png" alt="Holy Family International School" class="card-logo" />
+      </div>
+
+      <!-- Step Indicator -->
+      <div class="stepper-progress" aria-label="Step 1 of 4">
+        <div class="step-bar active" id="stepBar1" title="Step 1: Student Lookup"></div>
+        <div class="step-bar inactive" id="stepBar2" title="Step 2: Confirm Student"></div>
+        <div class="step-bar inactive" title="Step 3: Outpass Details"></div>
+        <div class="step-bar inactive" title="Step 4: Submit Request"></div>
+      </div>
+
+      <!-- Card Title & Prompt -->
+      <h1 class="card-title">Student Outpass Request</h1>
+      <p class="card-subtitle" id="lookupSubtitle">Enter student admission number to begin</p>
+
+      <!-- Admission Number Search Form -->
+      <form id="studentSearchForm" class="admission-form">
+        <div class="form-group">
+          <label for="admissionInput" class="form-label">
+            Admission Number <span class="required">*</span>
+          </label>
+          <input
+            type="text"
+            id="admissionInput"
+            name="admission"
+            class="form-input"
+            placeholder="Enter student admission number"
+            required
+            autocomplete="off"
+            autofocus
+          />
+        </div>
+
+        <button type="submit" id="searchBtn" class="btn-search">
+          <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <span class="spinner"></span>
+          <span class="btn-text">Search Student</span>
+        </button>
+      </form>
+
+      <!-- Alert Box shown ONLY if parent enters an admission number not in the database -->
+      <div id="alertBox" class="alert-error" style="display: none;">
+        <span id="alertMessage"></span>
+      </div>
+
+      <!-- Student Details Confirmation Box (Shown when student is found in database) -->
+      <div id="studentConfirmBox" style="display: none; margin-top: 18px; text-align: left;">
+        <div class="student-info-box" style="margin-bottom: 16px;">
+          <div class="student-avatar" id="confirmAvatar">ST</div>
+          <div class="student-details">
+            <h3 id="confirmName">Student Name <span class="badge-tag">Verified</span></h3>
+            <p><strong>Admission No:</strong> <span id="confirmAdm">--</span></p>
+            <p><strong>Class:</strong> <span id="confirmClass">--</span></p>
+            <p><strong>Father's Name:</strong> <span id="confirmFather">--</span></p>
+          </div>
+        </div>
+
+        <button type="button" id="confirmProceedBtn" class="btn-search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          <span>Confirm &amp; Continue</span>
+        </button>
+
+        <button
+          type="button"
+          id="changeStudentBtn"
+          style="width:100%; margin-top:10px; background:#f1f5f9; color:#334155; border:1px solid #cbd5e1; border-radius:10px; height:42px; font-weight:600; font-size:13.5px; cursor:pointer;"
+        >
+          Search Another Admission Number
+        </button>
+      </div>
+
+    </div>
+
+    <!-- LOGIN CARD (Shown when Login is clicked in navbar) -->
+    <div id="loginView" class="auth-card" style="display: none;">
+      <!-- School Logo in Card -->
+      <div class="card-logo-container">
+        <img src="../img/hofis.png" alt="Holy Family International School" class="card-logo" />
+      </div>
+
+      <!-- Card Title & Prompt -->
+      <h1 class="card-title">Portal Login</h1>
+      <p class="card-subtitle">Enter your username and password to sign in</p>
+
+      <!-- Login Form -->
+      <form id="loginForm" class="admission-form">
+        <div class="form-group">
+          <label for="usernameInput" class="form-label">
+            Username <span class="required">*</span>
+          </label>
+          <input
+            type="text"
+            id="usernameInput"
+            name="username"
+            class="form-input"
+            placeholder="Enter username"
+            required
+            autocomplete="username"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="passwordInput" class="form-label">
+            Password <span class="required">*</span>
+          </label>
+          <input
+            type="password"
+            id="passwordInput"
+            name="password"
+            class="form-input"
+            placeholder="Enter password"
+            required
+            autocomplete="current-password"
+          />
+        </div>
+
+        <button type="submit" id="loginBtn" class="btn-search">
+          <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+          <span class="spinner"></span>
+          <span class="btn-text">Login</span>
+        </button>
+      </form>
+
+      <!-- Login Status / Error Alert Box -->
+      <div id="loginAlertBox" class="alert-error" style="display: none;">
+        <span id="loginAlertMessage"></span>
+      </div>
+    </div>
+  </main>
+
+  <script src="../js/students-data.js"></script>
+  <script src="../js/main.js"></script>
+</body>
+</html>

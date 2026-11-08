@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Holy Family International School - Staff &amp; Gatekeeper Administration</title>
+  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="icon" type="image/png" href="../img/hofis.png" />
+</head>
+<body class="admin-body">
+  <!-- Top Header / Navigation Bar -->
+  <header class="site-header admin-header">
+    <div class="header-left">
+      <a href="index.html" class="nav-brand" title="Holy Family International School">
+        <img src="../img/hofis.png" alt="Holy Family International School" class="brand-logo" />
+      </a>
+      <span class="header-divider"></span>
+      <span class="nav-item badge-outpass">STAFF CONSOLE</span>
+    </div>
+
+    <nav class="nav-menu admin-nav-center">
+      <a href="index.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1V9.5z"></path>
+        </svg>
+        Parent Portal
+      </a>
+
+      <a href="admin.html" class="nav-item badge-parent">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+        </svg>
+        Console
+      </a>
+
+      <a href="#guidelines" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="16" x2="12" y2="12"></line>
+          <line x1="12" y1="8" x2="12.01" y2="8"></line>
+        </svg>
+        Guidelines
+      </a>
+
+      <a href="#helpdesk" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+        </svg>
+        Helpdesk
+      </a>
+    </nav>
+
+    <div class="header-right admin-header-right">
+      <div class="aws-status-pill">
+        <span class="status-dot"></span>
+        <span id="adminUserLabel">Administrator (hofis)</span>
+      </div>
+
+      <button type="button" class="btn-account-settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+        Account Settings
+      </button>
+
+      <a href="index.html#login" class="btn-sign-out" onclick="sessionStorage.removeItem('adminUser');">
+        Sign Out
+      </a>
+    </div>
+  </header>
+
+  <!-- Main Campus Background Wrapper -->
+  <main class="admin-main-wrapper">
+    <div class="admin-container">
+
+      <!-- Card 1: Page Title Banner -->
+      <section class="admin-card admin-title-banner">
+        <div>
+          <span class="admin-eyebrow">STAFF &amp; GATEKEEPER ADMINISTRATION</span>
+          <h1 class="admin-main-title">Outpass Verification &amp; Approval</h1>
+        </div>
+        <div class="admin-default-view">
+          Default View: <strong>Pending Requests</strong>
+        </div>
+      </section>
+
+      <!-- Card 2: Gate Security Fast Pass Verification -->
+      <section class="admin-card admin-verify-card">
+        <div class="verify-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+          </svg>
+          <h2>Gate Security Fast Pass Verification</h2>
+        </div>
+        <p class="verify-subtitle">Scan student QR code or type Outpass Reference ID / Student Admission Number</p>
+        <form id="verifyPassForm" class="verify-form">
+          <input
+            type="text"
+            id="verifyPassInput"
+            class="verify-input"
+            placeholder="Scan QR code or enter Outpass ID / Admission Number"
+            autocomplete="off"
+          />
+          <button type="submit" class="btn-verify-pass">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            Verify Pass
+          </button>
+        </form>
+      </section>
+
+      <!-- Card 3: 5 KPI Summary Cards Row -->
+      <section class="admin-kpi-grid">
+        <div class="kpi-card kpi-pending" onclick="filterAdminTab('pending')">
+          <div class="kpi-value" id="kpiPending">0</div>
+          <div class="kpi-label">PENDING APPROVAL (DEFAULT)</div>
+        </div>
+
+        <div class="kpi-card kpi-approved" onclick="filterAdminTab('approved')">
+          <div class="kpi-value" id="kpiApproved">1</div>
+          <div class="kpi-label">APPROVED &amp; WAITING</div>
+        </div>
+
+        <div class="kpi-card kpi-cancelled" onclick="filterAdminTab('cancelled')">
+          <div class="kpi-value" id="kpiCancelled">6</div>
+          <div class="kpi-label">CANCELLED / REJECTED</div>
+        </div>
+
+        <div class="kpi-card kpi-exited" onclick="filterAdminTab('exited')">
+          <div class="kpi-value" id="kpiExited">0</div>
+          <div class="kpi-label">DEPARTED SCHOOL</div>
+        </div>
+
+        <div class="kpi-card kpi-total" onclick="filterAdminTab('all')">
+          <div class="kpi-value" id="kpiTotal">7</div>
+          <div class="kpi-label">TOTAL REQUESTS</div>
+        </div>
+      </section>
+
+      <!-- Card 4: Filter Tabs & Requests Table -->
+      <section class="admin-card admin-table-card">
+        <div class="table-toolbar">
+          <div class="filter-tabs">
+            <button type="button" class="filter-tab" data-tab="pending" onclick="filterAdminTab('pending')">
+              Pending <span class="tab-count" id="tabCountPending">0</span>
+            </button>
+            <button type="button" class="filter-tab active" data-tab="approved" onclick="filterAdminTab('approved')">
+              Approved <span class="tab-count" id="tabCountApproved">1</span>
+            </button>
+            <button type="button" class="filter-tab" data-tab="cancelled" onclick="filterAdminTab('cancelled')">
+              Cancelled <span class="tab-count" id="tabCountCancelled">6</span>
+            </button>
+            <button type="button" class="filter-tab" data-tab="exited" onclick="filterAdminTab('exited')">
+              Exited Gate <span class="tab-count" id="tabCountExited">0</span>
+            </button>
+            <button type="button" class="filter-tab" data-tab="all" onclick="filterAdminTab('all')">
+              All <span class="tab-count" id="tabCountAll">7</span>
+            </button>
+          </div>
+
+          <div class="toolbar-controls">
+            <input
+              type="month"
+              id="deleteMonthInput"
+              class="sort-select"
+              title="Select Month to Delete Outpass Data"
+            />
+            <button
+              type="button"
+              class="btn-action btn-revoke"
+              style="height:34px; padding:0 12px; border:1px solid #fecaca;"
+              onclick="deleteMonthlyData()"
+              title="Delete all outpass requests for the selected month"
+            >
+              Delete Monthly Data
+            </button>
+
+            <label for="sortSelect" class="sort-label">Sort:</label>
+            <select id="sortSelect" class="sort-select" onchange="renderAdminTable()">
+              <option value="newest">Request Date (Newest First)</option>
+              <option value="oldest">Request Date (Oldest First)</option>
+            </select>
+            <button type="button" class="btn-refresh" onclick="renderAdminTable()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="23 4 23 10 17 10"></polyline>
+                <polyline points="1 20 1 14 7 14"></polyline>
+                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+              </svg>
+              Refresh
+            </button>
+          </div>
+        </div>
+
+        <!-- Email Notification Status Banner -->
+        <div id="adminEmailBanner" style="display:none; margin: 12px 24px 0; padding: 12px 16px; border-radius: 10px; background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; font-size: 13px; align-items: center; justify-content: space-between; gap: 12px;">
+          <span id="adminEmailBannerText"></span>
+          <a id="adminEmailMailtoBtn" href="#" target="_blank" class="btn-action btn-mark-exit" style="text-decoration:none;">Open in Gmail / Mail</a>
+        </div>
+
+        <div class="table-responsive">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>PASS ID</th>
+                <th>STUDENT DETAILS</th>
+                <th>SCHEDULE (REQ &amp; LEAVE)</th>
+                <th>REASON FOR LEAVE</th>
+                <th>PICKUP GUARDIAN</th>
+                <th>STATUS</th>
+                <th>ACTIONS</th>
+              </tr>
+            </thead>
+            <tbody id="adminTableBody">
+              <!-- Populated by main.js (and default static row matching screenshot) -->
+              <tr>
+                <td>
+                  <span class="pass-id-pill">HOFIS-261104-E1F2</span>
+                </td>
+                <td>
+                  <div class="student-cell-name">Sarah Elizabeth Mathews</div>
+                  <div class="student-cell-meta">Adm: <strong>10021</strong> &bull; Class 7-B</div>
+                </td>
+                <td>
+                  <div class="schedule-req">Req: Nov 5, 09:03 AM</div>
+                  <div class="schedule-leave">Leave: Nov 5, 10:03 AM</div>
+                </td>
+                <td class="reason-cell">
+                  Medical checkup appointment with dentist
+                </td>
+                <td>
+                  <div class="guardian-name">Father (Mathews George)</div>
+                  <div class="guardian-phone">
+                    <svg viewBox="0 0 24 24" fill="currentColor" class="phone-icon">
+                      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                    </svg>
+                    +91 98450 11223
+                  </div>
+                </td>
+                <td>
+                  <span class="status-pill status-approved">
+                    <svg viewBox="0 0 24 24" fill="currentColor" width="13" height="13">
+                      <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path>
+                    </svg>
+                    APPROVED
+                  </span>
+                </td>
+                <td>
+                  <div class="action-buttons">
+                    <button type="button" class="btn-action btn-mark-exit" onclick="markPassStatus('HOFIS-261104-E1F2', 'exited')">Mark Exit</button>
+                    <button type="button" class="btn-action btn-email" onclick="sendPassEmail('HOFIS-261104-E1F2')">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
+                        <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+                        <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+                      </svg>
+                      Email
+                    </button>
+                    <button type="button" class="btn-action btn-revoke" onclick="markPassStatus('HOFIS-261104-E1F2', 'cancelled')">Revoke</button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Bottom Footer -->
+  <footer class="admin-footer">
+    &copy; Holy Family International School (HOFIS) Admin &amp; Security Portal. Integrated with AWS Cognito.
+  </footer>
+
+  <script src="../js/students-data.js"></script>
+  <script src="../js/main.js"></script>
+</body>
+</html>
+
