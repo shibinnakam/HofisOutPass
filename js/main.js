@@ -11,7 +11,8 @@ const AWS_COGNITO_CONFIG = {
   clientId: '4nelkm71va2q43r0uc108baorv'
 };
 const ADMIN_SENDER_EMAIL = 'shibinsajip@gmail.com';
-const OUTPASS_STORAGE_KEY = 'hofis_outpass_requests_v1';
+const OUTPASS_STORAGE_KEY = 'hofis_outpass_requests_v2';
+try { localStorage.removeItem('hofis_outpass_requests_v1'); } catch (e) {}
 
 // Default Admin Account in DynamoDB (HofisAdmins) & AWS Cognito
 const ADMINS_DB = {
@@ -483,7 +484,7 @@ function initOutpassForm() {
       minute: '2-digit'
     });
 
-    const newRequest = {
+    let finalRequest = {
       passId: passCode,
       studentName: student.name,
       admissionNo: student.admissionNo,
@@ -500,17 +501,13 @@ function initOutpassForm() {
       timestamp: Date.now()
     };
 
-    // Save to shared local store so Admin sees it immediately
-    const allRequests = loadOutpassRequests();
-    allRequests.unshift(newRequest);
-    saveOutpassRequests(allRequests);
-
-    // Also send to AWS API Gateway / DynamoDB if deployed
+    // Send to AWS API Gateway / DynamoDB first and use the returned passId so only 1 entry exists
     try {
-      await fetch(`${AWS_API_BASE_URL}/outpasses`, {
+      const res = await fetch(`${AWS_API_BASE_URL}/outpasses`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          passId: passCode,
           admissionNo: student.admissionNo,
           reason,
           leaveDate,
@@ -519,7 +516,18 @@ function initOutpassForm() {
           phone
         })
       });
+      if (res.ok) {
+        const awsItem = await res.json();
+        if (awsItem && awsItem.passId) {
+          finalRequest = awsItem;
+        }
+      }
     } catch (err) {}
+
+    // Save the single canonical request to local store
+    const allRequests = loadOutpassRequests().filter((r) => r.passId !== finalRequest.passId);
+    allRequests.unshift(finalRequest);
+    saveOutpassRequests(allRequests);
 
     // Show Submitted Confirmation Card
     const passResult = document.getElementById('passResult');
@@ -530,7 +538,7 @@ function initOutpassForm() {
       if (el) el.textContent = val;
     };
 
-    setEl('ticketPassId', passCode);
+    setEl('ticketPassId', finalRequest.passId);
     setEl('ticketEmail', parentEmail);
     setEl('ticketParentEmailGrid', parentEmail);
     setEl('ticketStudent', student.name);
@@ -837,15 +845,9 @@ async function syncAdminRequestsFromAws() {
     const res = await fetch(`${AWS_API_BASE_URL}/outpasses`);
     if (res.ok) {
       const data = await res.json();
-      if (Array.isArray(data.items) && data.items.length > 0) {
-        const local = loadOutpassRequests();
-        const byId = new Map();
-        data.items.forEach((item) => byId.set(item.passId, item));
-        local.forEach((item) => {
-          if (!byId.has(item.passId)) byId.set(item.passId, item);
-        });
-        const merged = Array.from(byId.values()).sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-        saveOutpassRequests(merged);
+      if (Array.isArray(data.items)) {
+        const sorted = data.items.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+        saveOutpassRequests(sorted);
         updateAdminCounts();
         renderAdminTable();
       }

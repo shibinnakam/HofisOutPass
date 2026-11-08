@@ -259,7 +259,7 @@ exports.createOutpassHandler = async (event) => {
     const mm = String(now.getMonth() + 1).padStart(2, '0');
     const dd = String(now.getDate()).padStart(2, '0');
     const datePart = String(yyyy).slice(-2) + mm + dd;
-    const passId = `HOFIS-${datePart}-${randomHex}`;
+    const passId = payload.passId || `HOFIS-${datePart}-${randomHex}`;
     const monthKey = leaveDate ? leaveDate.slice(0, 7) : `${yyyy}-${mm}`;
 
     const item = {
