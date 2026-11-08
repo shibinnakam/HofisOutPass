@@ -35,7 +35,7 @@
           Login
         </a>
 
-        <a href="#guidelines" class="nav-item">
+        <a href="index.html#guidelines" class="nav-item">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <circle cx="12" cy="12" r="10"></circle>
             <line x1="12" y1="16" x2="12" y2="12"></line>
@@ -44,7 +44,7 @@
           Guidelines
         </a>
 
-        <a href="#helpdesk" class="nav-item">
+        <a href="index.html#helpdesk" class="nav-item">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <path d="M3 18v-6a9 9 0 0 1 18 0v6"></path>
             <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path>
@@ -113,15 +113,15 @@
         <div class="form-row">
           <div class="form-group">
             <label for="outpassDate" class="form-label">
-              Date to Leave School <span class="required">*</span>
+              Date to Leave School (Today Only) <span class="required">*</span>
             </label>
             <input type="date" id="outpassDate" class="form-input" required />
           </div>
           <div class="form-group">
             <label for="outpassTime" class="form-label">
-              Time to Leave School <span class="required">*</span>
+              Time to Leave (9:30 AM – 3:30 PM) <span class="required">*</span>
             </label>
-            <input type="time" id="outpassTime" class="form-input" required />
+            <input type="time" id="outpassTime" class="form-input" min="09:30" max="15:30" required />
           </div>
         </div>
 
@@ -150,6 +150,10 @@
               required
             />
           </div>
+        </div>
+
+        <div id="outpassFormError" class="alert-error" style="display: none; margin-top: 8px; margin-bottom: 12px;">
+          <span id="outpassFormErrorText"></span>
         </div>
 
         <button type="submit" class="btn-search" style="margin-top: 16px;">

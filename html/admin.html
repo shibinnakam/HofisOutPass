@@ -3,280 +3,342 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Holy Family International School - Staff &amp; Gatekeeper Administration</title>
+  <title>HOFIS Admin - Outpass Management Console</title>
   <link rel="stylesheet" href="../css/style.css" />
   <link rel="icon" type="image/png" href="../img/hofis.png" />
 </head>
-<body class="admin-body">
-  <!-- Top Header / Navigation Bar -->
-  <header class="site-header admin-header">
-    <div class="header-left">
-      <a href="index.html" class="nav-brand" title="Holy Family International School">
-        <img src="../img/hofis.png" alt="Holy Family International School" class="brand-logo" />
-      </a>
-      <span class="header-divider"></span>
-      <span class="nav-item badge-outpass">STAFF CONSOLE</span>
-    </div>
-
-    <nav class="nav-menu admin-nav-center">
-      <a href="index.html" class="nav-item">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-          <path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1V9.5z"></path>
-        </svg>
-        Parent Portal
-      </a>
-
-      <a href="admin.html" class="nav-item badge-parent">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-          <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-        </svg>
-        Console
-      </a>
-
-      <a href="#guidelines" class="nav-item">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-          <circle cx="12" cy="12" r="10"></circle>
-          <line x1="12" y1="16" x2="12" y2="12"></line>
-          <line x1="12" y1="8" x2="12.01" y2="8"></line>
-        </svg>
-        Guidelines
-      </a>
-
-      <a href="#helpdesk" class="nav-item">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
-        </svg>
-        Helpdesk
-      </a>
-    </nav>
-
-    <div class="header-right admin-header-right">
-      <div class="aws-status-pill">
-        <span class="status-dot"></span>
-        <span id="adminUserLabel">Administrator (hofis)</span>
+<body class="oa-body">
+  <div class="oa-layout" id="oaLayout">
+    
+    <!-- Left Dark Sidebar (Open Admin Style) -->
+    <aside class="oa-sidebar">
+      <div class="oa-brand">
+        <a href="admin.html" class="oa-brand-link">
+          <strong>HOFIS</strong> <span>Admin</span>
+        </a>
       </div>
 
-      <button type="button" class="btn-account-settings">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="3"></circle>
-          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-        </svg>
-        Account Settings
-      </button>
-
-      <a href="index.html#login" class="btn-sign-out" onclick="sessionStorage.removeItem('adminUser');">
-        Sign Out
-      </a>
-    </div>
-  </header>
-
-  <!-- Main Campus Background Wrapper -->
-  <main class="admin-main-wrapper">
-    <div class="admin-container">
-
-      <!-- Card 1: Page Title Banner -->
-      <section class="admin-card admin-title-banner">
-        <div>
-          <span class="admin-eyebrow">STAFF &amp; GATEKEEPER ADMINISTRATION</span>
-          <h1 class="admin-main-title">Outpass Verification &amp; Approval</h1>
-        </div>
-        <div class="admin-default-view">
-          Default View: <strong>Pending Requests</strong>
-        </div>
-      </section>
-
-      <!-- Card 2: Gate Security Fast Pass Verification -->
-      <section class="admin-card admin-verify-card">
-        <div class="verify-header">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-          </svg>
-          <h2>Gate Security Fast Pass Verification</h2>
-        </div>
-        <p class="verify-subtitle">Scan student QR code or type Outpass Reference ID / Student Admission Number</p>
-        <form id="verifyPassForm" class="verify-form">
+      <!-- Sidebar Search Box -->
+      <div class="oa-sidebar-search">
+        <form id="verifyPassForm" class="oa-search-box">
           <input
             type="text"
             id="verifyPassInput"
-            class="verify-input"
-            placeholder="Scan QR code or enter Outpass ID / Admission Number"
+            placeholder="Search Pass ID / Adm No..."
             autocomplete="off"
           />
-          <button type="submit" class="btn-verify-pass">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <button type="submit" title="Verify / Search Pass">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="11" cy="11" r="8"></circle>
               <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
             </svg>
-            Verify Pass
           </button>
         </form>
-      </section>
+      </div>
 
-      <!-- Card 3: 5 KPI Summary Cards Row -->
-      <section class="admin-kpi-grid">
-        <div class="kpi-card kpi-pending" onclick="filterAdminTab('pending')">
-          <div class="kpi-value" id="kpiPending">0</div>
-          <div class="kpi-label">PENDING APPROVAL (DEFAULT)</div>
-        </div>
+      <!-- Sidebar Menu -->
+      <ul class="oa-nav">
+        <li class="oa-nav-item">
+          <a href="#all" class="oa-nav-link" data-side-tab="all" onclick="filterAdminTab('all'); return false;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="20" x2="18" y2="10"></line>
+              <line x1="12" y1="20" x2="12" y2="4"></line>
+              <line x1="6" y1="20" x2="6" y2="14"></line>
+            </svg>
+            <span>Dashboard (All)</span>
+          </a>
+        </li>
 
-        <div class="kpi-card kpi-approved" onclick="filterAdminTab('approved')">
-          <div class="kpi-value" id="kpiApproved">1</div>
-          <div class="kpi-label">APPROVED &amp; WAITING</div>
-        </div>
+        <li class="oa-nav-item">
+          <a href="#pending" class="oa-nav-link active" data-side-tab="pending" onclick="filterAdminTab('pending'); return false;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+            </svg>
+            <span>Pending Requests</span>
+          </a>
+        </li>
 
-        <div class="kpi-card kpi-cancelled" onclick="filterAdminTab('cancelled')">
-          <div class="kpi-value" id="kpiCancelled">6</div>
-          <div class="kpi-label">CANCELLED / REJECTED</div>
-        </div>
+        <li class="oa-nav-item">
+          <a href="#approved" class="oa-nav-link" data-side-tab="approved" onclick="filterAdminTab('approved'); return false;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            <span>Approved Passes</span>
+          </a>
+        </li>
 
-        <div class="kpi-card kpi-exited" onclick="filterAdminTab('exited')">
-          <div class="kpi-value" id="kpiExited">0</div>
-          <div class="kpi-label">DEPARTED SCHOOL</div>
-        </div>
+        <li class="oa-nav-item">
+          <a href="#cancelled" class="oa-nav-link" data-side-tab="cancelled" onclick="filterAdminTab('cancelled'); return false;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="15" y1="9" x2="9" y2="15"></line>
+              <line x1="9" y1="9" x2="15" y2="15"></line>
+            </svg>
+            <span>Cancelled / Rejected</span>
+          </a>
+        </li>
 
-        <div class="kpi-card kpi-total" onclick="filterAdminTab('all')">
-          <div class="kpi-value" id="kpiTotal">7</div>
-          <div class="kpi-label">TOTAL REQUESTS</div>
-        </div>
-      </section>
+        <li class="oa-nav-item">
+          <a href="#exited" class="oa-nav-link" data-side-tab="exited" onclick="filterAdminTab('exited'); return false;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+              <polyline points="16 17 21 12 16 7"></polyline>
+              <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+            <span>Departed School</span>
+          </a>
+        </li>
 
-      <!-- Card 4: Filter Tabs & Requests Table -->
-      <section class="admin-card admin-table-card">
-        <div class="table-toolbar">
-          <div class="filter-tabs">
-            <button type="button" class="filter-tab" data-tab="pending" onclick="filterAdminTab('pending')">
-              Pending <span class="tab-count" id="tabCountPending">0</span>
-            </button>
-            <button type="button" class="filter-tab active" data-tab="approved" onclick="filterAdminTab('approved')">
-              Approved <span class="tab-count" id="tabCountApproved">1</span>
-            </button>
-            <button type="button" class="filter-tab" data-tab="cancelled" onclick="filterAdminTab('cancelled')">
-              Cancelled <span class="tab-count" id="tabCountCancelled">6</span>
-            </button>
-            <button type="button" class="filter-tab" data-tab="exited" onclick="filterAdminTab('exited')">
-              Exited Gate <span class="tab-count" id="tabCountExited">0</span>
-            </button>
-            <button type="button" class="filter-tab" data-tab="all" onclick="filterAdminTab('all')">
-              All <span class="tab-count" id="tabCountAll">7</span>
-            </button>
-          </div>
+        <li class="oa-nav-item">
+          <a href="#change-password" class="oa-nav-link" id="navChangePassword" onclick="openChangePasswordModal(); return false;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path>
+            </svg>
+            <span>Change Password</span>
+          </a>
+        </li>
 
-          <div class="toolbar-controls">
-            <input
-              type="month"
-              id="deleteMonthInput"
-              class="sort-select"
-              title="Select Month to Delete Outpass Data"
-            />
-            <button
-              type="button"
-              class="btn-action btn-revoke"
-              style="height:34px; padding:0 12px; border:1px solid #fecaca;"
-              onclick="deleteMonthlyData()"
-              title="Delete all outpass requests for the selected month"
-            >
-              Delete Monthly Data
-            </button>
+        <li class="oa-nav-item">
+          <a href="index.html#login" class="oa-nav-link" onclick="sessionStorage.removeItem('adminUser');">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+            <span>Sign Out</span>
+          </a>
+        </li>
+      </ul>
+    </aside>
 
-            <label for="sortSelect" class="sort-label">Sort:</label>
-            <select id="sortSelect" class="sort-select" onchange="renderAdminTable()">
-              <option value="newest">Request Date (Newest First)</option>
-              <option value="oldest">Request Date (Oldest First)</option>
-            </select>
-            <button type="button" class="btn-refresh" onclick="renderAdminTable()">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="23 4 23 10 17 10"></polyline>
-                <polyline points="1 20 1 14 7 14"></polyline>
-                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+    <!-- Right Main Panel -->
+    <div class="oa-main">
+      
+      <!-- Top White Header Bar -->
+      <header class="oa-topbar">
+        <button type="button" class="oa-sidebar-toggle" onclick="document.getElementById('oaLayout').classList.toggle('sidebar-collapsed')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </button>
+
+        <div class="oa-topbar-right">
+          <div class="oa-user-profile">
+            <div class="oa-user-avatar">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"></path>
               </svg>
-              Refresh
-            </button>
+            </div>
+            <span id="adminUserLabel">Administrator</span>
+          </div>
+          <a href="index.html#login" class="oa-logout-btn" onclick="sessionStorage.removeItem('adminUser');">Sign Out</a>
+        </div>
+      </header>
+
+      <!-- Main Content Area -->
+      <main class="oa-content">
+        
+        <!-- Content Header & Breadcrumb -->
+        <div class="oa-content-header">
+          <div class="oa-page-title">
+            <h1>Outpass <small>List</small></h1>
+          </div>
+          <div class="oa-breadcrumb">
+            <a href="index.html">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="13" height="13">
+                <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"></path>
+              </svg>
+              Home
+            </a>
+            <span>/</span>
+            <span>Outpass Requests</span>
           </div>
         </div>
 
-        <!-- Email Notification Status Banner -->
-        <div id="adminEmailBanner" style="display:none; margin: 12px 24px 0; padding: 12px 16px; border-radius: 10px; background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; font-size: 13px; align-items: center; justify-content: space-between; gap: 12px;">
-          <span id="adminEmailBannerText"></span>
-          <a id="adminEmailMailtoBtn" href="#" target="_blank" class="btn-action btn-mark-exit" style="text-decoration:none;">Open in Gmail / Mail</a>
+        <!-- Compact KPI Strip -->
+        <div class="oa-kpi-strip">
+          <div class="oa-kpi-item" onclick="filterAdminTab('pending')">
+            <span class="oa-kpi-dot oa-dot-amber"></span>
+            <span class="oa-kpi-label">Pending:</span>
+            <strong id="kpiPending">0</strong>
+          </div>
+          <div class="oa-kpi-item" onclick="filterAdminTab('approved')">
+            <span class="oa-kpi-dot oa-dot-green"></span>
+            <span class="oa-kpi-label">Approved:</span>
+            <strong id="kpiApproved">1</strong>
+          </div>
+          <div class="oa-kpi-item" onclick="filterAdminTab('cancelled')">
+            <span class="oa-kpi-dot oa-dot-red"></span>
+            <span class="oa-kpi-label">Cancelled:</span>
+            <strong id="kpiCancelled">6</strong>
+          </div>
+          <div class="oa-kpi-item" onclick="filterAdminTab('exited')">
+            <span class="oa-kpi-dot oa-dot-blue"></span>
+            <span class="oa-kpi-label">Exited Gate:</span>
+            <strong id="kpiExited">0</strong>
+          </div>
+          <div class="oa-kpi-item" onclick="filterAdminTab('all')">
+            <span class="oa-kpi-dot oa-dot-slate"></span>
+            <span class="oa-kpi-label">Total:</span>
+            <strong id="kpiTotal">7</strong>
+          </div>
         </div>
 
-        <div class="table-responsive">
-          <table class="admin-table">
-            <thead>
-              <tr>
-                <th>PASS ID</th>
-                <th>STUDENT DETAILS</th>
-                <th>SCHEDULE (REQ &amp; LEAVE)</th>
-                <th>REASON FOR LEAVE</th>
-                <th>PICKUP GUARDIAN</th>
-                <th>STATUS</th>
-                <th>ACTIONS</th>
-              </tr>
-            </thead>
-            <tbody id="adminTableBody">
-              <!-- Populated by main.js (and default static row matching screenshot) -->
-              <tr>
-                <td>
-                  <span class="pass-id-pill">HOFIS-261104-E1F2</span>
-                </td>
-                <td>
-                  <div class="student-cell-name">Sarah Elizabeth Mathews</div>
-                  <div class="student-cell-meta">Adm: <strong>10021</strong> &bull; Class 7-B</div>
-                </td>
-                <td>
-                  <div class="schedule-req">Req: Nov 5, 09:03 AM</div>
-                  <div class="schedule-leave">Leave: Nov 5, 10:03 AM</div>
-                </td>
-                <td class="reason-cell">
-                  Medical checkup appointment with dentist
-                </td>
-                <td>
-                  <div class="guardian-name">Father (Mathews George)</div>
-                  <div class="guardian-phone">
-                    <svg viewBox="0 0 24 24" fill="currentColor" class="phone-icon">
-                      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
-                    </svg>
-                    +91 98450 11223
-                  </div>
-                </td>
-                <td>
-                  <span class="status-pill status-approved">
-                    <svg viewBox="0 0 24 24" fill="currentColor" width="13" height="13">
-                      <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path>
-                    </svg>
-                    APPROVED
-                  </span>
-                </td>
-                <td>
-                  <div class="action-buttons">
-                    <button type="button" class="btn-action btn-mark-exit" onclick="markPassStatus('HOFIS-261104-E1F2', 'exited')">Mark Exit</button>
-                    <button type="button" class="btn-action btn-email" onclick="sendPassEmail('HOFIS-261104-E1F2')">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
-                        <rect x="2" y="4" width="20" height="16" rx="2"></rect>
-                        <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
-                      </svg>
-                      Email
-                    </button>
-                    <button type="button" class="btn-action btn-revoke" onclick="markPassStatus('HOFIS-261104-E1F2', 'cancelled')">Revoke</button>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+        <!-- White Table Box (Open Admin Card) -->
+        <section class="oa-card">
+          
+          <!-- Action Toolbar -->
+          <div class="oa-toolbar">
+            <div class="oa-toolbar-left">
+              <a href="index.html" class="oa-btn oa-btn-green">
+                + New
+              </a>
+
+              <div class="filter-tabs oa-filter-group">
+                <button type="button" class="filter-tab oa-btn oa-btn-filter" data-tab="pending" onclick="filterAdminTab('pending')">
+                  Pending (<span id="tabCountPending">0</span>)
+                </button>
+                <button type="button" class="filter-tab oa-btn oa-btn-filter active" data-tab="approved" onclick="filterAdminTab('approved')">
+                  Approved (<span id="tabCountApproved">1</span>)
+                </button>
+                <button type="button" class="filter-tab oa-btn oa-btn-filter" data-tab="cancelled" onclick="filterAdminTab('cancelled')">
+                  Cancelled (<span id="tabCountCancelled">6</span>)
+                </button>
+                <button type="button" class="filter-tab oa-btn oa-btn-filter" data-tab="exited" onclick="filterAdminTab('exited')">
+                  Exited (<span id="tabCountExited">0</span>)
+                </button>
+                <button type="button" class="filter-tab oa-btn oa-btn-filter" data-tab="all" onclick="filterAdminTab('all')">
+                  All (<span id="tabCountAll">7</span>)
+                </button>
+              </div>
+
+              <!-- Monthly Data Deletion -->
+              <div class="oa-monthly-delete">
+                <input
+                  type="month"
+                  id="deleteMonthInput"
+                  class="oa-month-input"
+                  title="Select Month to Delete Outpass Data"
+                />
+                <button
+                  type="button"
+                  class="oa-btn oa-btn-red"
+                  onclick="deleteMonthlyData()"
+                  title="Delete all outpass requests for the selected month"
+                >
+                  &#9888; Delete Monthly Data
+                </button>
+              </div>
+            </div>
+
+            <div class="oa-toolbar-right">
+              <select id="sortSelect" class="oa-select" onchange="renderAdminTable()">
+                <option value="newest">Sort: Newest First</option>
+                <option value="oldest">Sort: Oldest First</option>
+              </select>
+
+              <button type="button" class="oa-btn oa-btn-blue" onclick="renderAdminTable()">
+                &#8635; Refresh
+              </button>
+            </div>
+          </div>
+
+          <!-- Automatic Email Notification Status Banner -->
+          <div id="adminEmailBanner" style="display:none; margin: 12px 18px 0; padding: 10px 14px; border-radius: 6px; background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; font-size: 13px; align-items: center; justify-content: space-between; gap: 12px;">
+            <span id="adminEmailBannerText"></span>
+          </div>
+
+          <!-- Open Admin Style Data Table -->
+          <div class="oa-table-wrapper">
+            <table class="oa-table admin-table">
+              <thead>
+                <tr>
+                  <th>Pass ID</th>
+                  <th>Student Details</th>
+                  <th>Submitted Date &amp; Time</th>
+                  <th>Leave Date &amp; Time</th>
+                  <th>Reason for Leave</th>
+                  <th>Pickup Guardian &amp; Email</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="adminTableBody">
+                <!-- Populated dynamically by js/main.js -->
+              </tbody>
+            </table>
+          </div>
+
+        </section>
+
+      </main>
+
+      <!-- Bottom Entries & Pagination Footer Bar -->
+      <footer class="oa-footer">
+        <div class="oa-footer-left">
+          Showing outpass records from HOFIS Database (AWS DynamoDB &amp; Cognito)
         </div>
-      </section>
+        <div class="oa-footer-right">
+          <span>Show</span>
+          <select class="oa-page-select">
+            <option>20</option>
+            <option>50</option>
+            <option>100</option>
+          </select>
+          <span>entries</span>
+          <div class="oa-pagination">
+            <span class="oa-page-btn">&laquo;</span>
+            <span class="oa-page-btn active">1</span>
+            <span class="oa-page-btn">&raquo;</span>
+          </div>
+        </div>
+      </footer>
 
     </div>
-  </main>
+  </div>
 
-  <!-- Bottom Footer -->
-  <footer class="admin-footer">
-    &copy; Holy Family International School (HOFIS) Admin &amp; Security Portal. Integrated with AWS Cognito.
-  </footer>
+  <!-- Change Password Modal -->
+  <div id="changePasswordModal" style="display:none; position:fixed; inset:0; background:rgba(15,23,42,0.55); z-index:9999; align-items:center; justify-content:center; padding:16px;">
+    <div style="background:#ffffff; width:100%; max-width:420px; border-radius:8px; border-top:3px solid #3c8dbc; box-shadow:0 15px 35px rgba(0,0,0,0.2); padding:24px;">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
+        <h3 style="margin:0; font-size:18px; color:#1e293b;">Change Admin Password</h3>
+        <button type="button" onclick="closeChangePasswordModal()" style="background:none; border:none; font-size:20px; color:#64748b; cursor:pointer;">&times;</button>
+      </div>
+
+      <form id="changePasswordForm">
+        <div class="form-group" style="margin-bottom:14px;">
+          <label for="cpUsername" class="form-label">Admin Username <span class="required">*</span></label>
+          <input type="text" id="cpUsername" class="form-input" style="height:40px; font-size:14px;" required />
+        </div>
+
+        <div class="form-group" style="margin-bottom:14px;">
+          <label for="cpCurrentPassword" class="form-label">Current Password <span class="required">*</span></label>
+          <input type="password" id="cpCurrentPassword" class="form-input" style="height:40px; font-size:14px;" placeholder="Enter current password" required />
+        </div>
+
+        <div class="form-group" style="margin-bottom:14px;">
+          <label for="cpNewPassword" class="form-label">New Password <span class="required">*</span></label>
+          <input type="password" id="cpNewPassword" class="form-input" style="height:40px; font-size:14px;" placeholder="Enter new password" required />
+        </div>
+
+        <div class="form-group" style="margin-bottom:18px;">
+          <label for="cpConfirmPassword" class="form-label">Confirm New Password <span class="required">*</span></label>
+          <input type="password" id="cpConfirmPassword" class="form-input" style="height:40px; font-size:14px;" placeholder="Confirm new password" required />
+        </div>
+
+        <div id="cpAlertBox" style="display:none; margin-bottom:14px; padding:10px 12px; border-radius:6px; font-size:13px;"></div>
+
+        <div style="display:flex; justify-content:flex-end; gap:8px;">
+          <button type="button" class="oa-btn oa-btn-filter" onclick="closeChangePasswordModal()">Cancel</button>
+          <button type="submit" id="cpSubmitBtn" class="oa-btn oa-btn-blue">Update Password</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
   <script src="../js/students-data.js"></script>
   <script src="../js/main.js"></script>
 </body>
 </html>
-

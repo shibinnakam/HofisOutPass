@@ -14,14 +14,38 @@ const ADMIN_SENDER_EMAIL = 'shibinsajip@gmail.com';
 const OUTPASS_STORAGE_KEY = 'hofis_outpass_requests_v2';
 try { localStorage.removeItem('hofis_outpass_requests_v1'); } catch (e) {}
 
-// Default Admin Account in DynamoDB (HofisAdmins) & AWS Cognito
-const ADMINS_DB = {
+// Default Admin Accounts in DynamoDB (HofisAdmins) & AWS Cognito
+const ADMINS_STORAGE_KEY = 'hofis_admins_db_v1';
+const DEFAULT_ADMINS_DB = {
   hofis: {
     username: 'hofis',
     password: 'hofis',
     role: 'Administrator (hofis)'
+  },
+  shibin: {
+    username: 'shibin',
+    password: 'shibin',
+    role: 'Administrator (shibin)'
   }
 };
+
+function loadAdminsDb() {
+  try {
+    const raw = localStorage.getItem(ADMINS_STORAGE_KEY);
+    if (raw) {
+      return Object.assign({}, DEFAULT_ADMINS_DB, JSON.parse(raw));
+    }
+  } catch (e) {}
+  return Object.assign({}, DEFAULT_ADMINS_DB);
+}
+
+function saveAdminsDb(db) {
+  try {
+    localStorage.setItem(ADMINS_STORAGE_KEY, JSON.stringify(db));
+  } catch (e) {}
+}
+
+let ADMINS_DB = loadAdminsDb();
 
 // Complete Student Database loaded from Class playschool to X.xlsx (575 students)
 const STUDENTS_DB = Object.assign(
@@ -51,22 +75,38 @@ function getQueryParam(key) {
 window.switchView = function (view) {
   const outpassView = document.getElementById('outpassView');
   const loginView = document.getElementById('loginView');
+  const helpdeskView = document.getElementById('helpdeskView');
+  const guidelinesView = document.getElementById('guidelinesView');
   const navParent = document.getElementById('navParent');
   const navLogin = document.getElementById('navLogin');
+  const navHelpdesk = document.getElementById('navHelpdesk');
+  const navGuidelines = document.getElementById('navGuidelines');
 
   if (!outpassView || !loginView) return;
 
+  outpassView.style.display = 'none';
+  loginView.style.display = 'none';
+  if (helpdeskView) helpdeskView.style.display = 'none';
+  if (guidelinesView) guidelinesView.style.display = 'none';
+
+  if (navParent) navParent.classList.remove('badge-parent');
+  if (navLogin) navLogin.classList.remove('badge-parent');
+  if (navHelpdesk) navHelpdesk.classList.remove('badge-parent');
+  if (navGuidelines) navGuidelines.classList.remove('badge-parent');
+
   if (view === 'login') {
-    outpassView.style.display = 'none';
     loginView.style.display = 'block';
-    if (navParent) navParent.classList.remove('badge-parent');
     if (navLogin) navLogin.classList.add('badge-parent');
     const usernameInput = document.getElementById('usernameInput');
     if (usernameInput) usernameInput.focus();
+  } else if (view === 'helpdesk' && helpdeskView) {
+    helpdeskView.style.display = 'block';
+    if (navHelpdesk) navHelpdesk.classList.add('badge-parent');
+  } else if (view === 'guidelines' && guidelinesView) {
+    guidelinesView.style.display = 'block';
+    if (navGuidelines) navGuidelines.classList.add('badge-parent');
   } else {
-    loginView.style.display = 'none';
     outpassView.style.display = 'block';
-    if (navLogin) navLogin.classList.remove('badge-parent');
     if (navParent) navParent.classList.add('badge-parent');
     const admissionInput = document.getElementById('admissionInput');
     if (admissionInput) admissionInput.focus();
@@ -236,7 +276,8 @@ function initLoginForm() {
       }
     } catch (err) {}
 
-    // 2. Verify against seeded DynamoDB credentials (hofis / hofis)
+    // 2. Verify against seeded/updated DynamoDB credentials (hofis / shibin)
+    ADMINS_DB = loadAdminsDb();
     if (!isAuthenticated && ADMINS_DB[username] && ADMINS_DB[username].password === password) {
       isAuthenticated = true;
     }
@@ -249,7 +290,7 @@ function initLoginForm() {
       window.location.href = 'admin.html';
     } else if (loginAlertBox && loginAlertMessage) {
       loginAlertBox.className = 'alert-error';
-      loginAlertMessage.textContent = 'Invalid username or password. Use username "hofis" and password "hofis".';
+      loginAlertMessage.textContent = 'Invalid username or password. Please verify and try again.';
       loginAlertBox.style.display = 'flex';
     }
   });
@@ -441,25 +482,44 @@ function initOutpassForm() {
     avatarInitialsEl.textContent = initials;
   }
 
-  // Auto-set today's date & current time
+  // Auto-set today's date & valid departure time (9:30 AM – 3:30 PM)
   const dateInput = document.getElementById('outpassDate');
   const timeInput = document.getElementById('outpassTime');
+  const formErrorBox = document.getElementById('outpassFormError');
+  const formErrorText = document.getElementById('outpassFormErrorText');
+
+  const showOutpassError = (msg) => {
+    if (formErrorBox && formErrorText) {
+      formErrorText.textContent = msg;
+      formErrorBox.style.display = 'flex';
+    } else {
+      alert(msg);
+    }
+  };
+
   const now = new Date();
+  const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(
+    now.getDate()
+  ).padStart(2, '0')}`;
+
   if (dateInput) {
-    const yyyy = now.getFullYear();
-    const mm = String(now.getMonth() + 1).padStart(2, '0');
-    const dd = String(now.getDate()).padStart(2, '0');
-    dateInput.value = `${yyyy}-${mm}-${dd}`;
+    dateInput.value = todayStr;
+    dateInput.min = todayStr;
+    dateInput.max = todayStr;
   }
   if (timeInput) {
-    const hh = String(now.getHours()).padStart(2, '0');
-    const min = String(now.getMinutes()).padStart(2, '0');
+    const nowMins = now.getHours() * 60 + now.getMinutes();
+    let defaultMins = Math.max(570, nowMins + 5); // 570 = 09:30 AM
+    if (defaultMins > 930) defaultMins = 570; // 930 = 03:30 PM
+    const hh = String(Math.floor(defaultMins / 60)).padStart(2, '0');
+    const min = String(defaultMins % 60).padStart(2, '0');
     timeInput.value = `${hh}:${min}`;
   }
 
-  // Form Submission -> Send Request to Admin
+  // Form Submission -> Validate Guidelines & Send Request to Admin
   form.addEventListener('submit', async function (e) {
     e.preventDefault();
+    if (formErrorBox) formErrorBox.style.display = 'none';
 
     const reason = document.getElementById('outpassReason').value.trim();
     const leaveDate = document.getElementById('outpassDate').value;
@@ -469,6 +529,44 @@ function initOutpassForm() {
 
     if (!reason || !leaveDate || !leaveTimeRaw || !parentEmail) return;
 
+    const currentNow = new Date();
+    const currentTodayStr = `${currentNow.getFullYear()}-${String(currentNow.getMonth() + 1).padStart(2, '0')}-${String(
+      currentNow.getDate()
+    ).padStart(2, '0')}`;
+
+    // 1) Check Sunday rule
+    const [selY, selM, selD] = leaveDate.split('-').map(Number);
+    const selectedDateObj = new Date(selY, selM - 1, selD);
+    if (selectedDateObj.getDay() === 0) {
+      showOutpassError('Outpass cannot be submitted on Sundays. School is closed on Sunday.');
+      return;
+    }
+
+    // 2) Check Same-Day Submission rule & Past Date rule
+    if (leaveDate < currentTodayStr) {
+      showOutpassError('Cannot select a departure date that has already passed.');
+      return;
+    }
+    if (leaveDate !== currentTodayStr) {
+      showOutpassError('Outpass must be submitted on the same day of departure.');
+      return;
+    }
+
+    // 3) Check Departure Time Window (9:30 AM to 3:30 PM -> 570 to 930 mins)
+    const [leaveH, leaveM] = leaveTimeRaw.split(':').map(Number);
+    const leaveTotalMins = leaveH * 60 + leaveM;
+    if (leaveTotalMins < 570 || leaveTotalMins > 930) {
+      showOutpassError('Departure time must be strictly between 9:30 AM and 3:30 PM.');
+      return;
+    }
+
+    // 4) Check Past Time rule (departure date & time already passed)
+    const selectedDepartureDateTime = new Date(selY, selM - 1, selD, leaveH, leaveM, 0);
+    if (selectedDepartureDateTime <= currentNow) {
+      showOutpassError('Cannot select a departure date and time that has already passed.');
+      return;
+    }
+
     const randomHex = Math.floor(0x1000 + Math.random() * 0x9000)
       .toString(16)
       .toUpperCase();
@@ -477,12 +575,17 @@ function initOutpassForm() {
     const monthKey = leaveDate.slice(0, 7);
 
     const formattedLeave = `${leaveDate} ${leaveTimeRaw}`;
-    const reqTimeStr = new Date().toLocaleString('en-US', {
-      month: 'short',
-      day: 'numeric',
+    const submitNow = new Date();
+    const reqDatePart = `${submitNow.getFullYear()}-${String(submitNow.getMonth() + 1).padStart(2, '0')}-${String(
+      submitNow.getDate()
+    ).padStart(2, '0')}`;
+    const reqTimePart = submitNow.toLocaleTimeString('en-US', {
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true
     });
+    const reqTimeStr = `${reqDatePart}, ${reqTimePart}`;
 
     let finalRequest = {
       passId: passCode,
@@ -510,13 +613,21 @@ function initOutpassForm() {
           passId: passCode,
           admissionNo: student.admissionNo,
           reason,
+          reqTime: reqTimeStr,
           leaveDate,
+          leaveTimeRaw,
           leaveTime: formattedLeave,
           parentEmail,
           phone
         })
       });
-      if (res.ok) {
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        if (errData && errData.message) {
+          showOutpassError(errData.message);
+          return;
+        }
+      } else {
         const awsItem = await res.json();
         if (awsItem && awsItem.passId) {
           finalRequest = awsItem;
@@ -598,51 +709,38 @@ window.filterAdminTab = function (tab) {
     btn.classList.toggle('active', btn.getAttribute('data-tab') === tab);
   });
 
+  document.querySelectorAll('.oa-nav-link[data-side-tab]').forEach((link) => {
+    link.classList.toggle('active', link.getAttribute('data-side-tab') === tab);
+  });
+
   renderAdminTable();
 };
 
 /**
- * Construct and trigger email notification from shibinsajip@gmail.com to parentEmail
+ * Display automatic email delivery status banner in Admin Console
  */
-function notifyParentByEmail(item, status) {
+function showEmailStatusBanner(item, status, emailResult) {
   const recipient = item.parentEmail || 'parent@example.com';
   const isApproved = status === 'approved';
   const statusLabel = isApproved ? 'APPROVED' : 'CANCELLED';
 
-  const subject = `[HOFIS ${statusLabel}] Student Outpass (${item.passId}) - ${item.studentName}`;
-  const bodyLines = [
-    `Dear Parent (${item.guardian}),`,
-    ``,
-    `Your student outpass request at Holy Family International School has been ${statusLabel}.`,
-    ``,
-    `Outpass Reference ID: ${item.passId}`,
-    `Student Name: ${item.studentName}`,
-    `Admission Number: ${item.admissionNo}`,
-    `Class: ${item.classSection}`,
-    `Reason for Leave: ${item.reason}`,
-    `Scheduled Departure: ${item.leaveTime}`,
-    `Status: ${statusLabel}`,
-    ``,
-    `Sent by Administrator (${ADMIN_SENDER_EMAIL})`,
-    `Holy Family International School`
-  ].join('\n');
-
-  const gmailComposeUrl = `https://mail.google.com/mail/?view=cm&fs=1&tf=1&to=${encodeURIComponent(
-    recipient
-  )}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyLines)}`;
-
   const banner = document.getElementById('adminEmailBanner');
   const bannerText = document.getElementById('adminEmailBannerText');
-  const mailtoBtn = document.getElementById('adminEmailMailtoBtn');
 
-  if (banner && bannerText && mailtoBtn) {
-    banner.style.display = 'flex';
+  if (!banner || !bannerText) return;
+
+  banner.style.display = 'flex';
+  if (emailResult && emailResult.sent) {
+    banner.style.background = '#ecfdf5';
+    banner.style.borderColor = '#a7f3d0';
+    banner.style.color = '#065f46';
+    bannerText.innerHTML = `<strong>✓ Outpass ${statusLabel}:</strong> Email automatically sent from <strong>${ADMIN_SENDER_EMAIL}</strong> to parent email <strong>${recipient}</strong>.`;
+  } else {
     banner.style.background = isApproved ? '#ecfdf5' : '#fef2f2';
     banner.style.borderColor = isApproved ? '#a7f3d0' : '#fecaca';
     banner.style.color = isApproved ? '#065f46' : '#991b1b';
-    bannerText.innerHTML = `<strong>✓ Outpass ${statusLabel}:</strong> Email notification from <strong>${ADMIN_SENDER_EMAIL}</strong> dispatched to parent email <strong>${recipient}</strong>.`;
-    mailtoBtn.href = gmailComposeUrl;
-    mailtoBtn.textContent = `Send via Gmail (${ADMIN_SENDER_EMAIL})`;
+    const errReason = emailResult && emailResult.error ? ` (${emailResult.error})` : '';
+    bannerText.innerHTML = `<strong>✓ Outpass ${statusLabel}:</strong> Automatic email from <strong>${ADMIN_SENDER_EMAIL}</strong> to <strong>${recipient}</strong> triggered${errReason}.`;
   }
 }
 
@@ -656,26 +754,52 @@ window.markPassStatus = async function (passId, newStatus) {
   updateAdminCounts();
   renderAdminTable();
 
-  // Trigger AWS Lambda + Amazon SES Email from shibinsajip@gmail.com
+  let emailNotification = null;
+
+  // Trigger AWS Lambda automatic email (Nodemailer Gmail SMTP / Amazon SES) from shibinsajip@gmail.com
   try {
-    await fetch(`${AWS_API_BASE_URL}/outpasses/${encodeURIComponent(passId)}`, {
+    const res = await fetch(`${AWS_API_BASE_URL}/outpasses/${encodeURIComponent(passId)}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status: newStatus })
     });
+    if (res.ok) {
+      const data = await res.json();
+      emailNotification = data.emailNotification || null;
+    }
   } catch (err) {}
 
-  // If approved or cancelled, trigger email notification to parent email address
   if (newStatus === 'approved' || newStatus === 'cancelled') {
-    notifyParentByEmail(item, newStatus);
+    showEmailStatusBanner(item, newStatus, emailNotification);
   }
 };
 
-window.sendPassEmail = function (passId) {
+window.sendPassEmail = async function (passId) {
   ADMIN_REQUESTS = loadOutpassRequests();
   const item = ADMIN_REQUESTS.find((r) => r.passId === passId);
   if (!item) return;
-  notifyParentByEmail(item, item.status === 'cancelled' ? 'cancelled' : 'approved');
+  const targetStatus = item.status === 'cancelled' ? 'cancelled' : 'approved';
+  await window.markPassStatus(passId, targetStatus);
+};
+
+/**
+ * Delete a single Outpass Request by passId
+ */
+window.deleteOutpassRequest = async function (passId) {
+  if (!confirm(`Are you sure you want to delete request ${passId}?`)) {
+    return;
+  }
+
+  ADMIN_REQUESTS = loadOutpassRequests().filter((r) => r.passId !== passId);
+  saveOutpassRequests(ADMIN_REQUESTS);
+  updateAdminCounts();
+  renderAdminTable();
+
+  try {
+    await fetch(`${AWS_API_BASE_URL}/outpasses/${encodeURIComponent(passId)}`, {
+      method: 'DELETE'
+    });
+  } catch (err) {}
 };
 
 /**
@@ -744,7 +868,7 @@ window.renderAdminTable = function () {
   if (rows.length === 0) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="7" style="text-align:center; padding: 32px; color:#64748b;">
+        <td colspan="8" style="text-align:center; padding: 32px; color:#64748b;">
           No outpass requests found in this view.
         </td>
       </tr>
@@ -754,6 +878,21 @@ window.renderAdminTable = function () {
 
   tbody.innerHTML = rows
     .map((r) => {
+      let submittedDateTime = r.reqTime || '--';
+      if (r.timestamp && Number(r.timestamp) > 1000000000) {
+        const dt = new Date(Number(r.timestamp));
+        const dStr = `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}-${String(
+          dt.getDate()
+        ).padStart(2, '0')}`;
+        const tStr = dt.toLocaleTimeString('en-US', {
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: true
+        });
+        submittedDateTime = `${dStr}, ${tStr}`;
+      }
+
       let statusBadge = '';
       if (r.status === 'approved') {
         statusBadge = `
@@ -771,11 +910,22 @@ window.renderAdminTable = function () {
         statusBadge = `<span class="status-pill status-cancelled">CANCELLED</span>`;
       }
 
+      const deleteBtnHtml = `
+        <button type="button" class="btn-action btn-revoke" onclick="deleteOutpassRequest('${r.passId}')" title="Delete this request">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
+            <polyline points="3 6 5 6 21 6"></polyline>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+          </svg>
+          Delete
+        </button>
+      `;
+
       let actionBtns = '';
       if (r.status === 'pending') {
         actionBtns = `
           <button type="button" class="btn-action btn-approve" onclick="markPassStatus('${r.passId}', 'approved')">Approve</button>
           <button type="button" class="btn-action btn-revoke" onclick="markPassStatus('${r.passId}', 'cancelled')">Cancel</button>
+          ${deleteBtnHtml}
         `;
       } else if (r.status === 'approved') {
         actionBtns = `
@@ -787,7 +937,7 @@ window.renderAdminTable = function () {
             </svg>
             Email
           </button>
-          <button type="button" class="btn-action btn-revoke" onclick="markPassStatus('${r.passId}', 'cancelled')">Revoke</button>
+          ${deleteBtnHtml}
         `;
       } else {
         actionBtns = `
@@ -799,6 +949,7 @@ window.renderAdminTable = function () {
             </svg>
             Email
           </button>
+          ${deleteBtnHtml}
         `;
       }
 
@@ -816,8 +967,10 @@ window.renderAdminTable = function () {
             <div class="student-cell-meta">Adm: <strong>${r.admissionNo}</strong> &bull; ${r.classSection}</div>
           </td>
           <td>
-            <div class="schedule-req">Req: ${r.reqTime}</div>
-            <div class="schedule-leave">Leave: ${r.leaveTime}</div>
+            <div style="font-weight:600; color:#334155; font-size:12.5px;">${submittedDateTime}</div>
+          </td>
+          <td>
+            <div class="schedule-leave">${r.leaveTime}</div>
           </td>
           <td class="reason-cell">${r.reason}</td>
           <td>
@@ -855,10 +1008,113 @@ async function syncAdminRequestsFromAws() {
   } catch (err) {}
 }
 
+window.openChangePasswordModal = function () {
+  const modal = document.getElementById('changePasswordModal');
+  const cpUsername = document.getElementById('cpUsername');
+  const cpCurrent = document.getElementById('cpCurrentPassword');
+  const cpNew = document.getElementById('cpNewPassword');
+  const cpConfirm = document.getElementById('cpConfirmPassword');
+  const cpAlert = document.getElementById('cpAlertBox');
+
+  if (!modal) return;
+  const loggedInAdmin = sessionStorage.getItem('adminUser') || 'hofis';
+  if (cpUsername) cpUsername.value = loggedInAdmin;
+  if (cpCurrent) cpCurrent.value = '';
+  if (cpNew) cpNew.value = '';
+  if (cpConfirm) cpConfirm.value = '';
+  if (cpAlert) cpAlert.style.display = 'none';
+
+  modal.style.display = 'flex';
+  if (cpCurrent) cpCurrent.focus();
+};
+
+window.closeChangePasswordModal = function () {
+  const modal = document.getElementById('changePasswordModal');
+  if (modal) modal.style.display = 'none';
+};
+
 function initAdminConsole() {
   const verifyForm = document.getElementById('verifyPassForm');
   const verifyInput = document.getElementById('verifyPassInput');
   const deleteMonthInput = document.getElementById('deleteMonthInput');
+  const adminUserLabel = document.getElementById('adminUserLabel');
+  const changePasswordForm = document.getElementById('changePasswordForm');
+
+  const loggedInAdmin = sessionStorage.getItem('adminUser') || 'hofis';
+  if (adminUserLabel) {
+    adminUserLabel.textContent = `Administrator (${loggedInAdmin})`;
+  }
+
+  if (changePasswordForm) {
+    changePasswordForm.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const username = document.getElementById('cpUsername').value.trim();
+      const currentPassword = document.getElementById('cpCurrentPassword').value;
+      const newPassword = document.getElementById('cpNewPassword').value;
+      const confirmPassword = document.getElementById('cpConfirmPassword').value;
+      const cpAlert = document.getElementById('cpAlertBox');
+      const cpSubmitBtn = document.getElementById('cpSubmitBtn');
+
+      const showCpAlert = (msg, isSuccess) => {
+        if (!cpAlert) return;
+        cpAlert.style.display = 'block';
+        cpAlert.style.background = isSuccess ? '#ecfdf5' : '#fef2f2';
+        cpAlert.style.border = isSuccess ? '1px solid #a7f3d0' : '1px solid #fecaca';
+        cpAlert.style.color = isSuccess ? '#065f46' : '#991b1b';
+        cpAlert.textContent = msg;
+      };
+
+      if (newPassword !== confirmPassword) {
+        showCpAlert('New password and confirm password do not match.', false);
+        return;
+      }
+
+      ADMINS_DB = loadAdminsDb();
+      const localRecord = ADMINS_DB[username];
+      let updatedOnAws = false;
+
+      if (cpSubmitBtn) cpSubmitBtn.disabled = true;
+
+      // 1) Update in AWS DynamoDB (HofisAdmins) & AWS Cognito via POST /auth/change-password
+      try {
+        const res = await fetch(`${AWS_API_BASE_URL}/auth/change-password`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, currentPassword, newPassword })
+        });
+        if (res.ok) {
+          updatedOnAws = true;
+        } else if (res.status === 401) {
+          if (cpSubmitBtn) cpSubmitBtn.disabled = false;
+          showCpAlert('Current password is incorrect.', false);
+          return;
+        }
+      } catch (err) {}
+
+      // 2) Verify current password locally if AWS wasn't reached
+      if (!updatedOnAws) {
+        if (!localRecord || localRecord.password !== currentPassword) {
+          if (cpSubmitBtn) cpSubmitBtn.disabled = false;
+          showCpAlert('Current password is incorrect.', false);
+          return;
+        }
+      }
+
+      // 3) Save updated password in local ADMINS_DB as well
+      ADMINS_DB[username] = {
+        username,
+        password: newPassword,
+        role: `Administrator (${username})`
+      };
+      saveAdminsDb(ADMINS_DB);
+
+      if (cpSubmitBtn) cpSubmitBtn.disabled = false;
+      showCpAlert(`Password for '${username}' has been updated in the database!`, true);
+      setTimeout(() => {
+        window.closeChangePasswordModal();
+      }, 1200);
+    });
+  }
 
   if (deleteMonthInput) {
     deleteMonthInput.value = '2026-11';
@@ -869,10 +1125,14 @@ function initAdminConsole() {
   const hasPending = ADMIN_REQUESTS.some((r) => r.status === 'pending');
   if (hasPending) {
     currentAdminTab = 'pending';
-    document.querySelectorAll('.filter-tab').forEach((btn) => {
-      btn.classList.toggle('active', btn.getAttribute('data-tab') === 'pending');
-    });
   }
+
+  document.querySelectorAll('.filter-tab').forEach((btn) => {
+    btn.classList.toggle('active', btn.getAttribute('data-tab') === currentAdminTab);
+  });
+  document.querySelectorAll('.oa-nav-link[data-side-tab]').forEach((link) => {
+    link.classList.toggle('active', link.getAttribute('data-side-tab') === currentAdminTab);
+  });
 
   updateAdminCounts();
   renderAdminTable();
@@ -888,11 +1148,11 @@ function initAdminConsole() {
 }
 
 async function ensureAwsDatabaseSeeded() {
-  if (localStorage.getItem('hofis_aws_seeded_v1') === 'true') return;
+  if (localStorage.getItem('hofis_aws_seeded_v2') === 'true') return;
   try {
     const res = await fetch(`${AWS_API_BASE_URL}/seed`, { method: 'POST' });
     if (res.ok) {
-      localStorage.setItem('hofis_aws_seeded_v1', 'true');
+      localStorage.setItem('hofis_aws_seeded_v2', 'true');
       console.log('AWS DynamoDB & Cognito seeded successfully.');
     }
   } catch (err) {}
@@ -915,5 +1175,9 @@ document.addEventListener('DOMContentLoaded', function () {
   }
   if (window.location.hash === '#login') {
     window.switchView('login');
+  } else if (window.location.hash === '#helpdesk') {
+    window.switchView('helpdesk');
+  } else if (window.location.hash === '#guidelines') {
+    window.switchView('guidelines');
   }
 });

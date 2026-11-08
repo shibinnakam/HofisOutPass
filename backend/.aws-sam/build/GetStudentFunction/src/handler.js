@@ -20,6 +20,7 @@ const {
   AdminSetUserPasswordCommand
 } = require('@aws-sdk/client-cognito-identity-provider');
 const { SESClient, SendEmailCommand } = require('@aws-sdk/client-ses');
+const nodemailer = require('nodemailer');
 const EXCEL_STUDENTS = require('./students-data.json');
 
 const ddbClient = new DynamoDBClient({});
@@ -33,6 +34,7 @@ const ADMINS_TABLE = process.env.ADMINS_TABLE || 'HofisAdmins';
 const COGNITO_USER_POOL_ID = process.env.COGNITO_USER_POOL_ID;
 const COGNITO_CLIENT_ID = process.env.COGNITO_CLIENT_ID;
 const SENDER_EMAIL = process.env.SENDER_EMAIL || 'shibinsajip@gmail.com';
+const GMAIL_APP_PASSWORD = process.env.GMAIL_APP_PASSWORD || '';
 
 const CORS_HEADERS = {
   'Content-Type': 'application/json',
@@ -89,6 +91,33 @@ async function sendParentOutpassEmail(outpassItem, status) {
     </div>
   `;
 
+  // 1) Send automatically via Gmail SMTP (Nodemailer) if GMAIL_APP_PASSWORD is set
+  const cleanAppPass = GMAIL_APP_PASSWORD.replace(/\s+/g, '');
+  if (cleanAppPass && cleanAppPass !== 'PASTE_YOUR_16_CHAR_GMAIL_APP_PASSWORD_HERE') {
+    try {
+      const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: SENDER_EMAIL,
+          pass: cleanAppPass
+        }
+      });
+
+      await transporter.sendMail({
+        from: `"Holy Family International School" <${SENDER_EMAIL}>`,
+        to: recipientEmail,
+        subject,
+        html: htmlBody
+      });
+
+      return { sent: true, provider: 'gmail_smtp', from: SENDER_EMAIL, to: recipientEmail };
+    } catch (smtpErr) {
+      console.error('Gmail SMTP error:', smtpErr.message);
+      return { sent: false, provider: 'gmail_smtp', from: SENDER_EMAIL, to: recipientEmail, error: smtpErr.message };
+    }
+  }
+
+  // 2) Fallback: Send automatically via Amazon SES
   try {
     await sesClient.send(
       new SendEmailCommand({
@@ -102,10 +131,10 @@ async function sendParentOutpassEmail(outpassItem, status) {
         }
       })
     );
-    return { sent: true, from: SENDER_EMAIL, to: recipientEmail };
+    return { sent: true, provider: 'aws_ses', from: SENDER_EMAIL, to: recipientEmail };
   } catch (err) {
     console.warn('SES SendEmail warning:', err.message);
-    return { sent: false, from: SENDER_EMAIL, to: recipientEmail, error: err.message };
+    return { sent: false, provider: 'aws_ses', from: SENDER_EMAIL, to: recipientEmail, error: err.message };
   }
 }
 

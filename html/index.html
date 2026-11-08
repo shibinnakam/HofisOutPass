@@ -35,7 +35,7 @@
           Login
         </a>
 
-        <a href="#guidelines" class="nav-item">
+        <a href="#guidelines" id="navGuidelines" class="nav-item" onclick="switchView('guidelines'); return false;">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <circle cx="12" cy="12" r="10"></circle>
             <line x1="12" y1="16" x2="12" y2="12"></line>
@@ -44,7 +44,7 @@
           Guidelines
         </a>
 
-        <a href="#helpdesk" class="nav-item">
+        <a href="#helpdesk" id="navHelpdesk" class="nav-item" onclick="switchView('helpdesk'); return false;">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <path d="M3 18v-6a9 9 0 0 1 18 0v6"></path>
             <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path>
@@ -204,6 +204,116 @@
       <div id="loginAlertBox" class="alert-error" style="display: none;">
         <span id="loginAlertMessage"></span>
       </div>
+    </div>
+
+    <!-- HELPDESK / CONTACT CARD (Shown when Helpdesk is clicked in navbar) -->
+    <div id="helpdeskView" class="auth-card" style="display: none;">
+      <div class="card-logo-container">
+        <img src="../img/hofis.png" alt="Holy Family International School" class="card-logo" />
+      </div>
+
+      <h1 class="card-title">Contact &amp; Helpdesk</h1>
+      <p class="card-subtitle">Reach out to Holy Family International School for assistance</p>
+
+      <div style="text-align: left; display: flex; flex-direction: column; gap: 14px; margin-bottom: 22px;">
+        <!-- Address -->
+        <div class="student-info-box" style="margin-bottom: 0; align-items: flex-start;">
+          <div class="student-avatar" style="width: 42px; height: 42px; font-size: 16px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+              <circle cx="12" cy="10" r="3"></circle>
+            </svg>
+          </div>
+          <div class="student-details">
+            <h3>Address</h3>
+            <p>Elangoi Church Road, Chamampathal, Kottayam, Kerala 686517</p>
+          </div>
+        </div>
+
+        <!-- Phone -->
+        <div class="student-info-box" style="margin-bottom: 0; align-items: flex-start;">
+          <div class="student-avatar" style="width: 42px; height: 42px; font-size: 16px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+            </svg>
+          </div>
+          <div class="student-details">
+            <h3>Phone</h3>
+            <p>
+              <a href="tel:+918547169641" style="color: #0284c7; text-decoration: none; font-weight: 600;">+91 85471 69641</a><br />
+              <a href="tel:+918281789660" style="color: #0284c7; text-decoration: none; font-weight: 600;">+91 82817 89660</a>
+            </p>
+          </div>
+        </div>
+
+        <!-- Email -->
+        <div class="student-info-box" style="margin-bottom: 0; align-items: flex-start;">
+          <div class="student-avatar" style="width: 42px; height: 42px; font-size: 16px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+              <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
+            </svg>
+          </div>
+          <div class="student-details">
+            <h3>Email</h3>
+            <p>
+              <a href="mailto:hofiselangoi@gmail.com" style="color: #0284c7; text-decoration: none; font-weight: 600;">hofiselangoi@gmail.com</a>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <button type="button" class="btn-search" onclick="switchView('outpass')">
+        Back to Parent Portal
+      </button>
+    </div>
+
+    <!-- GUIDELINES CARD (Shown when Guidelines is clicked in navbar) -->
+    <div id="guidelinesView" class="auth-card" style="display: none;">
+      <div class="card-logo-container">
+        <img src="../img/hofis.png" alt="Holy Family International School" class="card-logo" />
+      </div>
+
+      <h1 class="card-title">Outpass Guidelines</h1>
+      <p class="card-subtitle">Please follow these school outpass rules before submitting a request</p>
+
+      <div style="text-align: left; display: flex; flex-direction: column; gap: 12px; margin-bottom: 22px;">
+        <div class="student-info-box" style="margin-bottom: 0; align-items: flex-start;">
+          <div class="student-avatar" style="width: 38px; height: 38px; font-size: 14px;">1</div>
+          <div class="student-details">
+            <h3>Same-Day Submission</h3>
+            <p>Parents must submit the student outpass request on the <strong>same day</strong> of departure.</p>
+          </div>
+        </div>
+
+        <div class="student-info-box" style="margin-bottom: 0; align-items: flex-start;">
+          <div class="student-avatar" style="width: 38px; height: 38px; font-size: 14px;">2</div>
+          <div class="student-details">
+            <h3>Departure Time Window (9:30 AM – 3:30 PM)</h3>
+            <p>Allowed departure time is strictly between <strong>9:30 AM and 3:30 PM</strong> during school hours.</p>
+          </div>
+        </div>
+
+        <div class="student-info-box" style="margin-bottom: 0; align-items: flex-start;">
+          <div class="student-avatar" style="width: 38px; height: 38px; font-size: 14px;">3</div>
+          <div class="student-details">
+            <h3>No Outpass on Sundays</h3>
+            <p>Outpass requests <strong>cannot be submitted on Sundays</strong> as the school is closed.</p>
+          </div>
+        </div>
+
+        <div class="student-info-box" style="margin-bottom: 0; align-items: flex-start;">
+          <div class="student-avatar" style="width: 38px; height: 38px; font-size: 14px;">4</div>
+          <div class="student-details">
+            <h3>No Past Date or Time</h3>
+            <p>Do not select a departure date or time that has <strong>already passed</strong>.</p>
+          </div>
+        </div>
+      </div>
+
+      <button type="button" class="btn-search" onclick="switchView('outpass')">
+        Back to Parent Portal
+      </button>
     </div>
   </main>
 
