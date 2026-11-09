@@ -779,6 +779,16 @@ window.filterAdminTab = function (tab) {
   const layout = document.getElementById('oaLayout');
   if (layout) layout.classList.remove('mobile-sidebar-open');
 
+  const outpassSec = document.getElementById('adminOutpassSection');
+  const studentsSec = document.getElementById('adminStudentsSection');
+  const mainHeading = document.getElementById('adminMainHeading');
+  const breadcrumb = document.getElementById('adminBreadcrumbCurrent');
+
+  if (outpassSec) outpassSec.style.display = 'block';
+  if (studentsSec) studentsSec.style.display = 'none';
+  if (mainHeading) mainHeading.innerHTML = 'Outpass <small>List</small>';
+  if (breadcrumb) breadcrumb.textContent = 'Outpass Requests';
+
   document.querySelectorAll('.filter-tab').forEach((btn) => {
     btn.classList.toggle('active', btn.getAttribute('data-tab') === tab);
   });
@@ -788,6 +798,138 @@ window.filterAdminTab = function (tab) {
   });
 
   renderAdminTable();
+};
+
+window.showAdminStudentsSection = function () {
+  const layout = document.getElementById('oaLayout');
+  if (layout) layout.classList.remove('mobile-sidebar-open');
+
+  const outpassSec = document.getElementById('adminOutpassSection');
+  const studentsSec = document.getElementById('adminStudentsSection');
+  const mainHeading = document.getElementById('adminMainHeading');
+  const breadcrumb = document.getElementById('adminBreadcrumbCurrent');
+
+  if (outpassSec) outpassSec.style.display = 'none';
+  if (studentsSec) studentsSec.style.display = 'block';
+  if (mainHeading) mainHeading.innerHTML = 'Students <small>Database</small>';
+  if (breadcrumb) breadcrumb.textContent = 'Students Database';
+
+  document.querySelectorAll('.oa-nav-link[data-side-tab]').forEach((link) => {
+    link.classList.toggle('active', link.getAttribute('data-side-tab') === 'students');
+  });
+
+  initAdminStudentsDatabase();
+  renderAdminStudentsTable();
+};
+
+let studentsClassDropdownInitialized = false;
+
+function initAdminStudentsDatabase() {
+  if (studentsClassDropdownInitialized) return;
+  const classSelect = document.getElementById('studentDbClassSelect');
+  if (!classSelect) return;
+
+  const allStudents = Object.values(window.HOFIS_STUDENTS_DB || STUDENTS_DB);
+  const classSet = new Set();
+  allStudents.forEach((s) => {
+    if (s && s.class) classSet.add(String(s.class).trim());
+  });
+
+  const sortedClasses = Array.from(classSet);
+  classSelect.innerHTML =
+    '<option value="">All Classes (' +
+    allStudents.length +
+    ' Students)</option>' +
+    sortedClasses.map((c) => `<option value="${c}">Class ${c}</option>`).join('');
+
+  studentsClassDropdownInitialized = true;
+}
+
+window.createOutpassForStudent = function (admissionNo) {
+  const student = STUDENTS_DB[admissionNo];
+  if (student) {
+    sessionStorage.setItem('currentStudent', JSON.stringify(student));
+    sessionStorage.setItem('admissionNo', student.admissionNo);
+  }
+  window.location.href = `outpass.html?admission=${encodeURIComponent(admissionNo)}`;
+};
+
+window.renderAdminStudentsTable = function () {
+  const tbody = document.getElementById('adminStudentsTableBody');
+  if (!tbody) return;
+
+  const searchInput = document.getElementById('studentDbSearchInput');
+  const classSelect = document.getElementById('studentDbClassSelect');
+  const sortSelect = document.getElementById('studentDbSortSelect');
+  const totalEl = document.getElementById('studentsTotalCount');
+  const showingEl = document.getElementById('studentsShowingCount');
+
+  const query = (searchInput ? searchInput.value : '').trim().toLowerCase();
+  const classFilter = classSelect ? classSelect.value : '';
+  const sortBy = sortSelect ? sortSelect.value : 'adm';
+
+  const allStudents = Object.values(window.HOFIS_STUDENTS_DB || STUDENTS_DB);
+  if (totalEl) totalEl.textContent = allStudents.length;
+
+  let filtered = allStudents.filter((s) => {
+    if (!s) return false;
+    if (classFilter && String(s.class).trim() !== classFilter) return false;
+    if (query) {
+      const adm = String(s.admissionNo || '').toLowerCase();
+      const name = String(s.name || '').toLowerCase();
+      const cls = String(s.class || '').toLowerCase();
+      const parent = String(s.parentName || '').toLowerCase();
+      return adm.includes(query) || name.includes(query) || cls.includes(query) || parent.includes(query);
+    }
+    return true;
+  });
+
+  filtered.sort((a, b) => {
+    if (sortBy === 'name') {
+      return String(a.name || '').localeCompare(String(b.name || ''));
+    }
+    if (sortBy === 'class') {
+      return String(a.class || '').localeCompare(String(b.class || ''));
+    }
+    const numA = parseInt(a.admissionNo, 10);
+    const numB = parseInt(b.admissionNo, 10);
+    if (!isNaN(numA) && !isNaN(numB)) return numA - numB;
+    return String(a.admissionNo || '').localeCompare(String(b.admissionNo || ''));
+  });
+
+  if (showingEl) showingEl.textContent = filtered.length;
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="6" style="text-align:center; padding: 32px; color:#64748b;">
+          No students found matching your search filter.
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  tbody.innerHTML = filtered
+    .map(
+      (s, idx) => `
+      <tr>
+        <td data-label="#"><strong>${idx + 1}</strong></td>
+        <td data-label="Admission No"><span class="pass-id-pill">${s.admissionNo}</span></td>
+        <td data-label="Student Name"><div class="student-cell-name">${s.name}</div></td>
+        <td data-label="Class"><span class="status-pill status-exited">Class ${s.class}</span></td>
+        <td data-label="Father / Parent Name"><div class="guardian-name">${s.parentName || '--'}</div></td>
+        <td data-label="Action" class="td-actions">
+          <div class="action-buttons">
+            <button type="button" class="btn-action btn-approve" onclick="createOutpassForStudent('${s.admissionNo}')">
+              + Outpass
+            </button>
+          </div>
+        </td>
+      </tr>
+    `
+    )
+    .join('');
 };
 
 /**
@@ -1217,9 +1359,17 @@ function initAdminConsole() {
   if (verifyForm && verifyInput) {
     verifyForm.addEventListener('submit', function (e) {
       e.preventDefault();
+      const outpassSec = document.getElementById('adminOutpassSection');
+      const studentsSec = document.getElementById('adminStudentsSection');
+      if (outpassSec) outpassSec.style.display = 'block';
+      if (studentsSec) studentsSec.style.display = 'none';
       currentSearchFilter = verifyInput.value.trim();
       renderAdminTable();
     });
+  }
+
+  if (window.location.hash === '#students') {
+    window.showAdminStudentsSection();
   }
 }
 

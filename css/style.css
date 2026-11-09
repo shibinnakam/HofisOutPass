@@ -1455,28 +1455,30 @@ body {
 }
 
 .oa-brand {
-  height: 54px;
-  background-color: #202a2f;
+  height: 60px;
+  background-color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 6px 14px;
+  border-bottom: 1px solid #e5e7eb;
+  border-right: 1px solid #e5e7eb;
 }
 
 .oa-brand-link {
-  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   text-decoration: none;
-  font-size: 19px;
-  letter-spacing: 0.3px;
+  width: 100%;
 }
 
-.oa-brand-link strong {
-  font-weight: 800;
-}
-
-.oa-brand-link span {
-  font-weight: 400;
-  color: #cfd8dc;
+.oa-brand-logo {
+  max-height: 42px;
+  max-width: 190px;
+  width: auto;
+  object-fit: contain;
+  display: block;
 }
 
 /* Sidebar Search */
@@ -1570,13 +1572,32 @@ body {
 
 /* Top White Navbar */
 .oa-topbar {
-  height: 54px;
+  height: 60px;
   background-color: #ffffff;
   border-bottom: 1px solid #e5e7eb;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 20px;
+}
+
+.oa-topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.oa-topbar-brand {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.oa-topbar-logo {
+  height: 38px;
+  width: auto;
+  object-fit: contain;
+  display: block;
 }
 
 .oa-sidebar-toggle {

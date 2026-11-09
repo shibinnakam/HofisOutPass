@@ -13,8 +13,8 @@
     <!-- Left Dark Sidebar (Open Admin Style) -->
     <aside class="oa-sidebar">
       <div class="oa-brand">
-        <a href="admin.html" class="oa-brand-link">
-          <strong>HOFIS</strong> <span>Admin</span>
+        <a href="admin.html" class="oa-brand-link" title="Holy Family International School">
+          <img src="../img/hofis.png" alt="Holy Family International School" class="oa-brand-logo" />
         </a>
       </div>
 
@@ -91,6 +91,18 @@
         </li>
 
         <li class="oa-nav-item">
+          <a href="#students" class="oa-nav-link" data-side-tab="students" onclick="showAdminStudentsSection(); return false;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+            <span>Students Database</span>
+          </a>
+        </li>
+
+        <li class="oa-nav-item">
           <a href="#change-password" class="oa-nav-link" id="navChangePassword" onclick="openChangePasswordModal(); return false;">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path>
@@ -119,13 +131,18 @@
       
       <!-- Top White Header Bar -->
       <header class="oa-topbar">
-        <button type="button" class="oa-sidebar-toggle" onclick="toggleAdminSidebar()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="3" y1="12" x2="21" y2="12"></line>
-            <line x1="3" y1="6" x2="21" y2="6"></line>
-            <line x1="3" y1="18" x2="21" y2="18"></line>
-          </svg>
-        </button>
+        <div class="oa-topbar-left">
+          <button type="button" class="oa-sidebar-toggle" onclick="toggleAdminSidebar()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="3" y1="12" x2="21" y2="12"></line>
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+          </button>
+          <a href="admin.html" class="oa-topbar-brand">
+            <img src="../img/hofis.png" alt="Holy Family International School" class="oa-topbar-logo" />
+          </a>
+        </div>
 
         <div class="oa-topbar-right">
           <div class="oa-user-profile">
@@ -146,7 +163,7 @@
         <!-- Content Header & Breadcrumb -->
         <div class="oa-content-header">
           <div class="oa-page-title">
-            <h1>Outpass <small>List</small></h1>
+            <h1 id="adminMainHeading">Outpass <small>List</small></h1>
           </div>
           <div class="oa-breadcrumb">
             <a href="index.html">
@@ -156,125 +173,189 @@
               Home
             </a>
             <span>/</span>
-            <span>Outpass Requests</span>
+            <span id="adminBreadcrumbCurrent">Outpass Requests</span>
           </div>
         </div>
 
-        <!-- Compact KPI Strip -->
-        <div class="oa-kpi-strip">
-          <div class="oa-kpi-item" onclick="filterAdminTab('pending')">
-            <span class="oa-kpi-dot oa-dot-amber"></span>
-            <span class="oa-kpi-label">Pending:</span>
-            <strong id="kpiPending">0</strong>
+        <!-- SECTION 1: OUTPASS REQUESTS VIEW -->
+        <div id="adminOutpassSection">
+          <!-- Compact KPI Strip -->
+          <div class="oa-kpi-strip">
+            <div class="oa-kpi-item" onclick="filterAdminTab('pending')">
+              <span class="oa-kpi-dot oa-dot-amber"></span>
+              <span class="oa-kpi-label">Pending:</span>
+              <strong id="kpiPending">0</strong>
+            </div>
+            <div class="oa-kpi-item" onclick="filterAdminTab('approved')">
+              <span class="oa-kpi-dot oa-dot-green"></span>
+              <span class="oa-kpi-label">Approved:</span>
+              <strong id="kpiApproved">1</strong>
+            </div>
+            <div class="oa-kpi-item" onclick="filterAdminTab('cancelled')">
+              <span class="oa-kpi-dot oa-dot-red"></span>
+              <span class="oa-kpi-label">Cancelled:</span>
+              <strong id="kpiCancelled">6</strong>
+            </div>
+            <div class="oa-kpi-item" onclick="filterAdminTab('exited')">
+              <span class="oa-kpi-dot oa-dot-blue"></span>
+              <span class="oa-kpi-label">Exited Gate:</span>
+              <strong id="kpiExited">0</strong>
+            </div>
+            <div class="oa-kpi-item" onclick="filterAdminTab('all')">
+              <span class="oa-kpi-dot oa-dot-slate"></span>
+              <span class="oa-kpi-label">Total:</span>
+              <strong id="kpiTotal">7</strong>
+            </div>
           </div>
-          <div class="oa-kpi-item" onclick="filterAdminTab('approved')">
-            <span class="oa-kpi-dot oa-dot-green"></span>
-            <span class="oa-kpi-label">Approved:</span>
-            <strong id="kpiApproved">1</strong>
-          </div>
-          <div class="oa-kpi-item" onclick="filterAdminTab('cancelled')">
-            <span class="oa-kpi-dot oa-dot-red"></span>
-            <span class="oa-kpi-label">Cancelled:</span>
-            <strong id="kpiCancelled">6</strong>
-          </div>
-          <div class="oa-kpi-item" onclick="filterAdminTab('exited')">
-            <span class="oa-kpi-dot oa-dot-blue"></span>
-            <span class="oa-kpi-label">Exited Gate:</span>
-            <strong id="kpiExited">0</strong>
-          </div>
-          <div class="oa-kpi-item" onclick="filterAdminTab('all')">
-            <span class="oa-kpi-dot oa-dot-slate"></span>
-            <span class="oa-kpi-label">Total:</span>
-            <strong id="kpiTotal">7</strong>
-          </div>
-        </div>
 
-        <!-- White Table Box (Open Admin Card) -->
-        <section class="oa-card">
-          
-          <!-- Action Toolbar -->
-          <div class="oa-toolbar">
-            <div class="oa-toolbar-left">
-              <a href="index.html" class="oa-btn oa-btn-green">
-                + New
-              </a>
+          <!-- White Table Box (Open Admin Card) -->
+          <section class="oa-card">
+            
+            <!-- Action Toolbar -->
+            <div class="oa-toolbar">
+              <div class="oa-toolbar-left">
+                <a href="index.html" class="oa-btn oa-btn-green">
+                  + New
+                </a>
 
-              <div class="filter-tabs oa-filter-group">
-                <button type="button" class="filter-tab oa-btn oa-btn-filter" data-tab="pending" onclick="filterAdminTab('pending')">
-                  Pending (<span id="tabCountPending">0</span>)
-                </button>
-                <button type="button" class="filter-tab oa-btn oa-btn-filter active" data-tab="approved" onclick="filterAdminTab('approved')">
-                  Approved (<span id="tabCountApproved">1</span>)
-                </button>
-                <button type="button" class="filter-tab oa-btn oa-btn-filter" data-tab="cancelled" onclick="filterAdminTab('cancelled')">
-                  Cancelled (<span id="tabCountCancelled">6</span>)
-                </button>
-                <button type="button" class="filter-tab oa-btn oa-btn-filter" data-tab="exited" onclick="filterAdminTab('exited')">
-                  Exited (<span id="tabCountExited">0</span>)
-                </button>
-                <button type="button" class="filter-tab oa-btn oa-btn-filter" data-tab="all" onclick="filterAdminTab('all')">
-                  All (<span id="tabCountAll">7</span>)
-                </button>
+                <div class="filter-tabs oa-filter-group">
+                  <button type="button" class="filter-tab oa-btn oa-btn-filter" data-tab="pending" onclick="filterAdminTab('pending')">
+                    Pending (<span id="tabCountPending">0</span>)
+                  </button>
+                  <button type="button" class="filter-tab oa-btn oa-btn-filter active" data-tab="approved" onclick="filterAdminTab('approved')">
+                    Approved (<span id="tabCountApproved">1</span>)
+                  </button>
+                  <button type="button" class="filter-tab oa-btn oa-btn-filter" data-tab="cancelled" onclick="filterAdminTab('cancelled')">
+                    Cancelled (<span id="tabCountCancelled">6</span>)
+                  </button>
+                  <button type="button" class="filter-tab oa-btn oa-btn-filter" data-tab="exited" onclick="filterAdminTab('exited')">
+                    Exited (<span id="tabCountExited">0</span>)
+                  </button>
+                  <button type="button" class="filter-tab oa-btn oa-btn-filter" data-tab="all" onclick="filterAdminTab('all')">
+                    All (<span id="tabCountAll">7</span>)
+                  </button>
+                </div>
+
+                <!-- Monthly Data Deletion -->
+                <div class="oa-monthly-delete">
+                  <input
+                    type="month"
+                    id="deleteMonthInput"
+                    class="oa-month-input"
+                    title="Select Month to Delete Outpass Data"
+                  />
+                  <button
+                    type="button"
+                    class="oa-btn oa-btn-red"
+                    onclick="deleteMonthlyData()"
+                    title="Delete all outpass requests for the selected month"
+                  >
+                    &#9888; Delete Monthly Data
+                  </button>
+                </div>
               </div>
 
-              <!-- Monthly Data Deletion -->
-              <div class="oa-monthly-delete">
+              <div class="oa-toolbar-right">
+                <select id="sortSelect" class="oa-select" onchange="renderAdminTable()">
+                  <option value="newest">Sort: Newest First</option>
+                  <option value="oldest">Sort: Oldest First</option>
+                </select>
+
+                <button type="button" class="oa-btn oa-btn-blue" onclick="renderAdminTable()">
+                  &#8635; Refresh
+                </button>
+              </div>
+            </div>
+
+            <!-- Automatic Email Notification Status Banner -->
+            <div id="adminEmailBanner" style="display:none; margin: 12px 18px 0; padding: 10px 14px; border-radius: 6px; background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; font-size: 13px; align-items: center; justify-content: space-between; gap: 12px;">
+              <span id="adminEmailBannerText"></span>
+            </div>
+
+            <!-- Open Admin Style Data Table -->
+            <div class="oa-table-wrapper">
+              <table class="oa-table admin-table">
+                <thead>
+                  <tr>
+                    <th>Pass ID</th>
+                    <th>Student Details</th>
+                    <th>Submitted Date &amp; Time</th>
+                    <th>Leave Date &amp; Time</th>
+                    <th>Reason for Leave</th>
+                    <th>Pickup Guardian &amp; Email</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="adminTableBody">
+                  <!-- Populated dynamically by js/main.js -->
+                </tbody>
+              </table>
+            </div>
+
+          </section>
+        </div>
+
+        <!-- SECTION 2: STUDENTS DATABASE LIST VIEW -->
+        <div id="adminStudentsSection" style="display: none;">
+          <div class="oa-kpi-strip">
+            <div class="oa-kpi-item">
+              <span class="oa-kpi-dot oa-dot-blue"></span>
+              <span class="oa-kpi-label">Total Registered Students:</span>
+              <strong id="studentsTotalCount">0</strong>
+            </div>
+            <div class="oa-kpi-item">
+              <span class="oa-kpi-dot oa-dot-green"></span>
+              <span class="oa-kpi-label">Showing Filtered:</span>
+              <strong id="studentsShowingCount">0</strong>
+            </div>
+          </div>
+
+          <section class="oa-card">
+            <div class="oa-toolbar">
+              <div class="oa-toolbar-left" style="flex: 1;">
                 <input
-                  type="month"
-                  id="deleteMonthInput"
+                  type="text"
+                  id="studentDbSearchInput"
                   class="oa-month-input"
-                  title="Select Month to Delete Outpass Data"
+                  style="min-width: 240px; flex: 1; max-width: 380px;"
+                  placeholder="Search by Admission No, Student Name, Class, or Father Name..."
+                  oninput="renderAdminStudentsTable()"
                 />
-                <button
-                  type="button"
-                  class="oa-btn oa-btn-red"
-                  onclick="deleteMonthlyData()"
-                  title="Delete all outpass requests for the selected month"
-                >
-                  &#9888; Delete Monthly Data
-                </button>
+
+                <select id="studentDbClassSelect" class="oa-select" onchange="renderAdminStudentsTable()">
+                  <option value="">All Classes</option>
+                </select>
+              </div>
+
+              <div class="oa-toolbar-right">
+                <select id="studentDbSortSelect" class="oa-select" onchange="renderAdminStudentsTable()">
+                  <option value="adm">Sort: Admission No</option>
+                  <option value="name">Sort: Student Name (A–Z)</option>
+                  <option value="class">Sort: Class</option>
+                </select>
               </div>
             </div>
 
-            <div class="oa-toolbar-right">
-              <select id="sortSelect" class="oa-select" onchange="renderAdminTable()">
-                <option value="newest">Sort: Newest First</option>
-                <option value="oldest">Sort: Oldest First</option>
-              </select>
-
-              <button type="button" class="oa-btn oa-btn-blue" onclick="renderAdminTable()">
-                &#8635; Refresh
-              </button>
+            <div class="oa-table-wrapper">
+              <table class="oa-table admin-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Admission No</th>
+                    <th>Student Name</th>
+                    <th>Class</th>
+                    <th>Father / Parent Name</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="adminStudentsTableBody">
+                  <!-- Populated dynamically by js/main.js -->
+                </tbody>
+              </table>
             </div>
-          </div>
-
-          <!-- Automatic Email Notification Status Banner -->
-          <div id="adminEmailBanner" style="display:none; margin: 12px 18px 0; padding: 10px 14px; border-radius: 6px; background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; font-size: 13px; align-items: center; justify-content: space-between; gap: 12px;">
-            <span id="adminEmailBannerText"></span>
-          </div>
-
-          <!-- Open Admin Style Data Table -->
-          <div class="oa-table-wrapper">
-            <table class="oa-table admin-table">
-              <thead>
-                <tr>
-                  <th>Pass ID</th>
-                  <th>Student Details</th>
-                  <th>Submitted Date &amp; Time</th>
-                  <th>Leave Date &amp; Time</th>
-                  <th>Reason for Leave</th>
-                  <th>Pickup Guardian &amp; Email</th>
-                  <th>Status</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody id="adminTableBody">
-                <!-- Populated dynamically by js/main.js -->
-              </tbody>
-            </table>
-          </div>
-
-        </section>
+          </section>
+        </div>
 
       </main>
 

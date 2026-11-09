@@ -437,6 +437,46 @@ exports.createOutpassHandler = async (event) => {
       });
     }
 
+    // Rule 5: Only 1 outpass submission per student per day AND max 1 request per departure date
+    const existingScan = await docClient.send(
+      new ScanCommand({
+        TableName: OUTPASS_TABLE,
+        FilterExpression: 'admissionNo = :adm AND #st <> :cancelled',
+        ExpressionAttributeNames: { '#st': 'status' },
+        ExpressionAttributeValues: {
+          ':adm': String(studentRecord.admissionNo).trim(),
+          ':cancelled': 'cancelled'
+        }
+      })
+    );
+
+    const activeReqs = existingScan.Items || [];
+    const duplicateLeaveDate = activeReqs.find((r) => r.leaveDate === leaveDate);
+    if (duplicateLeaveDate) {
+      return response(400, {
+        message: `An outpass request (${duplicateLeaveDate.passId}) has already been submitted for ${studentRecord.name} for departure date ${leaveDate}. More than one request for the same day is not accepted.`
+      });
+    }
+
+    const submittedToday = activeReqs.find((r) => {
+      if (r.timestamp && Number(r.timestamp) > 1000000000) {
+        const subIstDate = new Date(Number(r.timestamp)).toLocaleDateString('en-CA', {
+          timeZone: 'Asia/Kolkata'
+        });
+        if (subIstDate === istDateStr) return true;
+      }
+      if (r.reqTime && String(r.reqTime).startsWith(istDateStr)) {
+        return true;
+      }
+      return false;
+    });
+
+    if (submittedToday) {
+      return response(400, {
+        message: `Only one outpass request can be submitted per student per day. A request (${submittedToday.passId}) was already submitted today for ${studentRecord.name}.`
+      });
+    }
+
     const randomHex = Math.floor(0x1000 + Math.random() * 0x9000)
       .toString(16)
       .toUpperCase();
