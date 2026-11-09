@@ -7,6 +7,6 @@ architecture = "x86_64"
 handler = "src/handler.loginHandler"
 manifest_hash = ""
 packagetype = "Zip"
-functions = ["LoginFunction", "ChangePasswordFunction", "GetStudentFunction", "CreateOutpassFunction", "ListOutpassesFunction", "UpdateOutpassStatusFunction", "DeleteMonthlyOutpassesFunction", "DeleteOutpassFunction", "SeedDatabaseFunction"]
+functions = ["LoginFunction", "ChangePasswordFunction", "GetStudentFunction", "CreateStudentFunction", "DeleteStudentFunction", "CreateOutpassFunction", "ListOutpassesFunction", "UpdateOutpassStatusFunction", "DeleteMonthlyOutpassesFunction", "DeleteOutpassFunction", "SeedDatabaseFunction"]
 
 [layer_build_definitions]

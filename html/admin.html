@@ -6,6 +6,17 @@
   <title>HOFIS Admin - Outpass Management Console</title>
   <link rel="stylesheet" href="../css/style.css" />
   <link rel="icon" type="image/png" href="../img/logo.png" />
+  <script>
+    // Strict Auth Guard: Redirect immediately if admin is signed out
+    if (!sessionStorage.getItem('adminUser')) {
+      window.location.replace('index.html#login');
+    }
+    window.addEventListener('pageshow', function () {
+      if (!sessionStorage.getItem('adminUser')) {
+        window.location.replace('index.html#login');
+      }
+    });
+  </script>
 </head>
 <body class="oa-body">
   <div class="oa-layout" id="oaLayout">
@@ -115,7 +126,7 @@
         </li>
 
         <li class="oa-nav-item">
-          <a href="index.html#login" class="oa-nav-link" onclick="sessionStorage.removeItem('adminUser');">
+          <a href="index.html#login" class="oa-nav-link" onclick="adminSignOut(); return false;">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
               <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
@@ -156,7 +167,7 @@
             </div>
             <span id="adminUserLabel">Administrator</span>
           </div>
-          <a href="index.html#login" class="oa-logout-btn" onclick="sessionStorage.removeItem('adminUser');">Sign Out</a>
+          <a href="index.html#login" class="oa-logout-btn" onclick="adminSignOut(); return false;">Sign Out</a>
         </div>
       </header>
 

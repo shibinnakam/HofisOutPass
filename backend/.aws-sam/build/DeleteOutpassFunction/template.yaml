@@ -160,6 +160,36 @@ Resources:
             Path: /students/{admissionNo}
             Method: get
 
+  CreateStudentFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./
+      Handler: src/handler.createStudentHandler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref HofisStudentsTable
+      Events:
+        CreateStudentApi:
+          Type: Api
+          Properties:
+            Path: /students
+            Method: post
+
+  DeleteStudentFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./
+      Handler: src/handler.deleteStudentHandler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref HofisStudentsTable
+      Events:
+        DeleteStudentApi:
+          Type: Api
+          Properties:
+            Path: /students/{admissionNo}
+            Method: delete
+
   CreateOutpassFunction:
     Type: AWS::Serverless::Function
     Properties:

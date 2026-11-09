@@ -163,6 +163,40 @@ Resources:
             Method: get
     Metadata:
       SamResourceId: GetStudentFunction
+  CreateStudentFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: CreateStudentFunction
+      Handler: src/handler.createStudentHandler
+      Policies:
+      - DynamoDBCrudPolicy:
+          TableName:
+            Ref: HofisStudentsTable
+      Events:
+        CreateStudentApi:
+          Type: Api
+          Properties:
+            Path: /students
+            Method: post
+    Metadata:
+      SamResourceId: CreateStudentFunction
+  DeleteStudentFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: DeleteStudentFunction
+      Handler: src/handler.deleteStudentHandler
+      Policies:
+      - DynamoDBCrudPolicy:
+          TableName:
+            Ref: HofisStudentsTable
+      Events:
+        DeleteStudentApi:
+          Type: Api
+          Properties:
+            Path: /students/{admissionNo}
+            Method: delete
+    Metadata:
+      SamResourceId: DeleteStudentFunction
   CreateOutpassFunction:
     Type: AWS::Serverless::Function
     Properties:

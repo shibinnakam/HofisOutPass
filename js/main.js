@@ -1361,7 +1361,22 @@ window.closeChangePasswordModal = function () {
   if (modal) modal.style.display = 'none';
 };
 
+window.adminSignOut = function () {
+  try {
+    sessionStorage.removeItem('adminUser');
+    sessionStorage.removeItem('cognitoToken');
+    localStorage.removeItem('adminUser');
+  } catch (e) {}
+  window.location.replace('index.html#login');
+};
+
 function initAdminConsole() {
+  const loggedInAdmin = sessionStorage.getItem('adminUser');
+  if (!loggedInAdmin) {
+    window.location.replace('index.html#login');
+    return;
+  }
+
   const verifyForm = document.getElementById('verifyPassForm');
   const verifyInput = document.getElementById('verifyPassInput');
   const deleteMonthInput = document.getElementById('deleteMonthInput');
@@ -1369,7 +1384,6 @@ function initAdminConsole() {
   const changePasswordForm = document.getElementById('changePasswordForm');
   const addStudentForm = document.getElementById('addStudentForm');
 
-  const loggedInAdmin = sessionStorage.getItem('adminUser') || 'hofis';
   if (adminUserLabel) {
     adminUserLabel.textContent = `Administrator (${loggedInAdmin})`;
   }

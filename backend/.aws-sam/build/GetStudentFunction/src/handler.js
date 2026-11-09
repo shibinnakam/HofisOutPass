@@ -291,7 +291,7 @@ exports.getStudentHandler = async (event) => {
       return response(400, { message: 'Admission Number is required.' });
     }
 
-    // 1) Check DynamoDB HofisStudents table
+    // 1) Check DynamoDB HofisStudents table first
     const result = await docClient.send(
       new GetCommand({
         TableName: STUDENTS_TABLE,
@@ -300,6 +300,11 @@ exports.getStudentHandler = async (event) => {
     );
 
     if (result.Item) {
+      if (result.Item.deleted) {
+        return response(404, {
+          message: `Student with Admission Number '${admissionNo}' was deleted from the school database.`
+        });
+      }
       return response(200, result.Item);
     }
 
@@ -314,6 +319,76 @@ exports.getStudentHandler = async (event) => {
   } catch (err) {
     console.error('getStudent error:', err);
     return response(500, { message: 'Failed to fetch student', error: err.message });
+  }
+};
+
+// ==========================================================================
+// 2B. POST /students - Add New Student to Database (Admin)
+// ==========================================================================
+exports.createStudentHandler = async (event) => {
+  try {
+    const body = JSON.parse(event.body || '{}');
+    const admissionNo = String(body.admissionNo || '').trim();
+    const name = String(body.name || '').trim().toUpperCase();
+    const studentClass = String(body.class || '').trim().toUpperCase();
+    const parentName = String(body.parentName || '').trim().toUpperCase();
+
+    if (!admissionNo || !name || !studentClass || !parentName) {
+      return response(400, {
+        message: 'Admission Number, Student Name, Class, and Father/Parent Name are required.'
+      });
+    }
+
+    const item = {
+      admissionNo,
+      name,
+      class: studentClass,
+      parentName
+    };
+
+    await docClient.send(
+      new PutCommand({
+        TableName: STUDENTS_TABLE,
+        Item: item
+      })
+    );
+
+    return response(201, item);
+  } catch (err) {
+    console.error('createStudent error:', err);
+    return response(500, { message: 'Failed to add student', error: err.message });
+  }
+};
+
+// ==========================================================================
+// 2C. DELETE /students/{admissionNo} - Permanently Delete Student (Admin)
+// ==========================================================================
+exports.deleteStudentHandler = async (event) => {
+  try {
+    const admissionNo = (event.pathParameters?.admissionNo || '').trim();
+    if (!admissionNo) {
+      return response(400, { message: 'Admission Number is required.' });
+    }
+
+    // Mark as deleted in DynamoDB so even embedded Excel entries stay permanently deleted
+    await docClient.send(
+      new PutCommand({
+        TableName: STUDENTS_TABLE,
+        Item: {
+          admissionNo,
+          deleted: true,
+          deletedAt: new Date().toISOString()
+        }
+      })
+    );
+
+    return response(200, {
+      message: `Student with Admission Number '${admissionNo}' permanently deleted.`,
+      admissionNo
+    });
+  } catch (err) {
+    console.error('deleteStudent error:', err);
+    return response(500, { message: 'Failed to delete student', error: err.message });
   }
 };
 
@@ -419,16 +494,20 @@ exports.createOutpassHandler = async (event) => {
       });
     }
 
-    // Verify student exists in DynamoDB or Excel database
-    let studentRecord = EXCEL_STUDENTS[String(admissionNo).trim()];
-    if (!studentRecord) {
-      const dbStudent = await docClient.send(
-        new GetCommand({
-          TableName: STUDENTS_TABLE,
-          Key: { admissionNo: String(admissionNo).trim() }
-        })
-      );
-      studentRecord = dbStudent.Item;
+    // Verify student exists in DynamoDB or Excel database (and is not deleted)
+    const dbStudent = await docClient.send(
+      new GetCommand({
+        TableName: STUDENTS_TABLE,
+        Key: { admissionNo: String(admissionNo).trim() }
+      })
+    );
+    let studentRecord = null;
+    if (dbStudent.Item) {
+      if (!dbStudent.Item.deleted) {
+        studentRecord = dbStudent.Item;
+      }
+    } else if (EXCEL_STUDENTS[String(admissionNo).trim()]) {
+      studentRecord = EXCEL_STUDENTS[String(admissionNo).trim()];
     }
 
     if (!studentRecord) {

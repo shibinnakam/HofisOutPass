@@ -1,0 +1,310 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Holy Family International School (HOFIS) Outpass Portal Backend
+  AWS Cognito + AWS Lambda + Amazon DynamoDB + Amazon SES + Amazon API Gateway
+
+Globals:
+  Function:
+    Timeout: 30
+    MemorySize: 256
+    Runtime: nodejs20.x
+    Environment:
+      Variables:
+        STUDENTS_TABLE: !Ref HofisStudentsTable
+        OUTPASS_TABLE: !Ref HofisOutpassRequestsTable
+        ADMINS_TABLE: !Ref HofisAdminsTable
+        COGNITO_USER_POOL_ID: !Ref HofisAdminUserPool
+        COGNITO_CLIENT_ID: !Ref HofisAdminUserPoolClient
+        SENDER_EMAIL: "hofispr@gmail.com"
+        GMAIL_APP_PASSWORD: "euow uhqa cbyu kdja"
+  Api:
+    Cors:
+      AllowMethods: "'GET,POST,PATCH,DELETE,OPTIONS'"
+      AllowHeaders: "'Content-Type,Authorization'"
+      AllowOrigin: "'*'"
+
+Resources:
+  # ==========================================================================
+  # 1. Amazon Cognito User Pool & Client (Staff & Gatekeeper Admin Auth)
+  # ==========================================================================
+  HofisAdminUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: HofisOutpassAdminUserPool
+      AdminCreateUserConfig:
+        AllowAdminCreateUserOnly: true
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 6
+          RequireLowercase: false
+          RequireNumbers: false
+          RequireSymbols: false
+          RequireUppercase: false
+
+  HofisAdminUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: HofisOutpassWebClient
+      UserPoolId: !Ref HofisAdminUserPool
+      GenerateSecret: false
+      ExplicitAuthFlows:
+        - ALLOW_USER_PASSWORD_AUTH
+        - ALLOW_ADMIN_USER_PASSWORD_AUTH
+        - ALLOW_REFRESH_TOKEN_AUTH
+
+  # ==========================================================================
+  # 2. Amazon DynamoDB Tables (Admins, Students, Outpass Requests)
+  # ==========================================================================
+  HofisAdminsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: HofisAdmins
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: username
+          AttributeType: S
+      KeySchema:
+        - AttributeName: username
+          KeyType: HASH
+
+  HofisStudentsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: HofisStudents
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: admissionNo
+          AttributeType: S
+      KeySchema:
+        - AttributeName: admissionNo
+          KeyType: HASH
+
+  HofisOutpassRequestsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: HofisOutpassRequests
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: passId
+          AttributeType: S
+        - AttributeName: status
+          AttributeType: S
+      KeySchema:
+        - AttributeName: passId
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: StatusIndex
+          KeySchema:
+            - AttributeName: status
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+
+  # ==========================================================================
+  # 3. AWS Lambda Functions
+  # ==========================================================================
+  LoginFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./
+      Handler: src/handler.loginHandler
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref HofisAdminsTable
+        - Statement:
+            - Effect: Allow
+              Action:
+                - cognito-idp:InitiateAuth
+                - cognito-idp:AdminInitiateAuth
+              Resource: !GetAtt HofisAdminUserPool.Arn
+      Events:
+        LoginApi:
+          Type: Api
+          Properties:
+            Path: /auth/login
+            Method: post
+
+  ChangePasswordFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./
+      Handler: src/handler.changePasswordHandler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref HofisAdminsTable
+        - Statement:
+            - Effect: Allow
+              Action:
+                - cognito-idp:AdminSetUserPassword
+              Resource: !GetAtt HofisAdminUserPool.Arn
+      Events:
+        ChangePasswordApi:
+          Type: Api
+          Properties:
+            Path: /auth/change-password
+            Method: post
+
+  GetStudentFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./
+      Handler: src/handler.getStudentHandler
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref HofisStudentsTable
+      Events:
+        GetStudentApi:
+          Type: Api
+          Properties:
+            Path: /students/{admissionNo}
+            Method: get
+
+  CreateStudentFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./
+      Handler: src/handler.createStudentHandler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref HofisStudentsTable
+      Events:
+        CreateStudentApi:
+          Type: Api
+          Properties:
+            Path: /students
+            Method: post
+
+  DeleteStudentFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./
+      Handler: src/handler.deleteStudentHandler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref HofisStudentsTable
+      Events:
+        DeleteStudentApi:
+          Type: Api
+          Properties:
+            Path: /students/{admissionNo}
+            Method: delete
+
+  CreateOutpassFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./
+      Handler: src/handler.createOutpassHandler
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref HofisStudentsTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref HofisOutpassRequestsTable
+      Events:
+        CreateOutpassApi:
+          Type: Api
+          Properties:
+            Path: /outpasses
+            Method: post
+
+  ListOutpassesFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./
+      Handler: src/handler.listOutpassesHandler
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref HofisOutpassRequestsTable
+      Events:
+        ListOutpassesApi:
+          Type: Api
+          Properties:
+            Path: /outpasses
+            Method: get
+
+  UpdateOutpassStatusFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./
+      Handler: src/handler.updateOutpassStatusHandler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref HofisOutpassRequestsTable
+        - Statement:
+            - Effect: Allow
+              Action:
+                - ses:SendEmail
+                - ses:SendRawEmail
+              Resource: "*"
+      Events:
+        UpdateOutpassApi:
+          Type: Api
+          Properties:
+            Path: /outpasses/{passId}
+            Method: patch
+
+  DeleteMonthlyOutpassesFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./
+      Handler: src/handler.deleteMonthlyOutpassesHandler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref HofisOutpassRequestsTable
+      Events:
+        DeleteMonthlyApi:
+          Type: Api
+          Properties:
+            Path: /outpasses/monthly
+            Method: delete
+
+  DeleteOutpassFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./
+      Handler: src/handler.deleteOutpassHandler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref HofisOutpassRequestsTable
+      Events:
+        DeleteOutpassApi:
+          Type: Api
+          Properties:
+            Path: /outpasses/{passId}
+            Method: delete
+
+  SeedDatabaseFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./
+      Handler: src/handler.seedDatabaseHandler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref HofisAdminsTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref HofisStudentsTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref HofisOutpassRequestsTable
+        - Statement:
+            - Effect: Allow
+              Action:
+                - cognito-idp:AdminCreateUser
+                - cognito-idp:AdminSetUserPassword
+              Resource: !GetAtt HofisAdminUserPool.Arn
+      Events:
+        SeedApi:
+          Type: Api
+          Properties:
+            Path: /seed
+            Method: post
+
+Outputs:
+  ApiEndpoint:
+    Description: API Gateway endpoint URL for Prod stage
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod"
+  CognitoUserPoolId:
+    Description: Cognito User Pool ID
+    Value: !Ref HofisAdminUserPool
+  CognitoClientId:
+    Description: Cognito User Pool Client ID
+    Value: !Ref HofisAdminUserPoolClient
