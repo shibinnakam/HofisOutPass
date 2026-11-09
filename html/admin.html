@@ -21,7 +21,7 @@
 <body class="oa-body">
   <div class="oa-layout" id="oaLayout">
     
-    <!-- Left Blue & White Sidebar -->
+    <!-- Left Premium Indigo Sidebar -->
     <aside class="oa-sidebar">
       <div class="oa-brand">
         <a href="admin.html" class="oa-brand-link" title="Holy Family International School">
@@ -29,76 +29,83 @@
           <div class="oa-brand-title">
             <strong>HOFIS</strong> <span>Admin</span>
           </div>
+          <span class="oa-version-badge">v2.0</span>
         </a>
-      </div>
-
-      <!-- Sidebar Search Box -->
-      <div class="oa-sidebar-search">
-        <form id="verifyPassForm" class="oa-search-box">
-          <input
-            type="text"
-            id="verifyPassInput"
-            placeholder="Search Pass ID / Adm No..."
-            autocomplete="off"
-          />
-          <button type="submit" title="Verify / Search Pass">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="11" cy="11" r="8"></circle>
-              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-            </svg>
-          </button>
-        </form>
       </div>
 
       <!-- Sidebar Menu -->
       <ul class="oa-nav">
         <li class="oa-nav-item">
-          <a href="#all" class="oa-nav-link" data-side-tab="all" onclick="filterAdminTab('all'); return false;">
+          <a href="#dashboard" class="oa-nav-link" onclick="filterAdminTab('all'); return false;">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <line x1="18" y1="20" x2="18" y2="10"></line>
-              <line x1="12" y1="20" x2="12" y2="4"></line>
-              <line x1="6" y1="20" x2="6" y2="14"></line>
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+              <polyline points="9 22 9 12 15 12 15 22"></polyline>
             </svg>
-            <span>Dashboard (All)</span>
+            <span>Dashboard</span>
           </a>
         </li>
 
-        <li class="oa-nav-item">
-          <a href="#pending" class="oa-nav-link active" data-side-tab="pending" onclick="filterAdminTab('pending'); return false;">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-              <polyline points="14 2 14 8 20 8"></polyline>
+        <!-- Collapsible Outpass Group -->
+        <li class="oa-nav-item oa-nav-group">
+          <button type="button" class="oa-nav-group-header" onclick="document.getElementById('oaOutpassSubmenu').classList.toggle('collapsed')">
+            <span class="oa-nav-group-left">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+              </svg>
+              <span>Outpass</span>
+            </span>
+            <svg class="oa-group-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="18 15 12 9 6 15"></polyline>
             </svg>
-            <span>Pending Requests</span>
-          </a>
+          </button>
+
+          <ul class="oa-subnav" id="oaOutpassSubmenu">
+            <li>
+              <a href="#all" class="oa-nav-link oa-sub-link active" data-side-tab="all" onclick="filterAdminTab('all'); return false;">
+                <span class="oa-sub-dash">&mdash;</span>
+                <span>All Requests</span>
+              </a>
+            </li>
+            <li>
+              <a href="#pending" class="oa-nav-link oa-sub-link" data-side-tab="pending" onclick="filterAdminTab('pending'); return false;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                </svg>
+                <span>Pending Requests</span>
+              </a>
+            </li>
+            <li>
+              <a href="#approved" class="oa-nav-link oa-sub-link" data-side-tab="approved" onclick="filterAdminTab('approved'); return false;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                <span>Approved Passes</span>
+              </a>
+            </li>
+            <li>
+              <a href="#cancelled" class="oa-nav-link oa-sub-link" data-side-tab="cancelled" onclick="filterAdminTab('cancelled'); return false;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <polyline points="9 12 11 14 15 10"></polyline>
+                </svg>
+                <span>Cancelled / Rejected</span>
+              </a>
+            </li>
+          </ul>
         </li>
 
-        <li class="oa-nav-item">
-          <a href="#approved" class="oa-nav-link" data-side-tab="approved" onclick="filterAdminTab('approved'); return false;">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="20 6 9 17 4 12"></polyline>
-            </svg>
-            <span>Approved Passes</span>
-          </a>
-        </li>
-
-        <li class="oa-nav-item">
-          <a href="#cancelled" class="oa-nav-link" data-side-tab="cancelled" onclick="filterAdminTab('cancelled'); return false;">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="10"></circle>
-              <line x1="15" y1="9" x2="9" y2="15"></line>
-              <line x1="9" y1="9" x2="15" y2="15"></line>
-            </svg>
-            <span>Cancelled / Rejected</span>
-          </a>
-        </li>
+        <li class="oa-nav-divider"></li>
 
         <li class="oa-nav-item">
           <a href="#exited" class="oa-nav-link" data-side-tab="exited" onclick="filterAdminTab('exited'); return false;">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-              <polyline points="16 17 21 12 16 7"></polyline>
-              <line x1="21" y1="12" x2="9" y2="12"></line>
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="9" y1="15" x2="15" y2="15"></line>
             </svg>
             <span>Departed School</span>
           </a>
@@ -119,22 +126,45 @@
         <li class="oa-nav-item">
           <a href="#change-password" class="oa-nav-link" id="navChangePassword" onclick="openChangePasswordModal(); return false;">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path>
+              <circle cx="7.5" cy="15.5" r="5.5"></circle>
+              <path d="m21 2-9.6 9.6"></path>
+              <path d="m15.5 7.5 3 3L22 7l-3-3"></path>
             </svg>
             <span>Change Password</span>
           </a>
         </li>
 
         <li class="oa-nav-item">
+          <a href="#settings" class="oa-nav-link" onclick="openChangePasswordModal(); return false;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="3"></circle>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            </svg>
+            <span>Settings</span>
+          </a>
+        </li>
+
+        <li class="oa-nav-divider"></li>
+
+        <li class="oa-nav-item">
           <a href="index.html#login" class="oa-nav-link" onclick="adminSignOut(); return false;">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+              <polyline points="16 17 21 12 16 7"></polyline>
+              <line x1="21" y1="12" x2="9" y2="12"></line>
             </svg>
             <span>Sign Out</span>
           </a>
         </li>
       </ul>
+
+      <!-- Decorative Sidebar Wave -->
+      <div class="oa-sidebar-wave" aria-hidden="true">
+        <svg viewBox="0 0 250 110" preserveAspectRatio="none">
+          <path d="M0,45 C75,100 165,0 250,55 L250,110 L0,110 Z" fill="rgba(124, 58, 237, 0.16)"></path>
+          <path d="M0,70 C90,20 175,95 250,40 L250,110 L0,110 Z" fill="rgba(99, 102, 241, 0.22)"></path>
+        </svg>
+      </div>
     </aside>
 
     <!-- Mobile Backdrop Overlay -->
@@ -158,126 +188,249 @@
           </a>
         </div>
 
+        <!-- Center Global Search Bar -->
+        <form id="verifyPassForm" class="oa-topbar-search">
+          <svg class="oa-topbar-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input
+            type="text"
+            id="verifyPassInput"
+            placeholder="Search pass ID, student, or reference..."
+            autocomplete="off"
+          />
+          <kbd class="oa-kbd-shortcut">Ctrl + K</kbd>
+        </form>
+
         <div class="oa-topbar-right">
-          <div class="oa-user-profile">
+          <button type="button" class="oa-notif-btn" title="Notifications" onclick="renderAdminTable()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+            </svg>
+            <span class="oa-notif-dot"></span>
+          </button>
+
+          <div class="oa-user-profile-pill">
             <div class="oa-user-avatar">
               <svg viewBox="0 0 24 24" fill="currentColor">
                 <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"></path>
               </svg>
             </div>
-            <span id="adminUserLabel">Administrator</span>
+            <div class="oa-user-info-text">
+              <span id="adminUserLabel" class="oa-user-name">Administrator (shibin)</span>
+              <span class="oa-user-role">School Admin</span>
+            </div>
+            <button type="button" class="oa-profile-signout" onclick="adminSignOut()" title="Sign Out">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                <polyline points="16 17 21 12 16 7"></polyline>
+                <line x1="21" y1="12" x2="9" y2="12"></line>
+              </svg>
+            </button>
           </div>
-          <a href="index.html#login" class="oa-logout-btn" onclick="adminSignOut(); return false;">Sign Out</a>
         </div>
       </header>
 
       <!-- Main Content Area -->
       <main class="oa-content">
         
-        <!-- Content Header & Breadcrumb -->
-        <div class="oa-content-header">
-          <div class="oa-page-title">
-            <h1 id="adminMainHeading">Outpass <small>List</small></h1>
+        <!-- Hero Header Banner with School Illustration -->
+        <div class="oa-hero-banner">
+          <div class="oa-hero-left">
+            <div class="oa-breadcrumb">
+              <a href="index.html">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
+                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                </svg>
+                Home
+              </a>
+              <span>/</span>
+              <span id="adminBreadcrumbCurrent">Outpass Requests</span>
+            </div>
+            <div class="oa-page-title">
+              <h1 id="adminMainHeading">Outpass Management</h1>
+              <p id="adminMainSubtitle" class="oa-page-subtitle">Create, review, approve and track student outpass requests.</p>
+            </div>
           </div>
-          <div class="oa-breadcrumb">
-            <a href="index.html">
-              <svg viewBox="0 0 24 24" fill="currentColor" width="13" height="13">
-                <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"></path>
-              </svg>
-              Home
-            </a>
-            <span>/</span>
-            <span id="adminBreadcrumbCurrent">Outpass Requests</span>
+
+          <!-- Decorative School Illustration -->
+          <div class="oa-hero-illustration" aria-hidden="true">
+            <svg viewBox="0 0 280 110" fill="none">
+              <path d="M0 95 Q80 40 160 80 T280 65 L280 110 L0 110 Z" fill="rgba(199, 210, 254, 0.35)"/>
+              <rect x="135" y="42" width="110" height="58" rx="2" fill="#e0e7ff" stroke="#a5b4fc" stroke-width="1.5"/>
+              <polygon points="190,18 160,42 220,42" fill="#c7d2fe" stroke="#a5b4fc" stroke-width="1.5"/>
+              <line x1="190" y1="6" x2="190" y2="18" stroke="#818cf8" stroke-width="1.8"/>
+              <polygon points="190,6 202,10 190,14" fill="#818cf8"/>
+              <circle cx="190" cy="33" r="5" fill="#ffffff" stroke="#818cf8" stroke-width="1.5"/>
+              <rect x="183" y="76" width="14" height="24" rx="2" fill="#a5b4fc"/>
+              <rect x="146" y="52" width="10" height="12" rx="1" fill="#ffffff"/>
+              <rect x="162" y="52" width="10" height="12" rx="1" fill="#ffffff"/>
+              <rect x="208" y="52" width="10" height="12" rx="1" fill="#ffffff"/>
+              <rect x="224" y="52" width="10" height="12" rx="1" fill="#ffffff"/>
+              <rect x="146" y="72" width="10" height="12" rx="1" fill="#ffffff"/>
+              <rect x="162" y="72" width="10" height="12" rx="1" fill="#ffffff"/>
+              <rect x="208" y="72" width="10" height="12" rx="1" fill="#ffffff"/>
+              <rect x="224" y="72" width="10" height="12" rx="1" fill="#ffffff"/>
+              <circle cx="116" cy="78" r="10" fill="#c7d2fe"/>
+              <line x1="116" y1="88" x2="116" y2="100" stroke="#a5b4fc" stroke-width="2"/>
+              <circle cx="258" cy="78" r="10" fill="#c7d2fe"/>
+              <line x1="258" y1="88" x2="258" y2="100" stroke="#a5b4fc" stroke-width="2"/>
+            </svg>
           </div>
         </div>
 
         <!-- SECTION 1: OUTPASS REQUESTS VIEW -->
         <div id="adminOutpassSection">
-          <!-- Compact KPI Strip -->
+          <!-- 5 Pastel Tinted KPI Cards -->
           <div class="oa-kpi-strip">
-            <div class="oa-kpi-item" onclick="filterAdminTab('pending')">
-              <span class="oa-kpi-dot oa-dot-amber"></span>
-              <span class="oa-kpi-label">Pending:</span>
-              <strong id="kpiPending">0</strong>
+            <div class="oa-kpi-item kpi-card-amber" onclick="filterAdminTab('pending')">
+              <div class="oa-kpi-icon icon-amber">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M5 22h14"></path>
+                  <path d="M5 2h14"></path>
+                  <path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22"></path>
+                  <path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2"></path>
+                </svg>
+              </div>
+              <div class="oa-kpi-info">
+                <span class="oa-kpi-label">Pending</span>
+                <strong id="kpiPending">0</strong>
+              </div>
             </div>
-            <div class="oa-kpi-item" onclick="filterAdminTab('approved')">
-              <span class="oa-kpi-dot oa-dot-green"></span>
-              <span class="oa-kpi-label">Approved:</span>
-              <strong id="kpiApproved">1</strong>
+
+            <div class="oa-kpi-item kpi-card-green" onclick="filterAdminTab('approved')">
+              <div class="oa-kpi-icon icon-green">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+              </div>
+              <div class="oa-kpi-info">
+                <span class="oa-kpi-label">Approved</span>
+                <strong id="kpiApproved">0</strong>
+              </div>
             </div>
-            <div class="oa-kpi-item" onclick="filterAdminTab('cancelled')">
-              <span class="oa-kpi-dot oa-dot-red"></span>
-              <span class="oa-kpi-label">Cancelled:</span>
-              <strong id="kpiCancelled">6</strong>
+
+            <div class="oa-kpi-item kpi-card-red" onclick="filterAdminTab('cancelled')">
+              <div class="oa-kpi-icon icon-red">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="15" y1="9" x2="9" y2="15"></line>
+                  <line x1="9" y1="9" x2="15" y2="15"></line>
+                </svg>
+              </div>
+              <div class="oa-kpi-info">
+                <span class="oa-kpi-label">Cancelled</span>
+                <strong id="kpiCancelled">0</strong>
+              </div>
             </div>
-            <div class="oa-kpi-item" onclick="filterAdminTab('exited')">
-              <span class="oa-kpi-dot oa-dot-blue"></span>
-              <span class="oa-kpi-label">Exited Gate:</span>
-              <strong id="kpiExited">0</strong>
+
+            <div class="oa-kpi-item kpi-card-blue" onclick="filterAdminTab('exited')">
+              <div class="oa-kpi-icon icon-blue">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+                  <polyline points="10 17 15 12 10 7"></polyline>
+                  <line x1="15" y1="12" x2="3" y2="12"></line>
+                </svg>
+              </div>
+              <div class="oa-kpi-info">
+                <span class="oa-kpi-label">Exited Gate</span>
+                <strong id="kpiExited">0</strong>
+              </div>
             </div>
-            <div class="oa-kpi-item" onclick="filterAdminTab('all')">
-              <span class="oa-kpi-dot oa-dot-slate"></span>
-              <span class="oa-kpi-label">Total:</span>
-              <strong id="kpiTotal">7</strong>
+
+            <div class="oa-kpi-item kpi-card-purple" onclick="filterAdminTab('all')">
+              <div class="oa-kpi-icon icon-purple">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                  <polyline points="2 17 12 22 22 17"></polyline>
+                  <polyline points="2 12 12 17 22 12"></polyline>
+                </svg>
+              </div>
+              <div class="oa-kpi-info">
+                <span class="oa-kpi-label">Total Requests</span>
+                <strong id="kpiTotal">0</strong>
+              </div>
             </div>
           </div>
 
-          <!-- White Table Box (Open Admin Card) -->
+          <!-- White Table Box -->
           <section class="oa-card">
             
-            <!-- Action Toolbar -->
-            <div class="oa-toolbar">
-              <div class="oa-toolbar-left">
-                <a href="index.html" class="oa-btn oa-btn-green">
-                  + New
-                </a>
+            <!-- Toolbar Row 1: Segmented Filter Tabs & Monthly Delete -->
+            <div class="oa-toolbar oa-toolbar-row1">
+              <div class="filter-tabs oa-segmented-tabs">
+                <button type="button" class="filter-tab oa-seg-btn active" data-tab="all" onclick="filterAdminTab('all')">
+                  All ( <span id="tabCountAll">0</span> )
+                </button>
+                <button type="button" class="filter-tab oa-seg-btn" data-tab="pending" onclick="filterAdminTab('pending')">
+                  Pending ( <span id="tabCountPending">0</span> )
+                </button>
+                <button type="button" class="filter-tab oa-seg-btn" data-tab="approved" onclick="filterAdminTab('approved')">
+                  Approved ( <span id="tabCountApproved">0</span> )
+                </button>
+                <button type="button" class="filter-tab oa-seg-btn" data-tab="cancelled" onclick="filterAdminTab('cancelled')">
+                  Cancelled ( <span id="tabCountCancelled">0</span> )
+                </button>
+                <button type="button" class="filter-tab oa-seg-btn" data-tab="exited" onclick="filterAdminTab('exited')">
+                  Exited ( <span id="tabCountExited">0</span> )
+                </button>
+              </div>
 
-                <div class="filter-tabs oa-filter-group">
-                  <button type="button" class="filter-tab oa-btn oa-btn-filter" data-tab="pending" onclick="filterAdminTab('pending')">
-                    Pending (<span id="tabCountPending">0</span>)
-                  </button>
-                  <button type="button" class="filter-tab oa-btn oa-btn-filter active" data-tab="approved" onclick="filterAdminTab('approved')">
-                    Approved (<span id="tabCountApproved">1</span>)
-                  </button>
-                  <button type="button" class="filter-tab oa-btn oa-btn-filter" data-tab="cancelled" onclick="filterAdminTab('cancelled')">
-                    Cancelled (<span id="tabCountCancelled">6</span>)
-                  </button>
-                  <button type="button" class="filter-tab oa-btn oa-btn-filter" data-tab="exited" onclick="filterAdminTab('exited')">
-                    Exited (<span id="tabCountExited">0</span>)
-                  </button>
-                  <button type="button" class="filter-tab oa-btn oa-btn-filter" data-tab="all" onclick="filterAdminTab('all')">
-                    All (<span id="tabCountAll">7</span>)
-                  </button>
-                </div>
+              <!-- Monthly Data Deletion -->
+              <div class="oa-monthly-delete">
+                <input
+                  type="month"
+                  id="deleteMonthInput"
+                  class="oa-month-input"
+                  title="Select Month to Delete Outpass Data"
+                />
+                <button
+                  type="button"
+                  class="oa-btn oa-btn-delete-monthly"
+                  onclick="deleteMonthlyData()"
+                  title="Delete all outpass requests for the selected month"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                  </svg>
+                  Delete Monthly Data
+                </button>
+              </div>
+            </div>
 
-                <!-- Monthly Data Deletion -->
-                <div class="oa-monthly-delete">
+            <!-- Toolbar Row 2: Search Input, Sort, Refresh & + New Outpass -->
+            <div class="oa-toolbar oa-toolbar-row2">
+              <div class="oa-toolbar-left" style="flex: 1;">
+                <div class="oa-inline-search">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                  </svg>
                   <input
-                    type="month"
-                    id="deleteMonthInput"
-                    class="oa-month-input"
-                    title="Select Month to Delete Outpass Data"
+                    type="text"
+                    id="inlinePassSearchInput"
+                    placeholder="Search by Pass ID, Student, Guardian or Email..."
+                    oninput="handleInlinePassSearch(this.value)"
                   />
-                  <button
-                    type="button"
-                    class="oa-btn oa-btn-red"
-                    onclick="deleteMonthlyData()"
-                    title="Delete all outpass requests for the selected month"
-                  >
-                    &#9888; Delete Monthly Data
-                  </button>
                 </div>
+
+                <select id="sortSelect" class="oa-select" onchange="renderAdminTable()">
+                  <option value="newest">&#8645; Sort: Newest First</option>
+                  <option value="oldest">&#8645; Sort: Oldest First</option>
+                </select>
+
+                <button type="button" class="oa-btn oa-btn-purple" onclick="renderAdminTable()">
+                  &#8635; Refresh
+                </button>
               </div>
 
               <div class="oa-toolbar-right">
-                <select id="sortSelect" class="oa-select" onchange="renderAdminTable()">
-                  <option value="newest">Sort: Newest First</option>
-                  <option value="oldest">Sort: Oldest First</option>
-                </select>
-
-                <button type="button" class="oa-btn oa-btn-blue" onclick="renderAdminTable()">
-                  &#8635; Refresh
-                </button>
+                <a href="index.html" class="oa-btn oa-btn-purple-solid">
+                  + &nbsp;New Outpass
+                </a>
               </div>
             </div>
 
@@ -313,33 +466,52 @@
         <!-- SECTION 2: STUDENTS DATABASE LIST VIEW -->
         <div id="adminStudentsSection" style="display: none;">
           <div class="oa-kpi-strip">
-            <div class="oa-kpi-item">
-              <span class="oa-kpi-dot oa-dot-blue"></span>
-              <span class="oa-kpi-label">Total Registered Students:</span>
-              <strong id="studentsTotalCount">0</strong>
+            <div class="oa-kpi-item kpi-card-blue">
+              <div class="oa-kpi-icon icon-blue">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="9" cy="7" r="4"></circle>
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+              </div>
+              <div class="oa-kpi-info">
+                <span class="oa-kpi-label">Total Registered Students</span>
+                <strong id="studentsTotalCount">0</strong>
+              </div>
             </div>
-            <div class="oa-kpi-item">
-              <span class="oa-kpi-dot oa-dot-green"></span>
-              <span class="oa-kpi-label">Showing Filtered:</span>
-              <strong id="studentsShowingCount">0</strong>
+            <div class="oa-kpi-item kpi-card-green">
+              <div class="oa-kpi-icon icon-green">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+              </div>
+              <div class="oa-kpi-info">
+                <span class="oa-kpi-label">Showing Filtered</span>
+                <strong id="studentsShowingCount">0</strong>
+              </div>
             </div>
           </div>
 
           <section class="oa-card">
-            <div class="oa-toolbar">
+            <div class="oa-toolbar oa-toolbar-row2">
               <div class="oa-toolbar-left" style="flex: 1;">
-                <button type="button" class="oa-btn oa-btn-green" onclick="openAddStudentModal()">
-                  + Add New Student
+                <button type="button" class="oa-btn oa-btn-purple-solid" onclick="openAddStudentModal()">
+                  + &nbsp;Add New Student
                 </button>
 
-                <input
-                  type="text"
-                  id="studentDbSearchInput"
-                  class="oa-month-input"
-                  style="min-width: 220px; flex: 1; max-width: 360px;"
-                  placeholder="Search by Admission No, Student Name, Class, or Father Name..."
-                  oninput="renderAdminStudentsTable()"
-                />
+                <div class="oa-inline-search">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                  </svg>
+                  <input
+                    type="text"
+                    id="studentDbSearchInput"
+                    placeholder="Search by Admission No, Student Name, Class, or Father Name..."
+                    oninput="renderAdminStudentsTable()"
+                  />
+                </div>
 
                 <select id="studentDbClassSelect" class="oa-select" onchange="renderAdminStudentsTable()">
                   <option value="">All Classes</option>
@@ -348,9 +520,9 @@
 
               <div class="oa-toolbar-right">
                 <select id="studentDbSortSelect" class="oa-select" onchange="renderAdminStudentsTable()">
-                  <option value="adm">Sort: Admission No</option>
-                  <option value="name">Sort: Student Name (A–Z)</option>
-                  <option value="class">Sort: Class</option>
+                  <option value="adm">&#8645; Sort: Admission No</option>
+                  <option value="name">&#8645; Sort: Student Name (A–Z)</option>
+                  <option value="class">&#8645; Sort: Class</option>
                 </select>
               </div>
             </div>
@@ -380,7 +552,7 @@
       <!-- Bottom Entries & Pagination Footer Bar -->
       <footer class="oa-footer">
         <div class="oa-footer-left">
-          &copy; 2026 <strong>Holy Family International School</strong>. All rights reserved.
+          &copy; 2026 Holy Family <strong>International School</strong>. All rights reserved.
         </div>
         <div class="oa-footer-right">
           <span>Show</span>
@@ -391,9 +563,9 @@
           </select>
           <span>entries</span>
           <div class="oa-pagination">
-            <span class="oa-page-btn">&laquo;</span>
+            <span class="oa-page-btn">&lsaquo;</span>
             <span class="oa-page-btn active">1</span>
-            <span class="oa-page-btn">&raquo;</span>
+            <span class="oa-page-btn">&rsaquo;</span>
           </div>
         </div>
       </footer>

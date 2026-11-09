@@ -827,6 +827,8 @@ window.filterAdminTab = function (tab) {
   currentSearchFilter = '';
   const verifyInput = document.getElementById('verifyPassInput');
   if (verifyInput) verifyInput.value = '';
+  const inlineInput = document.getElementById('inlinePassSearchInput');
+  if (inlineInput) inlineInput.value = '';
 
   const layout = document.getElementById('oaLayout');
   if (layout) layout.classList.remove('mobile-sidebar-open');
@@ -834,11 +836,13 @@ window.filterAdminTab = function (tab) {
   const outpassSec = document.getElementById('adminOutpassSection');
   const studentsSec = document.getElementById('adminStudentsSection');
   const mainHeading = document.getElementById('adminMainHeading');
+  const mainSubtitle = document.getElementById('adminMainSubtitle');
   const breadcrumb = document.getElementById('adminBreadcrumbCurrent');
 
   if (outpassSec) outpassSec.style.display = 'block';
   if (studentsSec) studentsSec.style.display = 'none';
-  if (mainHeading) mainHeading.innerHTML = 'Outpass <small>List</small>';
+  if (mainHeading) mainHeading.textContent = 'Outpass Management';
+  if (mainSubtitle) mainSubtitle.textContent = 'Create, review, approve and track student outpass requests.';
   if (breadcrumb) breadcrumb.textContent = 'Outpass Requests';
 
   document.querySelectorAll('.filter-tab').forEach((btn) => {
@@ -852,6 +856,15 @@ window.filterAdminTab = function (tab) {
   renderAdminTable();
 };
 
+window.handleInlinePassSearch = function (val) {
+  currentSearchFilter = (val || '').trim();
+  const verifyInput = document.getElementById('verifyPassInput');
+  if (verifyInput && verifyInput.value !== currentSearchFilter) {
+    verifyInput.value = currentSearchFilter;
+  }
+  renderAdminTable();
+};
+
 window.showAdminStudentsSection = function () {
   const layout = document.getElementById('oaLayout');
   if (layout) layout.classList.remove('mobile-sidebar-open');
@@ -859,11 +872,13 @@ window.showAdminStudentsSection = function () {
   const outpassSec = document.getElementById('adminOutpassSection');
   const studentsSec = document.getElementById('adminStudentsSection');
   const mainHeading = document.getElementById('adminMainHeading');
+  const mainSubtitle = document.getElementById('adminMainSubtitle');
   const breadcrumb = document.getElementById('adminBreadcrumbCurrent');
 
   if (outpassSec) outpassSec.style.display = 'none';
   if (studentsSec) studentsSec.style.display = 'block';
-  if (mainHeading) mainHeading.innerHTML = 'Students <small>Database</small>';
+  if (mainHeading) mainHeading.textContent = 'Students Database';
+  if (mainSubtitle) mainSubtitle.textContent = 'View, search, add, or permanently delete students from the school database.';
   if (breadcrumb) breadcrumb.textContent = 'Students Database';
 
   document.querySelectorAll('.oa-nav-link[data-side-tab]').forEach((link) => {
@@ -1180,9 +1195,11 @@ window.renderAdminTable = function () {
     if (currentSearchFilter) {
       const q = currentSearchFilter.toLowerCase();
       return (
-        r.passId.toLowerCase().includes(q) ||
-        r.admissionNo.toLowerCase().includes(q) ||
-        r.studentName.toLowerCase().includes(q)
+        (r.passId || '').toLowerCase().includes(q) ||
+        (r.admissionNo || '').toLowerCase().includes(q) ||
+        (r.studentName || '').toLowerCase().includes(q) ||
+        (r.guardian || '').toLowerCase().includes(q) ||
+        (r.parentEmail || '').toLowerCase().includes(q)
       );
     }
     if (currentAdminTab === 'all') return true;
@@ -1194,8 +1211,18 @@ window.renderAdminTable = function () {
   if (rows.length === 0) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="8" style="text-align:center; padding: 32px; color:#64748b;">
-          No outpass requests found in this view.
+        <td colspan="8" style="padding: 0; border-bottom: none;">
+          <div class="oa-empty-state">
+            <div class="oa-empty-title">No outpass requests found</div>
+            <div class="oa-empty-sub">There are no records to display for the selected filters.</div>
+            <a href="index.html" class="oa-btn-create-empty">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+              Create New Outpass
+            </a>
+          </div>
         </td>
       </tr>
     `;
@@ -1563,7 +1590,27 @@ function initAdminConsole() {
       if (outpassSec) outpassSec.style.display = 'block';
       if (studentsSec) studentsSec.style.display = 'none';
       currentSearchFilter = verifyInput.value.trim();
+      const inlineInput = document.getElementById('inlinePassSearchInput');
+      if (inlineInput && inlineInput.value !== currentSearchFilter) {
+        inlineInput.value = currentSearchFilter;
+      }
       renderAdminTable();
+    });
+
+    verifyInput.addEventListener('input', function () {
+      currentSearchFilter = verifyInput.value.trim();
+      const inlineInput = document.getElementById('inlinePassSearchInput');
+      if (inlineInput && inlineInput.value !== currentSearchFilter) {
+        inlineInput.value = currentSearchFilter;
+      }
+      renderAdminTable();
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        verifyInput.focus();
+      }
     });
   }
 
