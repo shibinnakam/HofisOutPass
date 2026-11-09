@@ -210,7 +210,7 @@ body {
   min-height: calc(100vh - 68px);
 }
 
-/* Subtle overlay to ensure card pops while keeping building vivid */
+/* Professional dark thin overlay above school.png so white cards stand out neatly */
 .main-wrapper::before {
   content: '';
   position: absolute;
@@ -218,7 +218,13 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(15, 23, 42, 0.08);
+  background: linear-gradient(
+    180deg,
+    rgba(15, 23, 42, 0.48) 0%,
+    rgba(15, 23, 42, 0.58) 100%
+  );
+  backdrop-filter: blur(1px);
+  -webkit-backdrop-filter: blur(1px);
   pointer-events: none;
 }
 
@@ -231,7 +237,7 @@ body {
   background: var(--bg-card);
   border-radius: 22px;
   padding: 36px 36px 32px;
-  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.18), 0 8px 16px -6px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.35), 0 8px 20px -6px rgba(0, 0, 0, 0.15);
   text-align: center;
   transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
