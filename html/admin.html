@@ -10,11 +10,14 @@
 <body class="oa-body">
   <div class="oa-layout" id="oaLayout">
     
-    <!-- Left Dark Sidebar (Open Admin Style) -->
+    <!-- Left Blue & White Sidebar -->
     <aside class="oa-sidebar">
       <div class="oa-brand">
         <a href="admin.html" class="oa-brand-link" title="Holy Family International School">
-          <img src="../img/hofis.png" alt="Holy Family International School" class="oa-brand-logo" />
+          <img src="../img/logo.png" alt="HOFIS Logo" class="oa-brand-logo" />
+          <div class="oa-brand-title">
+            <strong>HOFIS</strong> <span>Admin</span>
+          </div>
         </a>
       </div>
 
@@ -314,11 +317,15 @@
           <section class="oa-card">
             <div class="oa-toolbar">
               <div class="oa-toolbar-left" style="flex: 1;">
+                <button type="button" class="oa-btn oa-btn-green" onclick="openAddStudentModal()">
+                  + Add New Student
+                </button>
+
                 <input
                   type="text"
                   id="studentDbSearchInput"
                   class="oa-month-input"
-                  style="min-width: 240px; flex: 1; max-width: 380px;"
+                  style="min-width: 220px; flex: 1; max-width: 360px;"
                   placeholder="Search by Admission No, Student Name, Class, or Father Name..."
                   oninput="renderAdminStudentsTable()"
                 />
@@ -417,6 +424,45 @@
         <div style="display:flex; justify-content:flex-end; gap:8px;">
           <button type="button" class="oa-btn oa-btn-filter" onclick="closeChangePasswordModal()">Cancel</button>
           <button type="submit" id="cpSubmitBtn" class="oa-btn oa-btn-blue">Update Password</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Add New Student Modal -->
+  <div id="addStudentModal" style="display:none; position:fixed; inset:0; background:rgba(15,23,42,0.55); z-index:9999; align-items:center; justify-content:center; padding:16px;">
+    <div style="background:#ffffff; width:100%; max-width:440px; border-radius:10px; border-top:4px solid #0284c7; box-shadow:0 15px 35px rgba(0,0,0,0.2); padding:24px;">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
+        <h3 style="margin:0; font-size:18px; color:#0f172a;">Add New Student</h3>
+        <button type="button" onclick="closeAddStudentModal()" style="background:none; border:none; font-size:22px; color:#64748b; cursor:pointer;">&times;</button>
+      </div>
+
+      <form id="addStudentForm">
+        <div class="form-group" style="margin-bottom:14px;">
+          <label for="newStudentAdm" class="form-label">Admission Number <span class="required">*</span></label>
+          <input type="text" id="newStudentAdm" class="form-input" style="height:42px; font-size:14px;" placeholder="e.g. 2105" required />
+        </div>
+
+        <div class="form-group" style="margin-bottom:14px;">
+          <label for="newStudentName" class="form-label">Student Full Name <span class="required">*</span></label>
+          <input type="text" id="newStudentName" class="form-input" style="height:42px; font-size:14px;" placeholder="e.g. AARON MATHEW" required />
+        </div>
+
+        <div class="form-group" style="margin-bottom:14px;">
+          <label for="newStudentClass" class="form-label">Class &amp; Division <span class="required">*</span></label>
+          <input type="text" id="newStudentClass" class="form-input" style="height:42px; font-size:14px;" placeholder="e.g. V A, X B, LKG" required />
+        </div>
+
+        <div class="form-group" style="margin-bottom:18px;">
+          <label for="newStudentParent" class="form-label">Father / Parent Name <span class="required">*</span></label>
+          <input type="text" id="newStudentParent" class="form-input" style="height:42px; font-size:14px;" placeholder="e.g. MATHEW THOMAS" required />
+        </div>
+
+        <div id="addStudentAlertBox" style="display:none; margin-bottom:14px; padding:10px 12px; border-radius:6px; font-size:13px;"></div>
+
+        <div style="display:flex; justify-content:flex-end; gap:8px;">
+          <button type="button" class="oa-btn oa-btn-filter" onclick="closeAddStudentModal()">Cancel</button>
+          <button type="submit" id="addStudentSubmitBtn" class="oa-btn oa-btn-blue">Save Student</button>
         </div>
       </form>
     </div>

@@ -48,6 +48,38 @@ function saveAdminsDb(db) {
 let ADMINS_DB = loadAdminsDb();
 
 // Complete Student Database loaded from Class playschool to X.xlsx (575 students)
+// Plus persistent Custom Added Students & Permanently Deleted Students
+const CUSTOM_STUDENTS_KEY = 'hofis_custom_students_v1';
+const DELETED_STUDENTS_KEY = 'hofis_deleted_students_v1';
+
+function loadCustomStudents() {
+  try {
+    const raw = localStorage.getItem(CUSTOM_STUDENTS_KEY);
+    if (raw) return JSON.parse(raw) || {};
+  } catch (e) {}
+  return {};
+}
+
+function saveCustomStudents(map) {
+  try {
+    localStorage.setItem(CUSTOM_STUDENTS_KEY, JSON.stringify(map));
+  } catch (e) {}
+}
+
+function loadDeletedStudents() {
+  try {
+    const raw = localStorage.getItem(DELETED_STUDENTS_KEY);
+    if (raw) return JSON.parse(raw) || {};
+  } catch (e) {}
+  return {};
+}
+
+function saveDeletedStudents(map) {
+  try {
+    localStorage.setItem(DELETED_STUDENTS_KEY, JSON.stringify(map));
+  } catch (e) {}
+}
+
 const STUDENTS_DB = Object.assign(
   {
     '10021': {
@@ -58,8 +90,23 @@ const STUDENTS_DB = Object.assign(
       phone: '+91 98450 11223'
     }
   },
-  window.HOFIS_STUDENTS_DB || {}
+  window.HOFIS_STUDENTS_DB || {},
+  loadCustomStudents()
 );
+
+// Apply permanent deletions to STUDENTS_DB and window.HOFIS_STUDENTS_DB
+(function applyDeletedStudents() {
+  const deletedMap = loadDeletedStudents();
+  Object.keys(deletedMap).forEach((adm) => {
+    delete STUDENTS_DB[adm];
+    if (window.HOFIS_STUDENTS_DB) {
+      delete window.HOFIS_STUDENTS_DB[adm];
+    }
+  });
+  if (window.HOFIS_STUDENTS_DB) {
+    Object.assign(window.HOFIS_STUDENTS_DB, loadCustomStudents());
+  }
+})();
 
 /**
  * Helper to get URL query parameter
@@ -174,15 +221,20 @@ function initStudentSearch() {
 
     let student = null;
 
-    // 1) Check local database extracted from Class playschool to X.xlsx
-    if (STUDENTS_DB[admissionNo]) {
+    const isDeletedLocally = Boolean(loadDeletedStudents()[admissionNo]);
+
+    // 1) Check local database extracted from Class playschool to X.xlsx + Custom Added Students
+    if (!isDeletedLocally && STUDENTS_DB[admissionNo]) {
       student = STUDENTS_DB[admissionNo];
-    } else {
+    } else if (!isDeletedLocally) {
       // 2) Try AWS API Gateway / DynamoDB lookup
       try {
         const res = await fetch(`${AWS_API_BASE_URL}/students/${encodeURIComponent(admissionNo)}`);
         if (res.ok) {
-          student = await res.json();
+          const awsStudent = await res.json();
+          if (awsStudent && !awsStudent.deleted) {
+            student = awsStudent;
+          }
         }
       } catch (err) {}
     }
@@ -825,11 +877,11 @@ window.showAdminStudentsSection = function () {
 let studentsClassDropdownInitialized = false;
 
 function initAdminStudentsDatabase() {
-  if (studentsClassDropdownInitialized) return;
   const classSelect = document.getElementById('studentDbClassSelect');
   if (!classSelect) return;
 
-  const allStudents = Object.values(window.HOFIS_STUDENTS_DB || STUDENTS_DB);
+  const currentVal = classSelect.value;
+  const allStudents = Object.values(STUDENTS_DB);
   const classSet = new Set();
   allStudents.forEach((s) => {
     if (s && s.class) classSet.add(String(s.class).trim());
@@ -842,16 +894,70 @@ function initAdminStudentsDatabase() {
     ' Students)</option>' +
     sortedClasses.map((c) => `<option value="${c}">Class ${c}</option>`).join('');
 
+  if (currentVal && classSet.has(currentVal)) {
+    classSelect.value = currentVal;
+  }
   studentsClassDropdownInitialized = true;
 }
 
-window.createOutpassForStudent = function (admissionNo) {
-  const student = STUDENTS_DB[admissionNo];
-  if (student) {
-    sessionStorage.setItem('currentStudent', JSON.stringify(student));
-    sessionStorage.setItem('admissionNo', student.admissionNo);
+window.deleteStudentRecord = async function (admissionNo) {
+  const admKey = String(admissionNo).trim();
+  const student = STUDENTS_DB[admKey];
+  const studentLabel = student ? `${student.name} (Adm No: ${admKey})` : `Admission No: ${admKey}`;
+
+  if (!confirm(`Are you sure you want to permanently delete student ${studentLabel} from the database?`)) {
+    return;
   }
-  window.location.href = `outpass.html?admission=${encodeURIComponent(admissionNo)}`;
+
+  // 1) Remove from in-memory databases
+  delete STUDENTS_DB[admKey];
+  if (window.HOFIS_STUDENTS_DB) {
+    delete window.HOFIS_STUDENTS_DB[admKey];
+  }
+
+  // 2) Persist deletion locally
+  const customMap = loadCustomStudents();
+  delete customMap[admKey];
+  saveCustomStudents(customMap);
+
+  const deletedMap = loadDeletedStudents();
+  deletedMap[admKey] = true;
+  saveDeletedStudents(deletedMap);
+
+  // 3) Re-render table & class dropdown immediately
+  initAdminStudentsDatabase();
+  renderAdminStudentsTable();
+
+  // 4) Permanently delete in AWS DynamoDB via DELETE /students/{admissionNo}
+  try {
+    await fetch(`${AWS_API_BASE_URL}/students/${encodeURIComponent(admKey)}`, {
+      method: 'DELETE'
+    });
+  } catch (err) {}
+};
+
+window.openAddStudentModal = function () {
+  const modal = document.getElementById('addStudentModal');
+  const admInput = document.getElementById('newStudentAdm');
+  const nameInput = document.getElementById('newStudentName');
+  const classInput = document.getElementById('newStudentClass');
+  const parentInput = document.getElementById('newStudentParent');
+  const alertBox = document.getElementById('addStudentAlertBox');
+
+  if (!modal) return;
+  if (admInput) admInput.value = '';
+  if (nameInput) nameInput.value = '';
+  if (classInput) classInput.value = '';
+  if (parentInput) parentInput.value = '';
+  if (alertBox) alertBox.style.display = 'none';
+
+  modal.style.display = 'flex';
+  if (admInput) admInput.focus();
+};
+
+window.closeAddStudentModal = function () {
+  const modal = document.getElementById('addStudentModal');
+  if (modal) modal.style.display = 'none';
 };
 
 window.renderAdminStudentsTable = function () {
@@ -868,7 +974,7 @@ window.renderAdminStudentsTable = function () {
   const classFilter = classSelect ? classSelect.value : '';
   const sortBy = sortSelect ? sortSelect.value : 'adm';
 
-  const allStudents = Object.values(window.HOFIS_STUDENTS_DB || STUDENTS_DB);
+  const allStudents = Object.values(STUDENTS_DB);
   if (totalEl) totalEl.textContent = allStudents.length;
 
   let filtered = allStudents.filter((s) => {
@@ -921,8 +1027,12 @@ window.renderAdminStudentsTable = function () {
         <td data-label="Father / Parent Name"><div class="guardian-name">${s.parentName || '--'}</div></td>
         <td data-label="Action" class="td-actions">
           <div class="action-buttons">
-            <button type="button" class="btn-action btn-approve" onclick="createOutpassForStudent('${s.admissionNo}')">
-              + Outpass
+            <button type="button" class="btn-action btn-revoke" onclick="deleteStudentRecord('${s.admissionNo}')" title="Permanently delete student">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              </svg>
+              Delete
             </button>
           </div>
         </td>
@@ -1257,10 +1367,85 @@ function initAdminConsole() {
   const deleteMonthInput = document.getElementById('deleteMonthInput');
   const adminUserLabel = document.getElementById('adminUserLabel');
   const changePasswordForm = document.getElementById('changePasswordForm');
+  const addStudentForm = document.getElementById('addStudentForm');
 
   const loggedInAdmin = sessionStorage.getItem('adminUser') || 'hofis';
   if (adminUserLabel) {
     adminUserLabel.textContent = `Administrator (${loggedInAdmin})`;
+  }
+
+  if (addStudentForm) {
+    addStudentForm.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const admNo = document.getElementById('newStudentAdm').value.trim();
+      const name = document.getElementById('newStudentName').value.trim().toUpperCase();
+      const cls = document.getElementById('newStudentClass').value.trim().toUpperCase();
+      const parentName = document.getElementById('newStudentParent').value.trim().toUpperCase();
+      const alertBox = document.getElementById('addStudentAlertBox');
+      const submitBtn = document.getElementById('addStudentSubmitBtn');
+
+      const showAddAlert = (msg, isSuccess) => {
+        if (!alertBox) return;
+        alertBox.style.display = 'block';
+        alertBox.style.background = isSuccess ? '#ecfdf5' : '#fef2f2';
+        alertBox.style.border = isSuccess ? '1px solid #a7f3d0' : '1px solid #fecaca';
+        alertBox.style.color = isSuccess ? '#065f46' : '#991b1b';
+        alertBox.textContent = msg;
+      };
+
+      if (!admNo || !name || !cls || !parentName) {
+        showAddAlert('All student fields are required.', false);
+        return;
+      }
+
+      if (STUDENTS_DB[admNo]) {
+        showAddAlert(`Admission Number '${admNo}' already exists for ${STUDENTS_DB[admNo].name}.`, false);
+        return;
+      }
+
+      const newStudentRecord = {
+        admissionNo: admNo,
+        name: name,
+        class: cls,
+        parentName: parentName
+      };
+
+      if (submitBtn) submitBtn.disabled = true;
+
+      // 1) Save in local memory & localStorage
+      STUDENTS_DB[admNo] = newStudentRecord;
+      if (window.HOFIS_STUDENTS_DB) {
+        window.HOFIS_STUDENTS_DB[admNo] = newStudentRecord;
+      }
+
+      const customMap = loadCustomStudents();
+      customMap[admNo] = newStudentRecord;
+      saveCustomStudents(customMap);
+
+      const deletedMap = loadDeletedStudents();
+      if (deletedMap[admNo]) {
+        delete deletedMap[admNo];
+        saveDeletedStudents(deletedMap);
+      }
+
+      // 2) Save in AWS DynamoDB via POST /students
+      try {
+        await fetch(`${AWS_API_BASE_URL}/students`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(newStudentRecord)
+        });
+      } catch (err) {}
+
+      if (submitBtn) submitBtn.disabled = false;
+      initAdminStudentsDatabase();
+      renderAdminStudentsTable();
+      showAddAlert(`Student '${name}' (Adm No: ${admNo}) added to database!`, true);
+
+      setTimeout(() => {
+        window.closeAddStudentModal();
+      }, 900);
+    });
   }
 
   if (changePasswordForm) {
