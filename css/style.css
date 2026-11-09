@@ -1431,17 +1431,21 @@ body {
   color: #1e293b;
   margin: 0;
   padding: 0;
+  height: 100vh;
+  overflow: hidden;
 }
 
 .oa-layout {
   display: flex;
-  min-height: 100vh;
+  height: 100vh;
   width: 100%;
+  overflow: hidden;
 }
 
 /* Left Midnight Indigo Sidebar */
 .oa-sidebar {
   width: 250px;
+  height: 100vh;
   background: linear-gradient(180deg, #111536 0%, #171b42 62%, #1d1e54 100%);
   color: #cbd5e1;
   display: flex;
@@ -1516,6 +1520,8 @@ body {
   flex: 1;
   position: relative;
   z-index: 2;
+  overflow-y: auto;
+  scrollbar-width: thin;
 }
 
 .oa-nav-item {
@@ -1651,13 +1657,19 @@ body {
   flex: 1;
   display: flex;
   flex-direction: column;
+  height: 100vh;
   min-width: 0;
+  overflow: hidden;
   background-color: #f6f7fb;
 }
 
 /* Top White Navbar */
 .oa-topbar {
   height: 68px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 50;
   background-color: #ffffff;
   border-bottom: 1px solid #eef0f6;
   display: flex;
@@ -1860,9 +1872,11 @@ body {
   background-color: #fef2f2;
 }
 
-/* Main Content Area */
+/* Main Content Area (Independent Scroll Container) */
 .oa-content {
   flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
   padding: 0 28px 28px;
 }
 
@@ -2370,6 +2384,7 @@ body {
 .oa-footer {
   background-color: #ffffff;
   border-top: 1px solid #eef0f6;
+  margin: 22px -28px -28px;
   padding: 14px 28px;
   display: flex;
   align-items: center;
@@ -2628,6 +2643,7 @@ body {
   }
 
   .oa-footer {
+    margin: 18px -12px -18px;
     padding: 12px;
     font-size: 11.5px;
     flex-direction: column;
