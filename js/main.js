@@ -501,11 +501,15 @@ function initOutpassForm() {
   const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(
     now.getDate()
   ).padStart(2, '0')}`;
+  const maxDateObj = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 2);
+  const maxDateStr = `${maxDateObj.getFullYear()}-${String(maxDateObj.getMonth() + 1).padStart(2, '0')}-${String(
+    maxDateObj.getDate()
+  ).padStart(2, '0')}`;
 
   if (dateInput) {
     dateInput.value = todayStr;
     dateInput.min = todayStr;
-    dateInput.max = todayStr;
+    dateInput.max = maxDateStr;
   }
   if (timeInput) {
     const nowMins = now.getHours() * 60 + now.getMinutes();
@@ -533,6 +537,11 @@ function initOutpassForm() {
     const currentTodayStr = `${currentNow.getFullYear()}-${String(currentNow.getMonth() + 1).padStart(2, '0')}-${String(
       currentNow.getDate()
     ).padStart(2, '0')}`;
+    const currentMaxObj = new Date(currentNow.getFullYear(), currentNow.getMonth(), currentNow.getDate() + 2);
+    const currentMaxDateStr = `${currentMaxObj.getFullYear()}-${String(currentMaxObj.getMonth() + 1).padStart(
+      2,
+      '0'
+    )}-${String(currentMaxObj.getDate()).padStart(2, '0')}`;
 
     // 1) Check Sunday rule
     const [selY, selM, selD] = leaveDate.split('-').map(Number);
@@ -542,13 +551,15 @@ function initOutpassForm() {
       return;
     }
 
-    // 2) Check Same-Day Submission rule & Past Date rule
+    // 2) Check Past Date & Maximum 3 Days rule (Same day, 1 day before, or 2 days before)
     if (leaveDate < currentTodayStr) {
       showOutpassError('Cannot select a departure date that has already passed.');
       return;
     }
-    if (leaveDate !== currentTodayStr) {
-      showOutpassError('Outpass must be submitted on the same day of departure.');
+    if (leaveDate > currentMaxDateStr) {
+      showOutpassError(
+        'Outpass can only be submitted for the same day, 1 day before, or 2 days before departure (maximum 3 days).'
+      );
       return;
     }
 
