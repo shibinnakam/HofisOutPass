@@ -976,21 +976,21 @@ window.renderAdminTable = function () {
 
       return `
         <tr>
-          <td>
+          <td data-label="Pass ID">
             <span class="pass-id-pill">${r.passId}</span>
           </td>
-          <td>
+          <td data-label="Student Details">
             <div class="student-cell-name">${r.studentName}</div>
             <div class="student-cell-meta">Adm: <strong>${r.admissionNo}</strong> &bull; ${r.classSection}</div>
           </td>
-          <td>
+          <td data-label="Submitted">
             <div style="font-weight:600; color:#334155; font-size:12.5px;">${submittedDateTime}</div>
           </td>
-          <td>
+          <td data-label="Leave Time">
             <div class="schedule-leave">${r.leaveTime}</div>
           </td>
-          <td class="reason-cell">${r.reason}</td>
-          <td>
+          <td data-label="Reason" class="reason-cell">${r.reason}</td>
+          <td data-label="Guardian & Email">
             <div class="guardian-name">${r.guardian}</div>
             <div class="guardian-phone">
               <svg viewBox="0 0 24 24" fill="currentColor" class="phone-icon">
@@ -1000,8 +1000,8 @@ window.renderAdminTable = function () {
             </div>
             ${emailLine}
           </td>
-          <td>${statusBadge}</td>
-          <td>
+          <td data-label="Status">${statusBadge}</td>
+          <td data-label="Actions" class="td-actions">
             <div class="action-buttons">${actionBtns}</div>
           </td>
         </tr>
