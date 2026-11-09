@@ -951,8 +951,13 @@ window.deleteStudentRecord = async function (admissionNo) {
   } catch (err) {}
 };
 
+let editingOriginalAdm = null;
+
 window.openAddStudentModal = function () {
+  editingOriginalAdm = null;
   const modal = document.getElementById('addStudentModal');
+  const modalTitle = document.getElementById('studentModalTitle');
+  const submitBtn = document.getElementById('addStudentSubmitBtn');
   const admInput = document.getElementById('newStudentAdm');
   const nameInput = document.getElementById('newStudentName');
   const classInput = document.getElementById('newStudentClass');
@@ -960,6 +965,8 @@ window.openAddStudentModal = function () {
   const alertBox = document.getElementById('addStudentAlertBox');
 
   if (!modal) return;
+  if (modalTitle) modalTitle.textContent = 'Add New Student';
+  if (submitBtn) submitBtn.textContent = 'Save Student';
   if (admInput) admInput.value = '';
   if (nameInput) nameInput.value = '';
   if (classInput) classInput.value = '';
@@ -970,7 +977,36 @@ window.openAddStudentModal = function () {
   if (admInput) admInput.focus();
 };
 
+window.openEditStudentModal = function (admissionNo) {
+  const admKey = String(admissionNo).trim();
+  const student = STUDENTS_DB[admKey];
+  if (!student) return;
+
+  editingOriginalAdm = admKey;
+  const modal = document.getElementById('addStudentModal');
+  const modalTitle = document.getElementById('studentModalTitle');
+  const submitBtn = document.getElementById('addStudentSubmitBtn');
+  const admInput = document.getElementById('newStudentAdm');
+  const nameInput = document.getElementById('newStudentName');
+  const classInput = document.getElementById('newStudentClass');
+  const parentInput = document.getElementById('newStudentParent');
+  const alertBox = document.getElementById('addStudentAlertBox');
+
+  if (!modal) return;
+  if (modalTitle) modalTitle.textContent = 'Edit Student Details';
+  if (submitBtn) submitBtn.textContent = 'Update Student';
+  if (admInput) admInput.value = student.admissionNo || admKey;
+  if (nameInput) nameInput.value = student.name || '';
+  if (classInput) classInput.value = student.class || '';
+  if (parentInput) parentInput.value = student.parentName || '';
+  if (alertBox) alertBox.style.display = 'none';
+
+  modal.style.display = 'flex';
+  if (nameInput) nameInput.focus();
+};
+
 window.closeAddStudentModal = function () {
+  editingOriginalAdm = null;
   const modal = document.getElementById('addStudentModal');
   if (modal) modal.style.display = 'none';
 };
@@ -1042,6 +1078,13 @@ window.renderAdminStudentsTable = function () {
         <td data-label="Father / Parent Name"><div class="guardian-name">${s.parentName || '--'}</div></td>
         <td data-label="Action" class="td-actions">
           <div class="action-buttons">
+            <button type="button" class="btn-action btn-email" onclick="openEditStudentModal('${s.admissionNo}')" title="Edit student details">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+              </svg>
+              Edit
+            </button>
             <button type="button" class="btn-action btn-revoke" onclick="deleteStudentRecord('${s.admissionNo}')" title="Permanently delete student">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
                 <polyline points="3 6 5 6 21 6"></polyline>
@@ -1439,7 +1482,14 @@ function initAdminConsole() {
         return;
       }
 
-      if (STUDENTS_DB[admNo]) {
+      const isEditing = Boolean(editingOriginalAdm);
+
+      if (!isEditing && STUDENTS_DB[admNo]) {
+        showAddAlert(`Admission Number '${admNo}' already exists for ${STUDENTS_DB[admNo].name}.`, false);
+        return;
+      }
+
+      if (isEditing && admNo !== editingOriginalAdm && STUDENTS_DB[admNo]) {
         showAddAlert(`Admission Number '${admNo}' already exists for ${STUDENTS_DB[admNo].name}.`, false);
         return;
       }
@@ -1453,23 +1503,40 @@ function initAdminConsole() {
 
       if (submitBtn) submitBtn.disabled = true;
 
+      const customMap = loadCustomStudents();
+      const deletedMap = loadDeletedStudents();
+
+      // If Admission Number was changed while editing, remove the old Admission Number first
+      if (isEditing && admNo !== editingOriginalAdm) {
+        delete STUDENTS_DB[editingOriginalAdm];
+        if (window.HOFIS_STUDENTS_DB) {
+          delete window.HOFIS_STUDENTS_DB[editingOriginalAdm];
+        }
+        delete customMap[editingOriginalAdm];
+        deletedMap[editingOriginalAdm] = true;
+
+        try {
+          await fetch(`${AWS_API_BASE_URL}/students/${encodeURIComponent(editingOriginalAdm)}`, {
+            method: 'DELETE'
+          });
+        } catch (err) {}
+      }
+
       // 1) Save in local memory & localStorage
       STUDENTS_DB[admNo] = newStudentRecord;
       if (window.HOFIS_STUDENTS_DB) {
         window.HOFIS_STUDENTS_DB[admNo] = newStudentRecord;
       }
 
-      const customMap = loadCustomStudents();
       customMap[admNo] = newStudentRecord;
       saveCustomStudents(customMap);
 
-      const deletedMap = loadDeletedStudents();
       if (deletedMap[admNo]) {
         delete deletedMap[admNo];
-        saveDeletedStudents(deletedMap);
       }
+      saveDeletedStudents(deletedMap);
 
-      // 2) Save in AWS DynamoDB via POST /students
+      // 2) Save / update in AWS DynamoDB via POST /students
       try {
         await fetch(`${AWS_API_BASE_URL}/students`, {
           method: 'POST',
@@ -1481,7 +1548,12 @@ function initAdminConsole() {
       if (submitBtn) submitBtn.disabled = false;
       initAdminStudentsDatabase();
       renderAdminStudentsTable();
-      showAddAlert(`Student '${name}' (Adm No: ${admNo}) added to database!`, true);
+      showAddAlert(
+        isEditing
+          ? `Student '${name}' (Adm No: ${admNo}) updated in database!`
+          : `Student '${name}' (Adm No: ${admNo}) added to database!`,
+        true
+      );
 
       setTimeout(() => {
         window.closeAddStudentModal();

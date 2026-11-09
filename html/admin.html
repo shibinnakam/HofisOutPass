@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -18,9 +19,10 @@
     });
   </script>
 </head>
+
 <body class="oa-body">
   <div class="oa-layout" id="oaLayout">
-    
+
     <!-- Left Premium Indigo Sidebar -->
     <aside class="oa-sidebar">
       <div class="oa-brand">
@@ -47,7 +49,8 @@
 
         <!-- Collapsible Outpass Group -->
         <li class="oa-nav-item oa-nav-group">
-          <button type="button" class="oa-nav-group-header" onclick="document.getElementById('oaOutpassSubmenu').classList.toggle('collapsed')">
+          <button type="button" class="oa-nav-group-header"
+            onclick="document.getElementById('oaOutpassSubmenu').classList.toggle('collapsed')">
             <span class="oa-nav-group-left">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
@@ -64,13 +67,15 @@
 
           <ul class="oa-subnav" id="oaOutpassSubmenu">
             <li>
-              <a href="#all" class="oa-nav-link oa-sub-link active" data-side-tab="all" onclick="filterAdminTab('all'); return false;">
+              <a href="#all" class="oa-nav-link oa-sub-link active" data-side-tab="all"
+                onclick="filterAdminTab('all'); return false;">
                 <span class="oa-sub-dash">&mdash;</span>
                 <span>All Requests</span>
               </a>
             </li>
             <li>
-              <a href="#pending" class="oa-nav-link oa-sub-link" data-side-tab="pending" onclick="filterAdminTab('pending'); return false;">
+              <a href="#pending" class="oa-nav-link oa-sub-link" data-side-tab="pending"
+                onclick="filterAdminTab('pending'); return false;">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                   <polyline points="14 2 14 8 20 8"></polyline>
@@ -79,7 +84,8 @@
               </a>
             </li>
             <li>
-              <a href="#approved" class="oa-nav-link oa-sub-link" data-side-tab="approved" onclick="filterAdminTab('approved'); return false;">
+              <a href="#approved" class="oa-nav-link oa-sub-link" data-side-tab="approved"
+                onclick="filterAdminTab('approved'); return false;">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <polyline points="20 6 9 17 4 12"></polyline>
                 </svg>
@@ -87,7 +93,8 @@
               </a>
             </li>
             <li>
-              <a href="#cancelled" class="oa-nav-link oa-sub-link" data-side-tab="cancelled" onclick="filterAdminTab('cancelled'); return false;">
+              <a href="#cancelled" class="oa-nav-link oa-sub-link" data-side-tab="cancelled"
+                onclick="filterAdminTab('cancelled'); return false;">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <circle cx="12" cy="12" r="10"></circle>
                   <polyline points="9 12 11 14 15 10"></polyline>
@@ -101,7 +108,8 @@
         <li class="oa-nav-divider"></li>
 
         <li class="oa-nav-item">
-          <a href="#exited" class="oa-nav-link" data-side-tab="exited" onclick="filterAdminTab('exited'); return false;">
+          <a href="#exited" class="oa-nav-link" data-side-tab="exited"
+            onclick="filterAdminTab('exited'); return false;">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
               <polyline points="14 2 14 8 20 8"></polyline>
@@ -112,7 +120,8 @@
         </li>
 
         <li class="oa-nav-item">
-          <a href="#students" class="oa-nav-link" data-side-tab="students" onclick="showAdminStudentsSection(); return false;">
+          <a href="#students" class="oa-nav-link" data-side-tab="students"
+            onclick="showAdminStudentsSection(); return false;">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
               <circle cx="9" cy="7" r="4"></circle>
@@ -124,7 +133,8 @@
         </li>
 
         <li class="oa-nav-item">
-          <a href="#change-password" class="oa-nav-link" id="navChangePassword" onclick="openChangePasswordModal(); return false;">
+          <a href="#change-password" class="oa-nav-link" id="navChangePassword"
+            onclick="openChangePasswordModal(); return false;">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="7.5" cy="15.5" r="5.5"></circle>
               <path d="m21 2-9.6 9.6"></path>
@@ -138,7 +148,9 @@
           <a href="#settings" class="oa-nav-link" onclick="openChangePasswordModal(); return false;">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="12" cy="12" r="3"></circle>
-              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+              <path
+                d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+              </path>
             </svg>
             <span>Settings</span>
           </a>
@@ -172,7 +184,7 @@
 
     <!-- Right Main Panel -->
     <div class="oa-main">
-      
+
       <!-- Top White Header Bar -->
       <header class="oa-topbar">
         <div class="oa-topbar-left">
@@ -194,12 +206,8 @@
             <circle cx="11" cy="11" r="8"></circle>
             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
           </svg>
-          <input
-            type="text"
-            id="verifyPassInput"
-            placeholder="Search pass ID, student, or reference..."
-            autocomplete="off"
-          />
+          <input type="text" id="verifyPassInput" placeholder="Search pass ID, student, or reference..."
+            autocomplete="off" />
           <kbd class="oa-kbd-shortcut">Ctrl + K</kbd>
         </form>
 
@@ -215,7 +223,9 @@
           <div class="oa-user-profile-pill">
             <div class="oa-user-avatar">
               <svg viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"></path>
+                <path
+                  d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z">
+                </path>
               </svg>
             </div>
             <div class="oa-user-info-text">
@@ -235,7 +245,7 @@
 
       <!-- Main Content Area -->
       <main class="oa-content">
-        
+
         <!-- Hero Header Banner with School Illustration -->
         <div class="oa-hero-banner">
           <div class="oa-hero-left">
@@ -251,32 +261,33 @@
             </div>
             <div class="oa-page-title">
               <h1 id="adminMainHeading">Outpass Management</h1>
-              <p id="adminMainSubtitle" class="oa-page-subtitle">Create, review, approve and track student outpass requests.</p>
+              <p id="adminMainSubtitle" class="oa-page-subtitle">Create, review, approve and track student outpass
+                requests.</p>
             </div>
           </div>
 
           <!-- Decorative School Illustration -->
           <div class="oa-hero-illustration" aria-hidden="true">
             <svg viewBox="0 0 280 110" fill="none">
-              <path d="M0 95 Q80 40 160 80 T280 65 L280 110 L0 110 Z" fill="rgba(199, 210, 254, 0.35)"/>
-              <rect x="135" y="42" width="110" height="58" rx="2" fill="#e0e7ff" stroke="#a5b4fc" stroke-width="1.5"/>
-              <polygon points="190,18 160,42 220,42" fill="#c7d2fe" stroke="#a5b4fc" stroke-width="1.5"/>
-              <line x1="190" y1="6" x2="190" y2="18" stroke="#818cf8" stroke-width="1.8"/>
-              <polygon points="190,6 202,10 190,14" fill="#818cf8"/>
-              <circle cx="190" cy="33" r="5" fill="#ffffff" stroke="#818cf8" stroke-width="1.5"/>
-              <rect x="183" y="76" width="14" height="24" rx="2" fill="#a5b4fc"/>
-              <rect x="146" y="52" width="10" height="12" rx="1" fill="#ffffff"/>
-              <rect x="162" y="52" width="10" height="12" rx="1" fill="#ffffff"/>
-              <rect x="208" y="52" width="10" height="12" rx="1" fill="#ffffff"/>
-              <rect x="224" y="52" width="10" height="12" rx="1" fill="#ffffff"/>
-              <rect x="146" y="72" width="10" height="12" rx="1" fill="#ffffff"/>
-              <rect x="162" y="72" width="10" height="12" rx="1" fill="#ffffff"/>
-              <rect x="208" y="72" width="10" height="12" rx="1" fill="#ffffff"/>
-              <rect x="224" y="72" width="10" height="12" rx="1" fill="#ffffff"/>
-              <circle cx="116" cy="78" r="10" fill="#c7d2fe"/>
-              <line x1="116" y1="88" x2="116" y2="100" stroke="#a5b4fc" stroke-width="2"/>
-              <circle cx="258" cy="78" r="10" fill="#c7d2fe"/>
-              <line x1="258" y1="88" x2="258" y2="100" stroke="#a5b4fc" stroke-width="2"/>
+              <path d="M0 95 Q80 40 160 80 T280 65 L280 110 L0 110 Z" fill="rgba(199, 210, 254, 0.35)" />
+              <rect x="135" y="42" width="110" height="58" rx="2" fill="#e0e7ff" stroke="#a5b4fc" stroke-width="1.5" />
+              <polygon points="190,18 160,42 220,42" fill="#c7d2fe" stroke="#a5b4fc" stroke-width="1.5" />
+              <line x1="190" y1="6" x2="190" y2="18" stroke="#818cf8" stroke-width="1.8" />
+              <polygon points="190,6 202,10 190,14" fill="#818cf8" />
+              <circle cx="190" cy="33" r="5" fill="#ffffff" stroke="#818cf8" stroke-width="1.5" />
+              <rect x="183" y="76" width="14" height="24" rx="2" fill="#a5b4fc" />
+              <rect x="146" y="52" width="10" height="12" rx="1" fill="#ffffff" />
+              <rect x="162" y="52" width="10" height="12" rx="1" fill="#ffffff" />
+              <rect x="208" y="52" width="10" height="12" rx="1" fill="#ffffff" />
+              <rect x="224" y="52" width="10" height="12" rx="1" fill="#ffffff" />
+              <rect x="146" y="72" width="10" height="12" rx="1" fill="#ffffff" />
+              <rect x="162" y="72" width="10" height="12" rx="1" fill="#ffffff" />
+              <rect x="208" y="72" width="10" height="12" rx="1" fill="#ffffff" />
+              <rect x="224" y="72" width="10" height="12" rx="1" fill="#ffffff" />
+              <circle cx="116" cy="78" r="10" fill="#c7d2fe" />
+              <line x1="116" y1="88" x2="116" y2="100" stroke="#a5b4fc" stroke-width="2" />
+              <circle cx="258" cy="78" r="10" fill="#c7d2fe" />
+              <line x1="258" y1="88" x2="258" y2="100" stroke="#a5b4fc" stroke-width="2" />
             </svg>
           </div>
         </div>
@@ -357,41 +368,38 @@
 
           <!-- White Table Box -->
           <section class="oa-card">
-            
+
             <!-- Toolbar Row 1: Segmented Filter Tabs & Monthly Delete -->
             <div class="oa-toolbar oa-toolbar-row1">
               <div class="filter-tabs oa-segmented-tabs">
-                <button type="button" class="filter-tab oa-seg-btn active" data-tab="all" onclick="filterAdminTab('all')">
+                <button type="button" class="filter-tab oa-seg-btn active" data-tab="all"
+                  onclick="filterAdminTab('all')">
                   All ( <span id="tabCountAll">0</span> )
                 </button>
-                <button type="button" class="filter-tab oa-seg-btn" data-tab="pending" onclick="filterAdminTab('pending')">
+                <button type="button" class="filter-tab oa-seg-btn" data-tab="pending"
+                  onclick="filterAdminTab('pending')">
                   Pending ( <span id="tabCountPending">0</span> )
                 </button>
-                <button type="button" class="filter-tab oa-seg-btn" data-tab="approved" onclick="filterAdminTab('approved')">
+                <button type="button" class="filter-tab oa-seg-btn" data-tab="approved"
+                  onclick="filterAdminTab('approved')">
                   Approved ( <span id="tabCountApproved">0</span> )
                 </button>
-                <button type="button" class="filter-tab oa-seg-btn" data-tab="cancelled" onclick="filterAdminTab('cancelled')">
+                <button type="button" class="filter-tab oa-seg-btn" data-tab="cancelled"
+                  onclick="filterAdminTab('cancelled')">
                   Cancelled ( <span id="tabCountCancelled">0</span> )
                 </button>
-                <button type="button" class="filter-tab oa-seg-btn" data-tab="exited" onclick="filterAdminTab('exited')">
+                <button type="button" class="filter-tab oa-seg-btn" data-tab="exited"
+                  onclick="filterAdminTab('exited')">
                   Exited ( <span id="tabCountExited">0</span> )
                 </button>
               </div>
 
               <!-- Monthly Data Deletion -->
               <div class="oa-monthly-delete">
-                <input
-                  type="month"
-                  id="deleteMonthInput"
-                  class="oa-month-input"
-                  title="Select Month to Delete Outpass Data"
-                />
-                <button
-                  type="button"
-                  class="oa-btn oa-btn-delete-monthly"
-                  onclick="deleteMonthlyData()"
-                  title="Delete all outpass requests for the selected month"
-                >
+                <input type="month" id="deleteMonthInput" class="oa-month-input"
+                  title="Select Month to Delete Outpass Data" />
+                <button type="button" class="oa-btn oa-btn-delete-monthly" onclick="deleteMonthlyData()"
+                  title="Delete all outpass requests for the selected month">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
                     <polyline points="3 6 5 6 21 6"></polyline>
                     <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -409,12 +417,9 @@
                     <circle cx="11" cy="11" r="8"></circle>
                     <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                   </svg>
-                  <input
-                    type="text"
-                    id="inlinePassSearchInput"
+                  <input type="text" id="inlinePassSearchInput"
                     placeholder="Search by Pass ID, Student, Guardian or Email..."
-                    oninput="handleInlinePassSearch(this.value)"
-                  />
+                    oninput="handleInlinePassSearch(this.value)" />
                 </div>
 
                 <select id="sortSelect" class="oa-select" onchange="renderAdminTable()">
@@ -435,7 +440,8 @@
             </div>
 
             <!-- Automatic Email Notification Status Banner -->
-            <div id="adminEmailBanner" style="display:none; margin: 12px 18px 0; padding: 10px 14px; border-radius: 6px; background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; font-size: 13px; align-items: center; justify-content: space-between; gap: 12px;">
+            <div id="adminEmailBanner"
+              style="display:none; margin: 12px 18px 0; padding: 10px 14px; border-radius: 6px; background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; font-size: 13px; align-items: center; justify-content: space-between; gap: 12px;">
               <span id="adminEmailBannerText"></span>
             </div>
 
@@ -505,12 +511,9 @@
                     <circle cx="11" cy="11" r="8"></circle>
                     <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                   </svg>
-                  <input
-                    type="text"
-                    id="studentDbSearchInput"
+                  <input type="text" id="studentDbSearchInput"
                     placeholder="Search by Admission No, Student Name, Class, or Father Name..."
-                    oninput="renderAdminStudentsTable()"
-                  />
+                    oninput="renderAdminStudentsTable()" />
                 </div>
 
                 <select id="studentDbClassSelect" class="oa-select" onchange="renderAdminStudentsTable()">
@@ -574,11 +577,14 @@
   </div>
 
   <!-- Change Password Modal -->
-  <div id="changePasswordModal" style="display:none; position:fixed; inset:0; background:rgba(15,23,42,0.55); z-index:9999; align-items:center; justify-content:center; padding:16px;">
-    <div style="background:#ffffff; width:100%; max-width:420px; border-radius:8px; border-top:3px solid #3c8dbc; box-shadow:0 15px 35px rgba(0,0,0,0.2); padding:24px;">
+  <div id="changePasswordModal"
+    style="display:none; position:fixed; inset:0; background:rgba(15,23,42,0.55); z-index:9999; align-items:center; justify-content:center; padding:16px;">
+    <div
+      style="background:#ffffff; width:100%; max-width:420px; border-radius:8px; border-top:3px solid #3c8dbc; box-shadow:0 15px 35px rgba(0,0,0,0.2); padding:24px;">
       <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
         <h3 style="margin:0; font-size:18px; color:#1e293b;">Change Admin Password</h3>
-        <button type="button" onclick="closeChangePasswordModal()" style="background:none; border:none; font-size:20px; color:#64748b; cursor:pointer;">&times;</button>
+        <button type="button" onclick="closeChangePasswordModal()"
+          style="background:none; border:none; font-size:20px; color:#64748b; cursor:pointer;">&times;</button>
       </div>
 
       <form id="changePasswordForm">
@@ -589,20 +595,24 @@
 
         <div class="form-group" style="margin-bottom:14px;">
           <label for="cpCurrentPassword" class="form-label">Current Password <span class="required">*</span></label>
-          <input type="password" id="cpCurrentPassword" class="form-input" style="height:40px; font-size:14px;" placeholder="Enter current password" required />
+          <input type="password" id="cpCurrentPassword" class="form-input" style="height:40px; font-size:14px;"
+            placeholder="Enter current password" required />
         </div>
 
         <div class="form-group" style="margin-bottom:14px;">
           <label for="cpNewPassword" class="form-label">New Password <span class="required">*</span></label>
-          <input type="password" id="cpNewPassword" class="form-input" style="height:40px; font-size:14px;" placeholder="Enter new password" required />
+          <input type="password" id="cpNewPassword" class="form-input" style="height:40px; font-size:14px;"
+            placeholder="Enter new password" required />
         </div>
 
         <div class="form-group" style="margin-bottom:18px;">
           <label for="cpConfirmPassword" class="form-label">Confirm New Password <span class="required">*</span></label>
-          <input type="password" id="cpConfirmPassword" class="form-input" style="height:40px; font-size:14px;" placeholder="Confirm new password" required />
+          <input type="password" id="cpConfirmPassword" class="form-input" style="height:40px; font-size:14px;"
+            placeholder="Confirm new password" required />
         </div>
 
-        <div id="cpAlertBox" style="display:none; margin-bottom:14px; padding:10px 12px; border-radius:6px; font-size:13px;"></div>
+        <div id="cpAlertBox"
+          style="display:none; margin-bottom:14px; padding:10px 12px; border-radius:6px; font-size:13px;"></div>
 
         <div style="display:flex; justify-content:flex-end; gap:8px;">
           <button type="button" class="oa-btn oa-btn-filter" onclick="closeChangePasswordModal()">Cancel</button>
@@ -612,36 +622,42 @@
     </div>
   </div>
 
-  <!-- Add New Student Modal -->
+  <!-- Add / Edit Student Modal -->
   <div id="addStudentModal" style="display:none; position:fixed; inset:0; background:rgba(15,23,42,0.55); z-index:9999; align-items:center; justify-content:center; padding:16px;">
-    <div style="background:#ffffff; width:100%; max-width:440px; border-radius:10px; border-top:4px solid #0284c7; box-shadow:0 15px 35px rgba(0,0,0,0.2); padding:24px;">
+    <div style="background:#ffffff; width:100%; max-width:440px; border-radius:10px; border-top:4px solid #6c5ce7; box-shadow:0 15px 35px rgba(0,0,0,0.2); padding:24px;">
       <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
-        <h3 style="margin:0; font-size:18px; color:#0f172a;">Add New Student</h3>
-        <button type="button" onclick="closeAddStudentModal()" style="background:none; border:none; font-size:22px; color:#64748b; cursor:pointer;">&times;</button>
+        <h3 id="studentModalTitle" style="margin:0; font-size:18px; color:#0f172a;">Add New Student</h3>
+        <button type="button" onclick="closeAddStudentModal()"
+          style="background:none; border:none; font-size:22px; color:#64748b; cursor:pointer;">&times;</button>
       </div>
 
       <form id="addStudentForm">
         <div class="form-group" style="margin-bottom:14px;">
           <label for="newStudentAdm" class="form-label">Admission Number <span class="required">*</span></label>
-          <input type="text" id="newStudentAdm" class="form-input" style="height:42px; font-size:14px;" placeholder="e.g. 2105" required />
+          <input type="text" id="newStudentAdm" class="form-input" style="height:42px; font-size:14px;"
+            placeholder="e.g. 2105" required />
         </div>
 
         <div class="form-group" style="margin-bottom:14px;">
           <label for="newStudentName" class="form-label">Student Full Name <span class="required">*</span></label>
-          <input type="text" id="newStudentName" class="form-input" style="height:42px; font-size:14px;" placeholder="e.g. AARON MATHEW" required />
+          <input type="text" id="newStudentName" class="form-input" style="height:42px; font-size:14px;"
+            placeholder="e.g. AARON MATHEW" required />
         </div>
 
         <div class="form-group" style="margin-bottom:14px;">
           <label for="newStudentClass" class="form-label">Class &amp; Division <span class="required">*</span></label>
-          <input type="text" id="newStudentClass" class="form-input" style="height:42px; font-size:14px;" placeholder="e.g. V A, X B, LKG" required />
+          <input type="text" id="newStudentClass" class="form-input" style="height:42px; font-size:14px;"
+            placeholder="e.g. V A, X B, LKG" required />
         </div>
 
         <div class="form-group" style="margin-bottom:18px;">
           <label for="newStudentParent" class="form-label">Father / Parent Name <span class="required">*</span></label>
-          <input type="text" id="newStudentParent" class="form-input" style="height:42px; font-size:14px;" placeholder="e.g. MATHEW THOMAS" required />
+          <input type="text" id="newStudentParent" class="form-input" style="height:42px; font-size:14px;"
+            placeholder="e.g. MATHEW THOMAS" required />
         </div>
 
-        <div id="addStudentAlertBox" style="display:none; margin-bottom:14px; padding:10px 12px; border-radius:6px; font-size:13px;"></div>
+        <div id="addStudentAlertBox"
+          style="display:none; margin-bottom:14px; padding:10px 12px; border-radius:6px; font-size:13px;"></div>
 
         <div style="display:flex; justify-content:flex-end; gap:8px;">
           <button type="button" class="oa-btn oa-btn-filter" onclick="closeAddStudentModal()">Cancel</button>
@@ -654,4 +670,5 @@
   <script src="../js/students-data.js"></script>
   <script src="../js/main.js"></script>
 </body>
+
 </html>
