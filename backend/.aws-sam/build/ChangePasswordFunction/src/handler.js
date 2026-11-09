@@ -343,12 +343,16 @@ exports.createOutpassHandler = async (event) => {
     // ========================================================================
     // Enforce School Outpass Guidelines (Asia/Kolkata IST Timezone)
     // 1. Outpass cannot be submitted on Sundays
-    // 2. Outpass must be submitted on the same day of departure (no past/future dates)
+    // 2. Outpass can be submitted for same day, 1 day before, or 2 days before (max 3 days)
     // 3. Departure time must be strictly between 9:30 AM (09:30) and 3:30 PM (15:30)
     // 4. Cannot select a departure date and time that has already passed
     // ========================================================================
     const nowUtc = new Date();
     const istDateStr = nowUtc.toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' }); // YYYY-MM-DD
+    const [istY, istM, istD] = istDateStr.split('-').map(Number);
+    const maxIstDateObj = new Date(Date.UTC(istY, istM - 1, istD + 2));
+    const maxIstDateStr = maxIstDateObj.toISOString().slice(0, 10);
+
     const istTimeParts = nowUtc
       .toLocaleTimeString('en-GB', {
         timeZone: 'Asia/Kolkata',
@@ -374,15 +378,16 @@ exports.createOutpassHandler = async (event) => {
       });
     }
 
-    // Rule 2: Past date & Same-day check
+    // Rule 2: Past date & Maximum 3 days check (same day, 1 day before, or 2 days before)
     if (leaveDate < istDateStr) {
       return response(400, {
         message: 'Cannot select a departure date that has already passed.'
       });
     }
-    if (leaveDate !== istDateStr) {
+    if (leaveDate > maxIstDateStr) {
       return response(400, {
-        message: 'Outpass must be submitted on the same day of departure.'
+        message:
+          'Outpass can only be submitted for the same day, 1 day before, or 2 days before departure (maximum 3 days).'
       });
     }
 
@@ -407,8 +412,8 @@ exports.createOutpassHandler = async (event) => {
       });
     }
 
-    // Rule 4: Past departure time check
-    if (leaveTotalMins <= currentIstMins) {
+    // Rule 4: Past departure time check (applies when leaving today)
+    if (leaveDate === istDateStr && leaveTotalMins <= currentIstMins) {
       return response(400, {
         message: 'Cannot select a departure date and time that has already passed.'
       });
