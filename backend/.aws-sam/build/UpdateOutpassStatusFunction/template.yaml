@@ -16,8 +16,8 @@ Globals:
         ADMINS_TABLE: !Ref HofisAdminsTable
         COGNITO_USER_POOL_ID: !Ref HofisAdminUserPool
         COGNITO_CLIENT_ID: !Ref HofisAdminUserPoolClient
-        SENDER_EMAIL: "shibinsajip@gmail.com"
-        GMAIL_APP_PASSWORD: "shzv wmcb wgmq jwbh"
+        SENDER_EMAIL: "hofispr@gmail.com"
+        GMAIL_APP_PASSWORD: "euow uhqa cbyu kdja"
   Api:
     Cors:
       AllowMethods: "'GET,POST,PATCH,DELETE,OPTIONS'"

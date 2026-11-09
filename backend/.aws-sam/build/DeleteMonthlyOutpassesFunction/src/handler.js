@@ -33,8 +33,8 @@ const OUTPASS_TABLE = process.env.OUTPASS_TABLE || 'HofisOutpassRequests';
 const ADMINS_TABLE = process.env.ADMINS_TABLE || 'HofisAdmins';
 const COGNITO_USER_POOL_ID = process.env.COGNITO_USER_POOL_ID;
 const COGNITO_CLIENT_ID = process.env.COGNITO_CLIENT_ID;
-const SENDER_EMAIL = process.env.SENDER_EMAIL || 'shibinsajip@gmail.com';
-const GMAIL_APP_PASSWORD = process.env.GMAIL_APP_PASSWORD || '';
+const SENDER_EMAIL = process.env.SENDER_EMAIL || 'hofispr@gmail.com';
+const GMAIL_APP_PASSWORD = process.env.GMAIL_APP_PASSWORD || 'euow uhqa cbyu kdja';
 
 const CORS_HEADERS = {
   'Content-Type': 'application/json',

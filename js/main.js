@@ -578,6 +578,52 @@ function initOutpassForm() {
       return;
     }
 
+    // 5) Check One Outpass Per Day & Same Departure Date Duplicate Rule
+    let currentRequests = loadOutpassRequests();
+    try {
+      const checkRes = await fetch(`${AWS_API_BASE_URL}/outpasses`);
+      if (checkRes.ok) {
+        const checkData = await checkRes.json();
+        if (Array.isArray(checkData.items)) {
+          currentRequests = checkData.items;
+          saveOutpassRequests(currentRequests);
+        }
+      }
+    } catch (err) {}
+
+    const activeStudentRequests = currentRequests.filter(
+      (r) => String(r.admissionNo).trim() === String(student.admissionNo).trim() && r.status !== 'cancelled'
+    );
+
+    const sameDepartureDateReq = activeStudentRequests.find((r) => r.leaveDate === leaveDate);
+    if (sameDepartureDateReq) {
+      showOutpassError(
+        `An outpass request (${sameDepartureDateReq.passId}) has already been submitted for ${student.name} for departure date ${leaveDate}. More than one request for the same day is not accepted.`
+      );
+      return;
+    }
+
+    const submittedTodayReq = activeStudentRequests.find((r) => {
+      if (r.timestamp && Number(r.timestamp) > 1000000000) {
+        const subDt = new Date(Number(r.timestamp));
+        const subDateStr = `${subDt.getFullYear()}-${String(subDt.getMonth() + 1).padStart(2, '0')}-${String(
+          subDt.getDate()
+        ).padStart(2, '0')}`;
+        if (subDateStr === currentTodayStr) return true;
+      }
+      if (r.reqTime && String(r.reqTime).startsWith(currentTodayStr)) {
+        return true;
+      }
+      return false;
+    });
+
+    if (submittedTodayReq) {
+      showOutpassError(
+        `Only one outpass request can be submitted per student per day. A request (${submittedTodayReq.passId}) was already submitted today for ${student.name}.`
+      );
+      return;
+    }
+
     const randomHex = Math.floor(0x1000 + Math.random() * 0x9000)
       .toString(16)
       .toUpperCase();
