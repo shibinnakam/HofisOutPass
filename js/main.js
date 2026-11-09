@@ -10,7 +10,7 @@ const AWS_COGNITO_CONFIG = {
   userPoolId: 'ap-south-1_uuzAWmHRe',
   clientId: '4nelkm71va2q43r0uc108baorv'
 };
-const ADMIN_SENDER_EMAIL = 'shibinsajip@gmail.com';
+const ADMIN_SENDER_EMAIL = 'hofispr@gmail.com';
 const OUTPASS_STORAGE_KEY = 'hofis_outpass_requests_v2';
 try { localStorage.removeItem('hofis_outpass_requests_v1'); } catch (e) {}
 
