@@ -111,12 +111,15 @@
       </ul>
     </aside>
 
+    <!-- Mobile Backdrop Overlay -->
+    <div class="oa-sidebar-overlay" onclick="toggleAdminSidebar(false)"></div>
+
     <!-- Right Main Panel -->
     <div class="oa-main">
       
       <!-- Top White Header Bar -->
       <header class="oa-topbar">
-        <button type="button" class="oa-sidebar-toggle" onclick="document.getElementById('oaLayout').classList.toggle('sidebar-collapsed')">
+        <button type="button" class="oa-sidebar-toggle" onclick="toggleAdminSidebar()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <line x1="3" y1="12" x2="21" y2="12"></line>
             <line x1="3" y1="6" x2="21" y2="6"></line>
@@ -278,7 +281,7 @@
       <!-- Bottom Entries & Pagination Footer Bar -->
       <footer class="oa-footer">
         <div class="oa-footer-left">
-          Showing outpass records from HOFIS Database (AWS DynamoDB &amp; Cognito)
+          &copy; 2026 <strong>Holy Family International School</strong>. All rights reserved.
         </div>
         <div class="oa-footer-right">
           <span>Show</span>

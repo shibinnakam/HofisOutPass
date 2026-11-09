@@ -699,11 +699,28 @@ function updateAdminCounts() {
   setElText('tabCountAll', counts.all);
 }
 
+window.toggleAdminSidebar = function (forceState) {
+  const layout = document.getElementById('oaLayout');
+  if (!layout) return;
+  if (window.innerWidth <= 768) {
+    if (typeof forceState === 'boolean') {
+      layout.classList.toggle('mobile-sidebar-open', forceState);
+    } else {
+      layout.classList.toggle('mobile-sidebar-open');
+    }
+  } else {
+    layout.classList.toggle('sidebar-collapsed');
+  }
+};
+
 window.filterAdminTab = function (tab) {
   currentAdminTab = tab;
   currentSearchFilter = '';
   const verifyInput = document.getElementById('verifyPassInput');
   if (verifyInput) verifyInput.value = '';
+
+  const layout = document.getElementById('oaLayout');
+  if (layout) layout.classList.remove('mobile-sidebar-open');
 
   document.querySelectorAll('.filter-tab').forEach((btn) => {
     btn.classList.toggle('active', btn.getAttribute('data-tab') === tab);
@@ -1009,6 +1026,8 @@ async function syncAdminRequestsFromAws() {
 }
 
 window.openChangePasswordModal = function () {
+  const layout = document.getElementById('oaLayout');
+  if (layout) layout.classList.remove('mobile-sidebar-open');
   const modal = document.getElementById('changePasswordModal');
   const cpUsername = document.getElementById('cpUsername');
   const cpCurrent = document.getElementById('cpCurrentPassword');

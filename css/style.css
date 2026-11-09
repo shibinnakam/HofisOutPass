@@ -1224,13 +1224,19 @@ body {
 }
 
 /* Footer */
+.site-footer,
 .admin-footer {
   background-color: #ffffff;
   border-top: 1px solid #e2e8f0;
-  padding: 18px 24px;
+  padding: 16px 24px;
   text-align: center;
-  font-size: 12px;
-  color: #64748b;
+  font-size: 13px;
+  color: #475569;
+}
+
+.site-footer strong {
+  color: #0f172a;
+  font-weight: 700;
 }
 
 @media (max-width: 1100px) {
@@ -1254,36 +1260,112 @@ body {
 }
 
 /* ==========================================================================
-   Responsive Adaptations
+   Responsive Adaptations (Mobile, Tablet & Desktop Friendly)
    ========================================================================== */
-@media (max-width: 1024px) {
+@media (max-width: 960px) {
+  .site-header {
+    height: auto;
+    min-height: 60px;
+    padding: 10px 14px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  /* Allow brand, right status pill, and nav menu to arrange into 2 neat rows */
+  .header-left {
+    display: contents;
+  }
+
+  .nav-brand {
+    order: 1;
+  }
+
+  .header-right {
+    order: 2;
+    margin-left: auto;
+  }
+
   .nav-menu {
-    display: none; /* Hide secondary menu on smaller viewports */
+    order: 3;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    padding-top: 8px;
+    border-top: 1px solid #f1f5f9;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .nav-menu::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Hide decorative static badge on mobile so the 4 interactive links fit cleanly */
+  .nav-item.badge-outpass {
+    display: none;
+  }
+
+  .nav-item,
+  .nav-item.badge-parent {
+    flex: 1 1 auto;
+    justify-content: center;
+    padding: 7px 10px;
+    font-size: 12.5px;
+    gap: 5px;
+    border-radius: 9999px;
+  }
+
+  .nav-item svg {
+    width: 14px;
+    height: 14px;
   }
 }
 
 @media (max-width: 640px) {
   .site-header {
-    padding: 0 16px;
-    height: 60px;
+    padding: 8px 12px;
+    gap: 6px;
   }
   
-  .brand-logo {
+  .nav-brand .brand-logo {
     height: 36px;
   }
   
   .aws-status-pill {
-    padding: 5px 10px;
+    padding: 4px 10px;
+    font-size: 11px;
+    gap: 6px;
+  }
+
+  .nav-item,
+  .nav-item.badge-parent {
+    padding: 6px 8px;
     font-size: 11.5px;
+    gap: 4px;
+  }
+
+  .nav-item svg {
+    width: 13px;
+    height: 13px;
+  }
+
+  .main-wrapper {
+    padding: 18px 12px 28px;
+    min-height: calc(100vh - 98px);
+    align-items: flex-start;
   }
   
   .auth-card {
-    padding: 28px 22px 24px;
+    padding: 24px 18px 22px;
     border-radius: 18px;
+    margin: auto 0;
   }
   
   .card-logo {
-    max-width: 210px;
+    max-width: 195px;
   }
   
   .card-title {
@@ -1292,10 +1374,46 @@ body {
   
   .card-subtitle {
     font-size: 13px;
+    margin-bottom: 18px;
   }
   
   .form-row {
     grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .student-info-box {
+    padding: 12px;
+    gap: 12px;
+  }
+
+  .student-avatar {
+    width: 42px;
+    height: 42px;
+    font-size: 16px;
+  }
+
+  .student-details h3 {
+    font-size: 14.5px;
+  }
+
+  .student-details p {
+    font-size: 12.5px;
+    word-break: break-word;
+  }
+
+  .pass-ticket {
+    padding: 16px 14px;
+  }
+
+  .pass-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .site-footer {
+    padding: 12px 14px;
+    font-size: 12px;
   }
 }
 
@@ -1816,4 +1934,110 @@ body {
   background-color: #3c8dbc;
   border-color: #3c8dbc;
   color: #ffffff;
+}
+
+.oa-sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  z-index: 990;
+}
+
+/* Open Admin Mobile & Tablet Responsiveness */
+@media (max-width: 768px) {
+  .oa-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 1000;
+    margin-left: -230px;
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.25);
+  }
+
+  /* When sidebar is toggled open on mobile */
+  .oa-layout.mobile-sidebar-open .oa-sidebar {
+    margin-left: 0;
+  }
+
+  .oa-layout.mobile-sidebar-open .oa-sidebar-overlay {
+    display: block;
+  }
+
+  .oa-topbar {
+    padding: 0 12px;
+    height: 50px;
+  }
+
+  .oa-topbar-right {
+    gap: 10px;
+  }
+
+  .oa-user-profile {
+    font-size: 12.5px;
+    gap: 6px;
+  }
+
+  .oa-content {
+    padding: 14px 10px;
+  }
+
+  .oa-content-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .oa-page-title h1 {
+    font-size: 20px;
+  }
+
+  .oa-kpi-strip {
+    gap: 6px;
+  }
+
+  .oa-kpi-item {
+    padding: 6px 10px;
+    font-size: 11.5px;
+    flex: 1 1 calc(50% - 6px);
+  }
+
+  .oa-toolbar {
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .oa-toolbar-left,
+  .oa-toolbar-right {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .oa-monthly-delete {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .oa-month-input {
+    flex: 1;
+    min-width: 130px;
+  }
+
+  .oa-table-wrapper {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .oa-table thead th,
+  .oa-table tbody td {
+    padding: 10px 12px;
+    font-size: 12px;
+  }
+
+  .oa-footer {
+    padding: 10px 12px;
+    font-size: 11.5px;
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }

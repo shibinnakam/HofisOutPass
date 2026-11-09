@@ -168,7 +168,7 @@ exports.loginHandler = async (event) => {
           authenticated: true,
           provider: 'cognito',
           username,
-          role: 'Administrator (hofis)',
+          role: `Administrator (${username})`,
           token: authResult.AuthenticationResult?.IdToken
         });
       } catch (cognitoErr) {
@@ -189,7 +189,18 @@ exports.loginHandler = async (event) => {
         authenticated: true,
         provider: 'dynamodb',
         username: adminRecord.Item.username,
-        role: adminRecord.Item.role || 'Administrator (hofis)'
+        role: adminRecord.Item.role || `Administrator (${username})`
+      });
+    }
+
+    // 3) Built-in fallback only if record is not yet in DynamoDB
+    const defaultAdmins = { hofis: 'hofis', shibin: 'shibin' };
+    if (!adminRecord.Item && defaultAdmins[username] && defaultAdmins[username] === password) {
+      return response(200, {
+        authenticated: true,
+        provider: 'default_admin',
+        username,
+        role: `Administrator (${username})`
       });
     }
 
@@ -200,6 +211,72 @@ exports.loginHandler = async (event) => {
   } catch (err) {
     console.error('Login error:', err);
     return response(500, { message: 'Internal server error', error: err.message });
+  }
+};
+
+// ==========================================================================
+// 1b. POST /auth/change-password - Update Admin Password in DynamoDB & Cognito
+// ==========================================================================
+exports.changePasswordHandler = async (event) => {
+  try {
+    const { username, currentPassword, newPassword } = JSON.parse(event.body || '{}');
+    if (!username || !currentPassword || !newPassword) {
+      return response(400, { message: 'Username, current password, and new password are required.' });
+    }
+
+    const adminRecord = await docClient.send(
+      new GetCommand({
+        TableName: ADMINS_TABLE,
+        Key: { username }
+      })
+    );
+
+    const defaultAdmins = { hofis: 'hofis', shibin: 'shibin' };
+    const storedPassword = adminRecord.Item ? adminRecord.Item.password : defaultAdmins[username];
+
+    if (!storedPassword || storedPassword !== currentPassword) {
+      return response(401, { message: 'Current password is incorrect.' });
+    }
+
+    // 1) Update password in DynamoDB HofisAdmins table
+    await docClient.send(
+      new PutCommand({
+        TableName: ADMINS_TABLE,
+        Item: {
+          username,
+          password: newPassword,
+          role: `Administrator (${username})`,
+          email: SENDER_EMAIL,
+          updatedAt: new Date().toISOString()
+        }
+      })
+    );
+
+    // 2) Update password in AWS Cognito User Pool
+    if (COGNITO_USER_POOL_ID) {
+      const cognitoPassword = newPassword.length < 6 ? newPassword.padEnd(6, '0') : newPassword;
+      try {
+        await cognitoClient.send(
+          new AdminSetUserPasswordCommand({
+            UserPoolId: COGNITO_USER_POOL_ID,
+            Username: username,
+            Password: cognitoPassword,
+            Permanent: true
+          })
+        );
+      } catch (e) {
+        console.warn('Cognito password update warning:', e.message);
+      }
+    }
+
+    return response(200, {
+      updated: true,
+      username,
+      message: `Password for '${username}' has been updated in the database.`
+    });
+  } catch (err) {
+    console.error('changePassword error:', err);
+    return response(500, { message: 'Failed to update password', error: err.message });
   }
 };
 
@@ -252,13 +329,88 @@ exports.createOutpassHandler = async (event) => {
       reason,
       leaveDate,
       leaveTime,
+      leaveTimeRaw,
       parentEmail,
       phone
     } = payload;
 
-    if (!admissionNo || !reason || !parentEmail) {
+    if (!admissionNo || !reason || !parentEmail || !leaveDate) {
       return response(400, {
-        message: 'Admission Number, Reason for Outpass, and Parent Email ID are required.'
+        message: 'Admission Number, Reason for Outpass, Departure Date, and Parent Email ID are required.'
+      });
+    }
+
+    // ========================================================================
+    // Enforce School Outpass Guidelines (Asia/Kolkata IST Timezone)
+    // 1. Outpass cannot be submitted on Sundays
+    // 2. Outpass must be submitted on the same day of departure (no past/future dates)
+    // 3. Departure time must be strictly between 9:30 AM (09:30) and 3:30 PM (15:30)
+    // 4. Cannot select a departure date and time that has already passed
+    // ========================================================================
+    const nowUtc = new Date();
+    const istDateStr = nowUtc.toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' }); // YYYY-MM-DD
+    const istTimeParts = nowUtc
+      .toLocaleTimeString('en-GB', {
+        timeZone: 'Asia/Kolkata',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      })
+      .split(':')
+      .map(Number);
+    const currentIstMins = istTimeParts[0] * 60 + istTimeParts[1];
+
+    const dateParts = String(leaveDate).split('-').map(Number);
+    if (dateParts.length !== 3 || dateParts.some(isNaN)) {
+      return response(400, { message: 'Invalid departure date format. Use YYYY-MM-DD.' });
+    }
+    const [selY, selM, selD] = dateParts;
+    const selectedDateObj = new Date(Date.UTC(selY, selM - 1, selD));
+
+    // Rule 1: Sunday check
+    if (selectedDateObj.getUTCDay() === 0) {
+      return response(400, {
+        message: 'Outpass cannot be submitted on Sundays. School is closed on Sunday.'
+      });
+    }
+
+    // Rule 2: Past date & Same-day check
+    if (leaveDate < istDateStr) {
+      return response(400, {
+        message: 'Cannot select a departure date that has already passed.'
+      });
+    }
+    if (leaveDate !== istDateStr) {
+      return response(400, {
+        message: 'Outpass must be submitted on the same day of departure.'
+      });
+    }
+
+    // Extract HH:MM from leaveTimeRaw or leaveTime
+    const rawTimeStr =
+      leaveTimeRaw ||
+      (leaveTime && String(leaveTime).includes(' ') ? String(leaveTime).split(' ').pop() : leaveTime);
+    const timeMatch = String(rawTimeStr || '').match(/^(\d{1,2}):(\d{2})$/);
+    if (!timeMatch) {
+      return response(400, {
+        message: 'Valid departure time between 9:30 AM and 3:30 PM is required.'
+      });
+    }
+    const leaveH = Number(timeMatch[1]);
+    const leaveM = Number(timeMatch[2]);
+    const leaveTotalMins = leaveH * 60 + leaveM;
+
+    // Rule 3: Departure time window 9:30 AM (570 mins) to 3:30 PM (930 mins)
+    if (leaveTotalMins < 570 || leaveTotalMins > 930) {
+      return response(400, {
+        message: 'Departure time must be strictly between 9:30 AM and 3:30 PM.'
+      });
+    }
+
+    // Rule 4: Past departure time check
+    if (leaveTotalMins <= currentIstMins) {
+      return response(400, {
+        message: 'Cannot select a departure date and time that has already passed.'
       });
     }
 
@@ -296,12 +448,18 @@ exports.createOutpassHandler = async (event) => {
       admissionNo: studentRecord.admissionNo,
       studentName: studentRecord.name,
       classSection: `Class ${studentRecord.class}`,
-      reqTime: now.toLocaleString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      }),
+      reqTime:
+        payload.reqTime ||
+        now.toLocaleString('en-IN', {
+          timeZone: 'Asia/Kolkata',
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: true
+        }),
       leaveDate: leaveDate || `${yyyy}-${mm}-${dd}`,
       leaveTime: leaveTime || 'Today',
       monthKey,
@@ -435,49 +593,92 @@ exports.deleteMonthlyOutpassesHandler = async (event) => {
 };
 
 // ==========================================================================
+// 6b. DELETE /outpasses/{passId} - Delete a Single Outpass Request
+// ==========================================================================
+exports.deleteOutpassHandler = async (event) => {
+  try {
+    const passId = event.pathParameters?.passId;
+    if (!passId) {
+      return response(400, { message: 'passId is required.' });
+    }
+
+    await docClient.send(
+      new DeleteCommand({
+        TableName: OUTPASS_TABLE,
+        Key: { passId }
+      })
+    );
+
+    return response(200, {
+      deleted: true,
+      passId,
+      message: `Outpass request ${passId} deleted.`
+    });
+  } catch (err) {
+    console.error('deleteOutpass error:', err);
+    return response(500, { message: 'Failed to delete outpass request', error: err.message });
+  }
+};
+
+// ==========================================================================
 // 7. POST /seed - Seed DynamoDB & Cognito with:
 //    - Admin User (username: "hofis", password: "hofis")
 //    - All 575 Students from Class playschool to X.xlsx
 // ==========================================================================
 exports.seedDatabaseHandler = async () => {
   try {
-    // 1) Seed Admin User in DynamoDB (username: "hofis", password: "hofis")
-    await docClient.send(
-      new PutCommand({
-        TableName: ADMINS_TABLE,
-        Item: {
-          username: 'hofis',
-          password: 'hofis',
-          role: 'Administrator (hofis)',
-          email: SENDER_EMAIL,
-          createdAt: new Date().toISOString()
-        }
-      })
-    );
+    const adminUsers = [
+      { username: 'hofis', password: 'hofis', role: 'Administrator (hofis)' },
+      { username: 'shibin', password: 'shibin', role: 'Administrator (shibin)' }
+    ];
 
-    // 2) Seed Admin User in AWS Cognito User Pool
+    // 1) Seed Admin Users in DynamoDB (only if not already created so changed passwords are kept)
+    for (const admin of adminUsers) {
+      try {
+        await docClient.send(
+          new PutCommand({
+            TableName: ADMINS_TABLE,
+            Item: {
+              username: admin.username,
+              password: admin.password,
+              role: admin.role,
+              email: SENDER_EMAIL,
+              createdAt: new Date().toISOString()
+            },
+            ConditionExpression: 'attribute_not_exists(username)'
+          })
+        );
+      } catch (condErr) {
+        // Admin already exists in DynamoDB; preserve their current password
+      }
+    }
+
+    // 2) Seed Admin Users in AWS Cognito User Pool
     if (COGNITO_USER_POOL_ID) {
-      try {
-        await cognitoClient.send(
-          new AdminCreateUserCommand({
-            UserPoolId: COGNITO_USER_POOL_ID,
-            Username: 'hofis',
-            MessageAction: 'SUPPRESS'
-          })
-        );
-      } catch (e) {}
+      for (const admin of adminUsers) {
+        const cognitoPassword = admin.password.length < 6 ? admin.password.padEnd(6, '0') : admin.password;
+        try {
+          await cognitoClient.send(
+            new AdminCreateUserCommand({
+              UserPoolId: COGNITO_USER_POOL_ID,
+              Username: admin.username,
+              MessageAction: 'SUPPRESS'
+            })
+          );
+        } catch (e) {}
 
-      try {
-        await cognitoClient.send(
-          new AdminSetUserPasswordCommand({
-            UserPoolId: COGNITO_USER_POOL_ID,
-            Username: 'hofis',
-            Password: 'hofis0',
-            Permanent: true
-          })
-        );
-      } catch (e) {
-        console.warn('Cognito password set warning:', e.message);
+        try {
+          await cognitoClient.send(
+            new AdminSetUserPasswordCommand({
+              UserPoolId: COGNITO_USER_POOL_ID,
+              Username: admin.username,
+              Password: cognitoPassword,
+              Permanent: true
+            })
+          );
+        } catch (e) {
+          console.warn('Cognito password set warning:', e.message);
+        }
       }
     }
 
@@ -497,7 +698,7 @@ exports.seedDatabaseHandler = async () => {
     }
 
     return response(200, {
-      message: `Database seeded successfully with Admin (hofis/hofis) and ${studentList.length} students from Class playschool to X.xlsx.`
+      message: `Database seeded successfully with Admins (hofis/hofis, shibin/shibin) and ${studentList.length} students from Class playschool to X.xlsx.`
     });
   } catch (err) {
     console.error('Seed error:', err);
