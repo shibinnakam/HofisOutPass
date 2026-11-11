@@ -17,6 +17,7 @@ Globals:
         COGNITO_USER_POOL_ID: !Ref HofisAdminUserPool
         COGNITO_CLIENT_ID: !Ref HofisAdminUserPoolClient
         SENDER_EMAIL: "hofispr@gmail.com"
+        SCHOOL_COPY_EMAIL: "hofiselangoi@gmail.com"
         GMAIL_APP_PASSWORD: "euow uhqa cbyu kdja"
   Api:
     Cors:

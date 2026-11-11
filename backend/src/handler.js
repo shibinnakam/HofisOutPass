@@ -34,6 +34,7 @@ const ADMINS_TABLE = process.env.ADMINS_TABLE || 'HofisAdmins';
 const COGNITO_USER_POOL_ID = process.env.COGNITO_USER_POOL_ID;
 const COGNITO_CLIENT_ID = process.env.COGNITO_CLIENT_ID;
 const SENDER_EMAIL = process.env.SENDER_EMAIL || 'hofispr@gmail.com';
+const SCHOOL_COPY_EMAIL = process.env.SCHOOL_COPY_EMAIL || 'hofiselangoi@gmail.com';
 const GMAIL_APP_PASSWORD = process.env.GMAIL_APP_PASSWORD || 'euow uhqa cbyu kdja';
 
 const CORS_HEADERS = {
@@ -52,13 +53,19 @@ function response(statusCode, body) {
 }
 
 /**
- * Helper: Send Approved / Cancelled Outpass Email from shibinsajip@gmail.com to Parent Email
+ * Helper: Send Approved / Cancelled Outpass Email from hofispr@gmail.com to Parent Email
+ * (and also to hofiselangoi@gmail.com when Approved)
  */
 async function sendParentOutpassEmail(outpassItem, status) {
-  const recipientEmail = outpassItem.parentEmail;
-  if (!recipientEmail) return { sent: false, reason: 'No parentEmail provided' };
-
+  const recipientEmail = (outpassItem.parentEmail || '').trim();
   const isApproved = status === 'approved';
+  const recipients = isApproved
+    ? Array.from(new Set([recipientEmail, SCHOOL_COPY_EMAIL].filter(Boolean)))
+    : [recipientEmail].filter(Boolean);
+
+  if (recipients.length === 0) return { sent: false, reason: 'No recipient email provided' };
+  const recipientListStr = recipients.join(', ');
+
   const subject = isApproved
     ? `[HOFIS APPROVED] Student Outpass Pass ID: ${outpassItem.passId} (${outpassItem.studentName})`
     : `[HOFIS CANCELLED] Student Outpass Request: ${outpassItem.passId} (${outpassItem.studentName})`;
@@ -105,15 +112,15 @@ async function sendParentOutpassEmail(outpassItem, status) {
 
       await transporter.sendMail({
         from: `"Holy Family International School" <${SENDER_EMAIL}>`,
-        to: recipientEmail,
+        to: recipientListStr,
         subject,
         html: htmlBody
       });
 
-      return { sent: true, provider: 'gmail_smtp', from: SENDER_EMAIL, to: recipientEmail };
+      return { sent: true, provider: 'gmail_smtp', from: SENDER_EMAIL, to: recipientListStr, recipients };
     } catch (smtpErr) {
       console.error('Gmail SMTP error:', smtpErr.message);
-      return { sent: false, provider: 'gmail_smtp', from: SENDER_EMAIL, to: recipientEmail, error: smtpErr.message };
+      return { sent: false, provider: 'gmail_smtp', from: SENDER_EMAIL, to: recipientListStr, recipients, error: smtpErr.message };
     }
   }
 
@@ -122,7 +129,7 @@ async function sendParentOutpassEmail(outpassItem, status) {
     await sesClient.send(
       new SendEmailCommand({
         Source: SENDER_EMAIL,
-        Destination: { ToAddresses: [recipientEmail] },
+        Destination: { ToAddresses: recipients },
         Message: {
           Subject: { Data: subject, Charset: 'UTF-8' },
           Body: {
@@ -131,10 +138,10 @@ async function sendParentOutpassEmail(outpassItem, status) {
         }
       })
     );
-    return { sent: true, provider: 'aws_ses', from: SENDER_EMAIL, to: recipientEmail };
+    return { sent: true, provider: 'aws_ses', from: SENDER_EMAIL, to: recipientListStr, recipients };
   } catch (err) {
     console.warn('SES SendEmail warning:', err.message);
-    return { sent: false, provider: 'aws_ses', from: SENDER_EMAIL, to: recipientEmail, error: err.message };
+    return { sent: false, provider: 'aws_ses', from: SENDER_EMAIL, to: recipientListStr, recipients, error: err.message };
   }
 }
 

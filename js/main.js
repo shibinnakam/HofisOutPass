@@ -1100,6 +1100,8 @@ window.renderAdminStudentsTable = function () {
     .join('');
 };
 
+const SCHOOL_COPY_EMAIL = 'hofiselangoi@gmail.com';
+
 /**
  * Display automatic email delivery status banner in Admin Console
  */
@@ -1107,6 +1109,9 @@ function showEmailStatusBanner(item, status, emailResult) {
   const recipient = item.parentEmail || 'parent@example.com';
   const isApproved = status === 'approved';
   const statusLabel = isApproved ? 'APPROVED' : 'CANCELLED';
+  const targetDisplay = isApproved
+    ? `parent email <strong>${recipient}</strong> and <strong>${SCHOOL_COPY_EMAIL}</strong>`
+    : `parent email <strong>${recipient}</strong>`;
 
   const banner = document.getElementById('adminEmailBanner');
   const bannerText = document.getElementById('adminEmailBannerText');
@@ -1118,13 +1123,13 @@ function showEmailStatusBanner(item, status, emailResult) {
     banner.style.background = '#ecfdf5';
     banner.style.borderColor = '#a7f3d0';
     banner.style.color = '#065f46';
-    bannerText.innerHTML = `<strong>✓ Outpass ${statusLabel}:</strong> Email automatically sent from <strong>${ADMIN_SENDER_EMAIL}</strong> to parent email <strong>${recipient}</strong>.`;
+    bannerText.innerHTML = `<strong>✓ Outpass ${statusLabel}:</strong> Email automatically sent from <strong>${ADMIN_SENDER_EMAIL}</strong> to ${targetDisplay}.`;
   } else {
     banner.style.background = isApproved ? '#ecfdf5' : '#fef2f2';
     banner.style.borderColor = isApproved ? '#a7f3d0' : '#fecaca';
     banner.style.color = isApproved ? '#065f46' : '#991b1b';
     const errReason = emailResult && emailResult.error ? ` (${emailResult.error})` : '';
-    bannerText.innerHTML = `<strong>✓ Outpass ${statusLabel}:</strong> Automatic email from <strong>${ADMIN_SENDER_EMAIL}</strong> to <strong>${recipient}</strong> triggered${errReason}.`;
+    bannerText.innerHTML = `<strong>✓ Outpass ${statusLabel}:</strong> Automatic email from <strong>${ADMIN_SENDER_EMAIL}</strong> to ${targetDisplay} triggered${errReason}.`;
   }
 }
 
